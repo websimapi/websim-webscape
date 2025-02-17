@@ -5,13 +5,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoutPopup = document.getElementById('logout-popup');
   const closeLogoutButtons = document.querySelectorAll('.logout-button');
 
+  // Function to close all menus
+  const closeAllMenus = () => {
+    // Close inventory
+    chestIcon.classList.remove('selected');
+    inventoryContainer.classList.add('hidden');
+    // Close logout
+    logoutButton.classList.remove('selected');
+    logoutPopup.classList.add('hidden');
+  };
+
   // Chest icon toggle
   if (chestIcon && inventoryContainer) {
     chestIcon.addEventListener('click', () => {
       if (chestIcon.classList.contains('selected')) {
-        chestIcon.classList.remove('selected');
-        inventoryContainer.classList.add('hidden');
+        closeAllMenus();
       } else {
+        closeAllMenus();
         chestIcon.classList.add('selected');
         inventoryContainer.classList.remove('hidden');
       }
@@ -22,19 +32,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (logoutButton && logoutPopup) {
     logoutButton.addEventListener('click', () => {
       if (logoutButton.classList.contains('selected')) {
-        logoutButton.classList.remove('selected');
-        logoutPopup.classList.add('hidden');
+        closeAllMenus();
       } else {
+        closeAllMenus();
         logoutButton.classList.add('selected');
         logoutPopup.classList.remove('hidden');
       }
     });
 
-    // Close logout popup when clicking the logout button
+    // Close logout popup when clicking the logout button in popup
     closeLogoutButtons.forEach(button => {
       button.addEventListener('click', () => {
-        logoutButton.classList.remove('selected');
-        logoutPopup.classList.add('hidden');
+        closeAllMenus();
       });
     });
   }
