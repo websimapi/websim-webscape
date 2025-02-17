@@ -97,3 +97,24 @@
   font-weight: bold;
   text-shadow: 1px 1px 1px #000;
 }
+
+/* Hide number on icon 4 */
+.icon:nth-child(4) {
+  color: transparent;
+}
+
+/* Chest icon SVG styling */
+.chest-icon {
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.chest-icon path {
+  fill: #d4b786;
+  stroke: #000;
+  stroke-width: 1;
+}
