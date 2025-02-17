@@ -8,6 +8,7 @@
   background: #382418;
   height: 200px;
   margin-top: 4px;
+  overflow-y: auto;
 }
 
 .inventory-slot {
