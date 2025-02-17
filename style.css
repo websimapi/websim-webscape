@@ -167,19 +167,19 @@ body {
   flex: 1;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  padding: 2px;
+  gap: 2px;
+  padding: 4px;
   background: #382418;
-  height: 180px;
+  height: 160px;
   margin-top: 4px;
 }
 
 .inventory-slot {
-  width: 48px;
-  height: 32px;
+  width: 46px;
+  height: 28px;
   background: #474745;
   border: 1px solid #000;
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 /* Bottom status icons */
@@ -191,6 +191,7 @@ body {
   padding: 4px;
   background: #382418;
   border-top: 2px solid #000;
+  margin-top: auto;
 }
 
 .bottom-icon {
