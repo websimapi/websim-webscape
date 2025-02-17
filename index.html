@@ -51,7 +51,25 @@
           <div class="icon compass">1</div>
           <div class="icon prayer">2</div>
           <div class="icon magic">3</div>
-          <div class="icon run">4</div>
+          <div class="icon chest">
+            <!-- Custom detailed Chest icon -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="chestGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#b5651d"/>
+                  <stop offset="100%" stop-color="#8b4513"/>
+                </linearGradient>
+              </defs>
+              <!-- Chest base -->
+              <rect x="2" y="10" width="20" height="10" rx="2" ry="2" fill="url(#chestGradient)" stroke="#654321" stroke-width="1"/>
+              <!-- Chest lid -->
+              <rect x="4" y="4" width="16" height="8" rx="2" ry="2" fill="url(#chestGradient)" stroke="#654321" stroke-width="1"/>
+              <!-- Lid separation line -->
+              <line x1="4" y1="10" x2="20" y2="10" stroke="#654321" stroke-width="1"/>
+              <!-- Chest lock detail -->
+              <rect x="10" y="13" width="4" height="4" fill="#D2B48C" stroke="#654321" stroke-width="1"/>
+            </svg>
+          </div>
           <div class="icon stats">5</div>
           <div class="icon quests">6</div>
           <div class="icon inventory">7</div>

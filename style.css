@@ -247,14 +247,6 @@ ppy-chat-input-area {
   margin-top: 4px;
 }
 
-.inventory-slot {
-  width: 46px;
-  height: 28px;
-  background: #474745;
-  border: 1px solid #000;
-  border-radius: 2px;
-}
-
 /* Bottom status icons */
 #bottom-icons {
   height: 40px;
