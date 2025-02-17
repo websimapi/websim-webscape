@@ -227,14 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function addTooltip(element, actionText, menuCount = 0) {
     element.addEventListener('mouseover', (e) => {
       tooltip.style.display = 'block';
-      
-      // Format tooltip text based on whether it's a menu item
-      let tooltipText = actionText;
-      if (menuCount > 0) {
-        tooltipText = `${actionText} / ${menuCount} more action${menuCount !== 1 ? 's' : ''}`;
-      }
-      
-      tooltip.textContent = tooltipText;
+      tooltip.textContent = menuCount ? `${actionText} / ${menuCount}` : actionText;
       
       // Position tooltip in top-left of game screen
       const gameScreen = document.getElementById('game-screen');
@@ -254,13 +247,51 @@ document.addEventListener('DOMContentLoaded', () => {
   addTooltip(addIgnoreButton, 'Add name to ignore list');
   addTooltip(delIgnoreButton, 'Delete name from ignore list');
 
-  // Add tooltips to player names (with menu count)
+  // Add tooltips to player names (showing first menu action)
   const friendsListContainer = document.querySelector('.friends-list .list-container');
   friendsListContainer.addEventListener('mouseover', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
       const username = playerNameElement.textContent;
-      addTooltip(playerNameElement, 'Message', 1); // Shows as "Message / 1 more action"
+      tooltip.style.display = 'block';
+      tooltip.textContent = `Message ${username} / 3`;
+      
+      // Position tooltip in top-left of game screen
+      const gameScreen = document.getElementById('game-screen');
+      const gameRect = gameScreen.getBoundingClientRect();
+      tooltip.style.left = `${gameRect.left + 5}px`;
+      tooltip.style.top = `${gameRect.top + 5}px`;
+    }
+  });
+
+  friendsListContainer.addEventListener('mouseout', (e) => {
+    const playerNameElement = e.target.closest('.player-name');
+    if (playerNameElement) {
+      tooltip.style.display = 'none';
+    }
+  });
+
+  // Add same tooltip behavior for ignore list
+  const ignoreListContainer = document.querySelector('.ignore-list .list-container');
+  ignoreListContainer.addEventListener('mouseover', (e) => {
+    const playerNameElement = e.target.closest('.player-name');
+    if (playerNameElement) {
+      const username = playerNameElement.textContent;
+      tooltip.style.display = 'block';
+      tooltip.textContent = `Message ${username} / 3`;
+      
+      // Position tooltip in top-left of game screen
+      const gameScreen = document.getElementById('game-screen');
+      const gameRect = gameScreen.getBoundingClientRect();
+      tooltip.style.left = `${gameRect.left + 5}px`;
+      tooltip.style.top = `${gameRect.top + 5}px`;
+    }
+  });
+
+  ignoreListContainer.addEventListener('mouseout', (e) => {
+    const playerNameElement = e.target.closest('.player-name');
+    if (playerNameElement) {
+      tooltip.style.display = 'none';
     }
   });
 
