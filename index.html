@@ -1,33 +1,198 @@
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RuneScape 2004 UI</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div id="client-wrapper">
-    <!-- Left column: game screen and chat window -->
-    <div id="left-column">
-      <div id="game-screen">
-        <!-- The minimap is overlaid on the game screen -->
-        <div id="minimap">
-          <div class="minimap-content">Minimap</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RuneScape 2004</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/chat.css" />
+    <link rel="stylesheet" href="css/minimap.css" />
+    <link rel="stylesheet" href="css/inventory.css" />
+    <link rel="stylesheet" href="css/skills.css" />
+    <link rel="stylesheet" href="css/music.css" />
+    <link rel="stylesheet" href="css/spellbook.css" />
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="client-wrapper">
+      <div id="left-column">
+        <div id="game-screen">
+          <!-- Seamless iframe for game world -->
+          <iframe 
+            src="https://world1.on.websim.com/?pin_sidebar=false" 
+            style="width: 100%; height: 100%; border: none;"
+            allow="fullscreen"
+            loading="eager"
+            title="Game World"
+          ></iframe>
+          <div id="split-private-chat"></div>
         </div>
-        <div class="game-label">Game Screen</div>
+        <div id="chat-window">
+          <div class="chat-content">
+            <div class="chat-message system" style="color: #000;">
+              Welcome to Webscape!
+            </div>
+          </div>
+          <!-- // removed overlays (moved to js/features/friends.js and js/features/ignore.js) -->
+          <div class="chat-input-area">
+            <span class="chat-username" id="current-username">Loading...</span>
+            <input
+              type="text"
+              class="chat-input"
+              placeholder="Enter message..."
+            />
+          </div>
+          <div class="chat-tabs">
+            <div class="chat-tab">Public chat</div>
+            <div class="chat-tab">Private chat</div>
+            <div class="chat-tab">Trade/duel</div>
+            <div class="chat-tab">Report abuse</div>
+          </div>
+        </div>
       </div>
-      <div id="chat-window">
-        <div class="chat-label">Chat / Mud Client Window</div>
-        <!-- Chat log content would go here -->
+
+      <div id="right-panel">
+        <div id="minimap-section">
+          <div id="compass-container">
+            <div id="compass-n">N</div>
+            <div id="compass-s">S</div>
+            <div id="compass-e">E</div>
+            <div id="compass-w">W</div>
+          </div>
+          <div id="minimap-container">
+            <div id="minimap">
+              <!-- Minimap content would be rendered here -->
+            </div>
+          </div>
+          <div class="minimap-icons">
+            <div class="icon compass">1</div>
+            <div class="icon skills">
+              <!-- Bar Graph Icon SVG -->
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
+                <rect x="4" y="10" width="4" height="10" fill="#ff0000" />
+                <rect x="10" y="4" width="4" height="16" fill="#00ff00" />
+                <rect x="16" y="14" width="4" height="6" fill="#00008b" />
+              </svg>
+            </div>
+            <div class="icon quest">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="11" fill="#add8e6" />
+                <polygon
+                  points="22,12 16.62,13.91 19.07,19.07 13.91,16.62 12,22 10.09,16.62 4.93,19.07 7.38,13.91 2,12 7.38,10.09 4.93,4.93 10.09,7.38 12,2 13.91,7.38 19.07,4.93 16.62,10.09"
+                  fill="#0000ff"
+                />
+                <circle cx="12" cy="12" r="3" fill="#ffffff" />
+              </svg>
+            </div>
+            <div class="icon chest">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="chestGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#b5651d" />
+                    <stop offset="100%" stop-color="#8b4513" />
+                  </linearGradient>
+                </defs>
+                <rect
+                  x="2"
+                  y="10"
+                  width="20"
+                  height="10"
+                  rx="2"
+                  ry="2"
+                  fill="url(#chestGradient)"
+                  stroke="#654321"
+                  stroke-width="1"
+                />
+                <rect
+                  x="4"
+                  y="4"
+                  width="16"
+                  height="8"
+                  rx="2"
+                  ry="2"
+                  fill="url(#chestGradient)"
+                  stroke="#654321"
+                  stroke-width="1"
+                />
+                <line x1="4" y1="10" x2="20" y2="10" stroke="#654321" stroke-width="1" />
+                <rect
+                  x="10"
+                  y="13"
+                  width="4"
+                  height="4"
+                  fill="#D2B48C"
+                  stroke="#654321"
+                  stroke-width="1"
+                />
+              </svg>
+            </div>
+            <div class="icon stats">5</div>
+            <div class="icon quests">
+              <!-- New Sacrament Icon -->
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
+                <defs>
+                  <linearGradient id="chaliceGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#ffd700"/>
+                    <stop offset="100%" stop-color="#daa520"/>
+                  </linearGradient>
+                  <linearGradient id="altarGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#8b4513"/>
+                    <stop offset="100%" stop-color="#654321"/>
+                  </linearGradient>
+                </defs>
+                <!-- Stone altar base - made smaller -->
+                <rect x="3" y="17" width="18" height="5" fill="url(#altarGradient)" rx="1"/>
+                <!-- Chalice stem - made shorter and moved down -->
+                <rect x="11" y="12" width="2" height="5" fill="url(#chaliceGradient)"/>
+                <!-- Chalice bowl - made smaller -->
+                <path d="M9.5 12 C9.5 9.5 14.5 9.5 14.5 12 L9.5 12" fill="url(#chaliceGradient)"/>
+                <!-- Holy light rays - adjusted position -->
+                <path d="M12 2 L12 7" stroke="#fff" stroke-width="0.5" opacity="0.8"/>
+                <path d="M9 3 L10 7" stroke="#fff" stroke-width="0.5" opacity="0.8"/>
+                <path d="M15 3 L14 7" stroke="#fff" stroke-width="0.5" opacity="0.8"/>
+                <!-- Offering symbols - moved up slightly -->
+                <circle cx="7" cy="14" r="1" fill="#dc143c" opacity="0.9"/>
+                <circle cx="17" cy="14" r="1" fill="#dc143c" opacity="0.9"/>
+              </svg>
+            </div>
+            <div class="icon inventory">
+              <!-- Eldritch Spellbook Icon -->
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
+                <defs>
+                  <linearGradient id="spellbookGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#4B0082"/>
+                    <stop offset="100%" stop-color="#000000"/>
+                  </linearGradient>
+                </defs>
+                <!-- Book cover -->
+                <path d="M4 3 H20 A1 1 0 0 1 21 4 V20 A1 1 0 0 1 20 21 H4 A1 1 0 0 1 3 20 V4 A1 1 0 0 1 4 3 Z" fill="url(#spellbookGradient)" stroke="#800080" stroke-width="1"/>
+                <!-- Spine detail -->
+                <line x1="8" y1="4" x2="8" y2="20" stroke="#dda0dd" stroke-width="0.5"/>
+                <!-- Arcane symbol (a stylized pentagram) - moved right -->
+                <polygon points="14,7 15,10 18,10 16,12 17,15 14,13 11,15 12,12 10,10 13,10" fill="none" stroke="#dda0dd" stroke-width="0.8"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- // removed div#game-options (moved to js/features/gameOptions.js) -->
+        <!-- // removed div#skills-menu (moved to js/features/skillsMenu.js) -->
+        <!-- // removed div#music-menu (moved to js/features/musicMenu.js) -->
+        <!-- // removed div#quest-journal (moved to js/features/questJournal.js) -->
+        <!-- // removed div#inventory (moved to js/features/inventory.js) -->
+        <!-- // removed div#spellbook (moved to js/features/spellbook.js) -->
+        <!-- // removed div.friends-list (moved to js/features/friends.js) -->
+        <!-- // removed div.ignore-list (moved to js/features/ignore.js) -->
+        <!-- // removed div#logout-popup (moved to js/features/logout.js) -->
+        <!-- // removed div#bottom-icons (moved to js/ui/navigation.js) -->
       </div>
     </div>
-    <!-- Right column: inventory panel -->
-    <div id="inventory">
-      <div class="inventory-label">Inventory</div>
-      <!-- Inventory grid would be set up here -->
-    </div>
-  </div>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+
+    <!-- // removed inline script block, moved to js/main.js -->
+    <script type="module" src="js/main.js"></script>
+    
+    <script type="module" src="js/inventory.js"></script>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
