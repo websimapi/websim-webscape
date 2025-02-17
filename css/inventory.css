@@ -8,6 +8,7 @@
   background: #382418;
   height: 200px;
   margin-top: 4px;
+  overflow-y: auto; /* Add scrolling if needed */
 }
 
 .inventory-slot {
@@ -16,4 +17,15 @@
   background: #474745;
   border: 1px solid #000;
   border-radius: 2px;
+  position: relative;
+}
+
+/* Optional: Show slot numbers for debugging */
+.inventory-slot::after {
+  content: attr(data-slot-number);
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.3);
 }
