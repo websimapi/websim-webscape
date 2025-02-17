@@ -1,16 +1,15 @@
 .logout-dialog {
   display: none;
+  width: 204px;
+  height: 200px;
+  background: #382418;
   position: absolute;
-  top: 204px; 
-  left: 0;
-  width: 204px; 
-  height: 240px; 
-  background: linear-gradient(to bottom, #45332b, #382418);
-  border-top: 2px solid #000;
+  top: 208px; 
+  right: 4px;
+  padding: 20px;
   z-index: 1000;
   text-align: center;
-  box-sizing: border-box;
-  padding: 20px 10px;
+  border: 2px solid #000;
 }
 
 .logout-message {
@@ -19,6 +18,7 @@
   margin-bottom: 20px;
   text-shadow: 2px 2px 2px #000;
   line-height: 1.4;
+  margin-top: 40px;
 }
 
 .logout-button {
@@ -31,6 +31,7 @@
   cursor: pointer;
   width: 180px;
   text-align: center;
+  margin-top: 20px;
 }
 
 .logout-button:hover {
@@ -39,11 +40,11 @@
 
 .logout-overlay {
   display: none;
-  position: absolute;
-  top: 204px; 
+  position: fixed;
+  top: 0;
   left: 0;
-  width: 204px;
-  height: calc(100% - 204px); 
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.7);
   z-index: 999;
 }
