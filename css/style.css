@@ -1,0 +1,64 @@
+/* Global styles */
+body {
+  margin: 0;
+  padding: 20px;
+  background: #000;
+  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
+  color: #fff;
+}
+
+/* Layout container for the client UI */
+#client-wrapper {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* Left column: game screen above the chat window */
+#left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Game screen styling */
+#game-screen {
+  width: 512px;
+  height: 334px;
+  background: #000;
+  border: 2px solid #382418;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Right side panel */
+#right-panel {
+  width: 204px;
+  height: 484px;
+  background: #382418;
+  border: 2px solid #000;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Bottom status icons */
+#bottom-icons {
+  height: 40px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 4px;
+  background: #382418;
+  border-top: 2px solid #000;
+  margin-top: auto;
+}
+
+.bottom-icon {
+  width: 24px;
+  height: 24px;
+  background: #474745;
+  border: 1px solid #000;
+  border-radius: 4px;
+  cursor: pointer;
+}

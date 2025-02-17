@@ -3,7 +3,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RuneScape 2004</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/chat.css">
+  <link rel="stylesheet" href="css/minimap.css">
+  <link rel="stylesheet" href="css/inventory.css">
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -82,6 +85,7 @@
         <div class="inventory-slot"></div>
         <div class="inventory-slot"></div>
         <div class="inventory-slot"></div>
+        <div class="inventory-slot"></div>
       </div>
       <div id="bottom-icons">
         <div class="bottom-icon"></div>
@@ -95,56 +99,7 @@
     </div>
   </div>
 
-  <script type="text/javascript">
-    // Initialize WebSocket connection
-    const room = new WebsimSocket();
-
-    // Get the username element
-    const usernameElement = document.getElementById('current-username');
-    
-    // Update username when connection is established
-    room.party.subscribe((peers) => {
-      const currentUser = room.party.client;
-      if (currentUser && currentUser.username) {
-        usernameElement.textContent = currentUser.username;
-      }
-    });
-
-    // Handle chat input
-    const chatInput = document.querySelector('.chat-input');
-    chatInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter' && chatInput.value.trim()) {
-        const message = chatInput.value.trim();
-        
-        // Send chat message
-        room.send({
-          type: 'chat',
-          message: message
-        });
-
-        // Add message to chat window
-        const chatContent = document.querySelector('.chat-content');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'chat-message user';
-        messageDiv.innerHTML = `<span class="username">${room.party.client.username}</span><span class="separator">: </span>${message}`;
-        chatContent.insertBefore(messageDiv, chatContent.firstChild);
-        
-        // Clear input
-        chatInput.value = '';
-      }
-    });
-
-    // Handle incoming chat messages
-    room.onmessage = (event) => {
-      if (event.data.type === 'chat' && event.data.clientId !== room.party.client.id) {
-        const chatContent = document.querySelector('.chat-content');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'chat-message user';
-        messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
-        chatContent.insertBefore(messageDiv, chatContent.firstChild);
-      }
-    };
-  </script>
+  <script src="js/chat.js"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>

@@ -1,0 +1,19 @@
+/* Inventory styling */
+#inventory {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  padding: 4px;
+  background: #382418;
+  height: 200px;
+  margin-top: 4px;
+}
+
+.inventory-slot {
+  width: 46px;
+  height: 28px;
+  background: #474745;
+  border: 1px solid #000;
+  border-radius: 2px;
+}
