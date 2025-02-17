@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (playerNameElement) {
       const username = playerNameElement.textContent;
       tooltip.style.display = 'block';
-      tooltip.textContent = `Message ${username} / 3`;
+      tooltip.textContent = `Remove ${username}`; // No menu count since it's a direct action
       
       // Position tooltip in top-left of game screen
       const gameScreen = document.getElementById('game-screen');
@@ -292,6 +292,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
       tooltip.style.display = 'none';
+    }
+  });
+
+  // Handle clicks on player names in ignore list - direct remove action
+  ignoreListContainer.addEventListener('click', (e) => {
+    const playerNameElement = e.target.closest('.player-name');
+    if (playerNameElement) {
+      // Remove the ignored player immediately
+      playerNameElement.closest('.list-entry').remove();
     }
   });
 
