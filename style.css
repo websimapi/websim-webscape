@@ -118,9 +118,9 @@ body {
   background: linear-gradient(to bottom, #5a473a, #483428);
 }
 
-/* Message styling - modified for spacing */
+/* Message styling - modified for spacing and colors */
 .chat-message {
-  margin-top: 2px; /* Changed from margin-bottom to margin-top */
+  margin-top: 2px;
   padding: 1px 0;
 }
 
@@ -129,7 +129,12 @@ body {
 }
 
 .chat-message.user {
-  color: #ff0;
+  color: #00bfff; /* Light blue for chat messages */
+}
+
+.chat-message.user .username,
+.chat-message.user .separator {
+  color: #000; /* Black for username and colon */
 }
 
 /* Right side panel */

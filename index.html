@@ -80,7 +80,6 @@
         <div class="inventory-slot"></div>
         <div class="inventory-slot"></div>
         <div class="inventory-slot"></div>
-        <div class="inventory-slot"></div>
       </div>
       <div id="bottom-icons">
         <div class="bottom-icon"></div>
@@ -125,8 +124,8 @@
         const chatContent = document.querySelector('.chat-content');
         const messageDiv = document.createElement('div');
         messageDiv.className = 'chat-message user';
-        messageDiv.textContent = `${room.party.client.username}: ${message}`;
-        chatContent.insertBefore(messageDiv, chatContent.firstChild); // Insert at the beginning
+        messageDiv.innerHTML = `<span class="username">${room.party.client.username}</span><span class="separator">: </span>${message}`;
+        chatContent.insertBefore(messageDiv, chatContent.firstChild);
         
         // Clear input
         chatInput.value = '';
@@ -139,8 +138,8 @@
         const chatContent = document.querySelector('.chat-content');
         const messageDiv = document.createElement('div');
         messageDiv.className = 'chat-message user';
-        messageDiv.textContent = `${event.data.username}: ${event.data.message}`;
-        chatContent.insertBefore(messageDiv, chatContent.firstChild); // Insert at the beginning
+        messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
+        chatContent.insertBefore(messageDiv, chatContent.firstChild);
       }
     };
   </script>
