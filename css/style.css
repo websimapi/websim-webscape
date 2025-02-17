@@ -184,7 +184,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: calc(100% - 49px); 
+  height: calc(100% - 25px); 
   background: #d2b48c;
   display: none;
   z-index: 1000;
