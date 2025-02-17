@@ -26,7 +26,7 @@
 }
 
 #compass-n, #compass-s {
-  left: 50%;
+  left: 51%;
   transform: translateX(-50%);
 }
 
@@ -44,11 +44,11 @@
 }
 
 #compass-e {
-  right: 5px;  
+  right: 4px;  
 }
 
 #compass-w {
-  left: 2px;
+  left: 3px;
 }
 
 /* Minimap styling */
