@@ -253,6 +253,19 @@ body {
   display: block;
 }
 
+/* Action tooltip styling */
+.action-tooltip {
+  position: fixed;
+  background: transparent;
+  color: white;
+  font-size: 12px;
+  padding: 2px 4px;
+  pointer-events: none;
+  z-index: 1002;
+  text-shadow: 2px 2px 0 #000;
+  white-space: nowrap;
+}
+
 /* Context Menu Styling */
 .context-menu {
   position: absolute;

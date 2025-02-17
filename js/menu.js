@@ -217,13 +217,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Create tooltip element
+  const tooltip = document.createElement('div');
+  tooltip.className = 'action-tooltip';
+  tooltip.style.display = 'none';
+  document.body.appendChild(tooltip);
+
+  // Add tooltip functionality to buttons and player names
+  function addTooltip(element, actionText, menuCount = 0) {
+    element.addEventListener('mouseover', (e) => {
+      tooltip.style.display = 'block';
+      tooltip.textContent = menuCount ? `${actionText} / ${menuCount}` : actionText;
+      
+      // Position tooltip in top-left of game screen
+      const gameScreen = document.getElementById('game-screen');
+      const gameRect = gameScreen.getBoundingClientRect();
+      tooltip.style.left = `${gameRect.left + 5}px`;
+      tooltip.style.top = `${gameRect.top + 5}px`;
+    });
+
+    element.addEventListener('mouseout', () => {
+      tooltip.style.display = 'none';
+    });
+  }
+
+  // Add tooltips to list buttons
+  addTooltip(addFriendButton, 'Add friend');
+  addTooltip(delFriendButton, 'Delete friend');
+  addTooltip(addIgnoreButton, 'Add name to ignore list');
+  addTooltip(delIgnoreButton, 'Delete name from ignore list');
+
+  // Add tooltips to player names (with menu count)
+  const friendsListContainer = document.querySelector('.friends-list .list-container');
+  friendsListContainer.addEventListener('mouseover', (e) => {
+    const playerNameElement = e.target.closest('.player-name');
+    if (playerNameElement) {
+      const username = playerNameElement.textContent;
+      addTooltip(playerNameElement, `Select ${username}`, 3); // 3 options: Message, Remove, Cancel
+    }
+  });
+
   // Add context menu element to the document
   const contextMenu = document.createElement('div');
   contextMenu.className = 'context-menu';
   document.body.appendChild(contextMenu);
 
   // Handle clicks on player names in friends list
-  const friendsListContainer = document.querySelector('.friends-list .list-container');
   friendsListContainer.addEventListener('click', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
