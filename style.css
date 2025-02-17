@@ -80,7 +80,7 @@ body {
 /* Right side panel */
 #right-panel {
   width: 204px;
-  height: 480px;
+  height: 484px;
   background: #382418;
   border: 2px solid #000;
   display: flex;
@@ -170,7 +170,7 @@ body {
   gap: 2px;
   padding: 4px;
   background: #382418;
-  height: 160px;
+  height: 200px;
   margin-top: 4px;
 }
 
