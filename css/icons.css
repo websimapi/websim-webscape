@@ -10,35 +10,24 @@
 }
 
 /* Top icons specific styles */
-.icon.quests svg path {
-  fill: #C0C0C0;
-}
-
-.icon.stats svg path {
-  fill: #C0C0C0;
-}
-
+.icon.quests svg path,
+.icon.magic svg path,
+.icon.equipment svg path,
+.icon.prayer svg path,
+.icon.stats svg path,
 .icon.inventory svg path {
   fill: #C0C0C0;
 }
 
 /* Bottom icons specific styles */
-.icon.emotes svg path {
+.icon.emotes svg path,
+.icon.red-emotes svg path {
   fill: #FFD700;
 }
 
-.icon.logout svg path {
-  fill: #C0C0C0;
-}
-
-.icon.settings svg path {
-  fill: #C0C0C0;
-}
-
-.icon.run svg path {
-  fill: #C0C0C0;
-}
-
+.icon.logout svg path,
+.icon.settings svg path,
+.icon.run svg path,
 .icon.combat svg path {
   fill: #C0C0C0;
 }

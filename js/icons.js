@@ -6,19 +6,19 @@ function createIcons() {
     <path d="M3,3h18v18H3V3z M6,6v12h12V6H6z M8,8h8v2H8V8z M8,11h8v2H8V11z M8,14h5v2H8V14z"/>
   </svg>`;
 
-  const prayerIcon = document.querySelector('.icon.prayer');
-  prayerIcon.innerHTML = `<svg viewBox="0 0 24 24">
-    <path d="M12,2L4,12h4v8h8v-8h4L12,2z"/>
-  </svg>`;
-
   const magicIcon = document.querySelector('.icon.magic');
   magicIcon.innerHTML = `<svg viewBox="0 0 24 24">
     <path d="M12,2L9,9H2l6,4.5L6,21l6-4.5L18,21l-2-7.5L22,9h-7L12,2z"/>
   </svg>`;
 
-  const runIcon = document.querySelector('.icon.run');
-  runIcon.innerHTML = `<svg viewBox="0 0 24 24">
-    <path d="M13.5,5.5c1.1,0,2-0.9,2-2s-0.9-2-2-2s-2,0.9-2,2S12.4,5.5,13.5,5.5z M9.8,8.9L7,23h2.1l1.8-8l2.1,2v6h2v-7.5l-2.1-2l0.6-3C14.8,12,16.8,13,19,13v-2c-1.9,0-3.5-1-4.3-2.4l-1-1.6c-0.4-0.6-1-1-1.7-1c-0.3,0-0.5,0.1-0.8,0.1L6,8.3V13h2V9.6L9.8,8.9z"/>
+  const equipmentIcon = document.querySelector('.icon.equipment');
+  equipmentIcon.innerHTML = `<svg viewBox="0 0 24 24">
+    <path d="M12,2l-8,5v3h16V7L12,2z M6,12v8h12v-8H6z"/>
+  </svg>`;
+
+  const prayerIcon = document.querySelector('.icon.prayer');
+  prayerIcon.innerHTML = `<svg viewBox="0 0 24 24">
+    <path d="M12,2C8.13,2,5,5.13,5,9c0,5.25,7,13,7,13s7-7.75,7-13C19,5.13,15.87,2,12,2z"/>
   </svg>`;
 
   const statsIcon = document.querySelector('.icon.stats');
@@ -30,6 +30,7 @@ function createIcons() {
   inventoryIcon.innerHTML = `<svg viewBox="0 0 24 24">
     <path d="M3,3h18v18H3V3z M6,6v4h4V6H6z M14,6v4h4V6H14z M6,14v4h4v-4H6z M14,14v4h4v-4H14z"/>
   </svg>`;
+  inventoryIcon.classList.add('selected'); // Add selected class to inventory icon
 
   // Bottom icons
   const emoteIcon = document.querySelector('.bottom-icon:nth-child(1)');
@@ -45,7 +46,7 @@ function createIcons() {
   </svg>`;
 
   const logoutIcon = document.querySelector('.bottom-icon:nth-child(3)');
-  logoutIcon.classList.add('logout', 'selected');
+  logoutIcon.classList.add('logout');
   logoutIcon.innerHTML = `<svg viewBox="0 0 24 24">
     <path d="M17,7l-1.41,1.41L18.17,11H8v2h10.17l-2.58,2.58L17,17l5-5L17,7z M4,5h8V3H4C2.9,3,2,3.9,2,5v14c0,1.1,0.9,2,2,2h8v-2H4V5z"/>
   </svg>`;
@@ -67,8 +68,6 @@ function createIcons() {
   combatIcon.innerHTML = `<svg viewBox="0 0 24 24">
     <path d="M12,2L4,9v12h16V9L12,2z M15,15h-2v2h-2v-2H9v-2h2v-2h2v2h2V15z"/>
   </svg>`;
-
-  // Leave the 7th bottom icon empty as specified
 }
 
 // Initialize icons when the page loads
