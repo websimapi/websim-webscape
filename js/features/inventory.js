@@ -1,4 +1,4 @@
-import { toggleMenu, setDefaultMenu } from './menuManager.js';
+import { toggleMenu } from './menuManager.js';
 
 function initializeInventory() {
   const chestIcon = document.querySelector('.icon.chest');
@@ -7,9 +7,6 @@ function initializeInventory() {
   chestIcon.addEventListener('click', () => {
     toggleMenu(chestIcon, '#inventory');
   });
-
-  // Set inventory as default selected menu on startup
-  setDefaultMenu(chestIcon, '#inventory');
 }
 
 export { initializeInventory };

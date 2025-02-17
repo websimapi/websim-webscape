@@ -22,14 +22,13 @@ function hideAllPanels() {
     }
   });
 
-  // Remove selected state from all buttons
+  // Remove selected state from all buttons except active one
   const allButtons = document.querySelectorAll('.bottom-icon, .icon');
   allButtons.forEach(button => {
-    button.classList.remove('selected');
+    if (button !== activeButton) {
+      button.classList.remove('selected');
+    }
   });
-
-  activeButton = null;
-  activePanel = null;
 }
 
 function toggleMenu(button, panelSelector) {
@@ -37,14 +36,7 @@ function toggleMenu(button, panelSelector) {
   
   // If clicking the same button that's already active
   if (button === activeButton) {
-    button.classList.remove('selected');
-    panel.classList.add('hidden');
-    if (panel.classList.contains('shown')) {
-      panel.classList.remove('shown');
-    }
-    activeButton = null;
-    activePanel = null;
-    return;
+    return; // Do nothing, keep current selection
   }
 
   // Hide all other panels first
@@ -61,15 +53,4 @@ function toggleMenu(button, panelSelector) {
   activePanel = panel;
 }
 
-function setDefaultMenu(button, panelSelector) {
-  const panel = document.querySelector(panelSelector);
-  
-  // Set initial state
-  button.classList.add('selected');
-  panel.classList.remove('hidden');
-  
-  activeButton = button;
-  activePanel = panel;
-}
-
-export { hideAllPanels, toggleMenu, setDefaultMenu };
+export { hideAllPanels, toggleMenu };
