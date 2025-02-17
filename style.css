@@ -134,7 +134,7 @@ body {
 
 .chat-message.user .username,
 .chat-message.user .separator {
-  color: #000; /* Black for username and colon */
+  color: #fff; /* White for username and colon */
 }
 
 /* Right side panel */
