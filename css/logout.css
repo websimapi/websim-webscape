@@ -1,0 +1,49 @@
+.logout-dialog {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  padding: 20px;
+  background: linear-gradient(to bottom, #45332b, #382418);
+  border: 2px solid #382418;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  text-align: center;
+}
+
+.logout-message {
+  color: #ff0;
+  font-size: 14px;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 2px #000;
+  line-height: 1.4;
+}
+
+.logout-button {
+  background: linear-gradient(to bottom, #8B0000, #5C0000);
+  border: 2px solid #000;
+  color: #fff;
+  padding: 8px 16px;
+  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  width: 180px;
+  text-align: center;
+}
+
+.logout-button:hover {
+  background: linear-gradient(to bottom, #A00000, #6C0000);
+}
+
+.logout-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 999;
+}
