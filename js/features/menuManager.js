@@ -22,12 +22,10 @@ function hideAllPanels() {
     }
   });
 
-  // Remove selected state from all buttons except active one
+  // Remove selected state from all buttons
   const allButtons = document.querySelectorAll('.bottom-icon, .icon');
   allButtons.forEach(button => {
-    if (button !== activeButton) {
-      button.classList.remove('selected');
-    }
+    button.classList.remove('selected');
   });
 }
 
@@ -36,13 +34,20 @@ function toggleMenu(button, panelSelector) {
   
   // If clicking the same button that's already active
   if (button === activeButton) {
-    return; // Do nothing, keep current selection
+    // Keep current selection but ensure only this button is selected
+    hideAllPanels();
+    button.classList.add('selected');
+    panel.classList.remove('hidden');
+    if (panelSelector.includes('friends') || panelSelector.includes('ignore')) {
+      panel.classList.add('shown');
+    }
+    return;
   }
 
   // Hide all other panels first
   hideAllPanels();
 
-  // Show the selected panel
+  // Show the selected panel and mark button as selected
   button.classList.add('selected');
   panel.classList.remove('hidden');
   if (panelSelector.includes('friends') || panelSelector.includes('ignore')) {

@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!e.target.closest('.context-menu') && !e.target.closest('.player-name')) {
       hideContextMenu();
     }
+
+    // Don't hide panels on outside clicks anymore, keep current selection
   });
 
   // Close context menu on scroll
