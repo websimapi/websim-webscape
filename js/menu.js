@@ -9,6 +9,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const friendsList = document.querySelector('.friends-list');
   const ignoreList = document.querySelector('.ignore-list');
 
+  // Add new elements
+  const addFriendButton = document.querySelector('.friends-list .list-button:first-child');
+  const addFriendOverlay = document.createElement('div');
+  addFriendOverlay.id = 'add-friend-overlay';
+  document.body.appendChild(addFriendOverlay);
+
+  // Create the add friend overlay content
+  addFriendOverlay.innerHTML = `
+    <div class="add-friend-container">
+      <div class="add-friend-text">Enter name of friend to add to list</div>
+      <input type="text" class="add-friend-input" maxlength="12">
+    </div>
+  `;
+
+  const addFriendInput = addFriendOverlay.querySelector('.add-friend-input');
+
   // Function to close all menus
   const closeAllMenus = () => {
     // Close inventory
@@ -23,6 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Close ignore list
     ignoreButton.classList.remove('selected');
     ignoreList.classList.remove('shown');
+    // Close add friend overlay
+    addFriendOverlay.classList.remove('shown');
   };
 
   // Chest icon toggle
@@ -82,4 +100,40 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Add Friend button click handler
+  addFriendButton.addEventListener('click', () => {
+    closeAllMenus();
+    addFriendOverlay.classList.add('shown');
+    addFriendInput.value = '';
+    addFriendInput.focus();
+  });
+
+  // Handle add friend input submission
+  addFriendInput.addEventListener('keypress', async (e) => {
+    if (e.key === 'Enter' && addFriendInput.value.trim()) {
+      const friendName = addFriendInput.value.trim();
+      
+      // Here you would typically validate the username and add it to the friends list
+      // For now, we'll just add it to the list container
+      const listContainer = document.querySelector('.friends-list .list-container');
+      const newFriend = document.createElement('div');
+      newFriend.className = 'list-entry';
+      newFriend.innerHTML = `
+        <span class="player-name">${friendName}</span>
+        <span class="world-status offline">Offline</span>
+      `;
+      listContainer.appendChild(newFriend);
+
+      // Hide the overlay
+      addFriendOverlay.classList.remove('shown');
+    }
+  });
+
+  // Close overlay when clicking outside
+  addFriendOverlay.addEventListener('click', (e) => {
+    if (e.target === addFriendOverlay) {
+      addFriendOverlay.classList.remove('shown');
+    }
+  });
 });
