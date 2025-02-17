@@ -11,18 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Add new elements
   const addFriendButton = document.querySelector('.friends-list .list-button:first-child');
-  const addFriendOverlay = document.createElement('div');
-  addFriendOverlay.id = 'add-friend-overlay';
-  document.body.appendChild(addFriendOverlay);
-
-  // Create the add friend overlay content
-  addFriendOverlay.innerHTML = `
-    <div class="add-friend-container">
-      <div class="add-friend-text">Enter name of friend to add to list</div>
-      <input type="text" class="add-friend-input" maxlength="12">
-    </div>
-  `;
-
+  const addFriendOverlay = document.querySelector('#add-friend-overlay');
   const addFriendInput = addFriendOverlay.querySelector('.add-friend-input');
 
   // Function to close all menus
