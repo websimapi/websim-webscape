@@ -4,6 +4,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RuneScape 2004</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
   <div id="client-wrapper">
@@ -13,11 +16,15 @@
       </div>
       <div id="chat-window">
         <div class="chat-content">
-          You manage to mine an unbound rune stone.<br>
-          You manage to mine an unbound rune stone.<br>
-          You manage to mine an unbound rune stone.<br>
-          You manage to mine an unbound rune stone.<br>
-          You manage to mine an unbound rune stone.
+          <div class="chat-message system">You manage to mine an unbound rune stone.</div>
+          <div class="chat-message system">You manage to mine an unbound rune stone.</div>
+          <div class="chat-message system">You manage to mine an unbound rune stone.</div>
+          <div class="chat-message system">You manage to mine an unbound rune stone.</div>
+          <div class="chat-message system">You manage to mine an unbound rune stone.</div>
+        </div>
+        <div class="chat-input-area">
+          <span class="chat-username" id="current-username">Loading...</span>
+          <input type="text" class="chat-input" placeholder="Enter message...">
         </div>
         <div class="chat-tabs">
           <div class="chat-tab">Public chat</div>
@@ -89,6 +96,59 @@
       </div>
     </div>
   </div>
+
+  <script type="text/javascript">
+    // Initialize WebSocket connection
+    const room = new WebsimSocket();
+
+    // Get the username element
+    const usernameElement = document.getElementById('current-username');
+    
+    // Update username when connection is established
+    room.party.subscribe((peers) => {
+      const currentUser = room.party.client;
+      if (currentUser && currentUser.username) {
+        usernameElement.textContent = currentUser.username;
+      }
+    });
+
+    // Handle chat input
+    const chatInput = document.querySelector('.chat-input');
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && chatInput.value.trim()) {
+        const message = chatInput.value.trim();
+        
+        // Send chat message
+        room.send({
+          type: 'chat',
+          message: message
+        });
+
+        // Add message to chat window
+        const chatContent = document.querySelector('.chat-content');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message user';
+        messageDiv.textContent = `${room.party.client.username}: ${message}`;
+        chatContent.appendChild(messageDiv);
+        chatContent.scrollTop = chatContent.scrollHeight;
+
+        // Clear input
+        chatInput.value = '';
+      }
+    });
+
+    // Handle incoming chat messages
+    room.onmessage = (event) => {
+      if (event.data.type === 'chat' && event.data.clientId !== room.party.client.id) {
+        const chatContent = document.querySelector('.chat-content');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message user';
+        messageDiv.textContent = `${event.data.username}: ${event.data.message}`;
+        chatContent.appendChild(messageDiv);
+        chatContent.scrollTop = chatContent.scrollHeight;
+      }
+    };
+  </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
