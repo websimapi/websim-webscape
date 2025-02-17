@@ -234,3 +234,21 @@ body {
 .del-friend-input:focus {
   outline: none;
 }
+
+/* Add new overlay styles */
+#add-ignore-overlay,
+#del-ignore-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 25px); 
+  background: #d2b48c;
+  display: none;
+  z-index: 1000;
+}
+
+#add-ignore-overlay.shown,
+#del-ignore-overlay.shown {
+  display: block;
+}

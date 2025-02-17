@@ -19,6 +19,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const delFriendOverlay = document.querySelector('#del-friend-overlay');
   const delFriendInput = delFriendOverlay ? delFriendOverlay.querySelector('.del-friend-input') : null;
 
+  // Add new elements for ignore list functionality
+  const addIgnoreButton = document.querySelector('.ignore-list .list-button:first-child');
+  const delIgnoreButton = document.querySelector('.ignore-list .list-button:nth-child(2)');
+  const addIgnoreOverlay = document.querySelector('#add-ignore-overlay');
+  const delIgnoreOverlay = document.querySelector('#del-ignore-overlay');
+  const addIgnoreInput = addIgnoreOverlay.querySelector('.add-friend-input');
+  const delIgnoreInput = delIgnoreOverlay.querySelector('.del-friend-input');
+
   // Function to close all menus
   const closeAllMenus = () => {
     // Close inventory
@@ -36,6 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Close both add and del friend overlays
     addFriendOverlay.classList.remove('shown');
     delFriendOverlay.classList.remove('shown');
+    // Close both add and del ignore overlays
+    addIgnoreOverlay.classList.remove('shown');
+    delIgnoreOverlay.classList.remove('shown');
   };
 
   // Chest icon toggle
@@ -151,6 +162,61 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Add Ignore button click handler
+  addIgnoreButton.addEventListener('click', () => {
+    addIgnoreOverlay.classList.add('shown');
+    addIgnoreInput.value = '';
+    addIgnoreInput.focus();
+  });
+
+  // Del Ignore button click handler
+  delIgnoreButton.addEventListener('click', () => {
+    delIgnoreOverlay.classList.add('shown');
+    delIgnoreInput.value = '';
+    delIgnoreInput.focus();
+  });
+
+  // Handle add ignore input submission
+  addIgnoreInput.addEventListener('keypress', async (e) => {
+    if (e.key === 'Enter' && addIgnoreInput.value.trim()) {
+      const ignoreName = addIgnoreInput.value.trim();
+      
+      // Add the name to the ignore list container
+      const listContainer = document.querySelector('.ignore-list .list-container');
+      const newIgnore = document.createElement('div');
+      newIgnore.className = 'list-entry';
+      newIgnore.innerHTML = `
+        <span class="player-name">${ignoreName}</span>
+        <span class="world-status offline">Offline</span>
+      `;
+      listContainer.appendChild(newIgnore);
+
+      // Hide the overlay
+      addIgnoreOverlay.classList.remove('shown');
+    }
+  });
+
+  // Handle del ignore input submission
+  delIgnoreInput.addEventListener('keypress', async (e) => {
+    if (e.key === 'Enter' && delIgnoreInput.value.trim()) {
+      const ignoreName = delIgnoreInput.value.trim();
+      
+      // Find and remove the name from the ignore list
+      const listContainer = document.querySelector('.ignore-list .list-container');
+      const ignoreEntries = listContainer.querySelectorAll('.list-entry');
+      
+      ignoreEntries.forEach(entry => {
+        const playerName = entry.querySelector('.player-name').textContent;
+        if (playerName === ignoreName) {
+          entry.remove();
+        }
+      });
+
+      // Hide the overlay
+      delIgnoreOverlay.classList.remove('shown');
+    }
+  });
+
   // Close overlays when clicking outside
   addFriendOverlay.addEventListener('click', (e) => {
     if (e.target === addFriendOverlay) {
@@ -161,6 +227,19 @@ document.addEventListener('DOMContentLoaded', () => {
   delFriendOverlay.addEventListener('click', (e) => {
     if (e.target === delFriendOverlay) {
       delFriendOverlay.classList.remove('shown');
+    }
+  });
+
+  // Add click handlers to close overlays when clicking outside
+  addIgnoreOverlay.addEventListener('click', (e) => {
+    if (e.target === addIgnoreOverlay) {
+      addIgnoreOverlay.classList.remove('shown');
+    }
+  });
+
+  delIgnoreOverlay.addEventListener('click', (e) => {
+    if (e.target === delIgnoreOverlay) {
+      delIgnoreOverlay.classList.remove('shown');
     }
   });
 });
