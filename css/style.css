@@ -102,7 +102,68 @@ body {
   background: linear-gradient(to bottom, #8b0000, #680000);
 }
 
-/* Add selected state for logout button */
+/* Friends and Ignore List styling */
+.friends-list, .ignore-list {
+  position: relative;
+  width: 100%;
+  background: #382418;
+  padding: 4px;
+  display: none;
+}
+
+.friends-list.shown, .ignore-list.shown {
+  display: block;
+}
+
+.list-container {
+  background: #474745;
+  border: 2px solid #5a473a;
+  height: 192px;
+  overflow-y: auto;
+}
+
+.list-entry {
+  padding: 4px 8px;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.player-name {
+  color: white;
+}
+
+.world-status {
+  color: lime;
+}
+
+.world-status.offline {
+  color: red;
+}
+
+.list-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.list-button {
+  background: linear-gradient(to bottom, #7b0000, #580000);
+  border: 2px solid #000;
+  color: #fff;
+  padding: 4px 8px;
+  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.list-button:hover {
+  background: linear-gradient(to bottom, #8b0000, #680000);
+}
+
+/* Add selected state for friends/ignore buttons */
 .bottom-icon.selected {
   background: red;
 }
