@@ -10,18 +10,20 @@ body {
 /* Layout container for the client UI */
 #client-wrapper {
   display: flex;
-  gap: 4px;
+  gap: 2px;
   justify-content: center;
   align-items: flex-start;
   background: #382418;
-  padding: 4px;
+  padding: 2px;
+  width: fit-content;
+  margin: 0 auto;
 }
 
 /* Left column: game screen above the chat window */
 #left-column {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 /* Game screen styling */
