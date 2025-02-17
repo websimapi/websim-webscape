@@ -40,6 +40,7 @@ body {
   border: 2px solid #000;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 /* Bottom status icons - removing redundant styles since they're now in minimap.css */
@@ -52,6 +53,10 @@ body {
   background: #382418;
   border-top: 2px solid #000;
   margin-top: auto;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  z-index: 2;
 }
 
 /* Logout popup styling */
@@ -104,11 +109,14 @@ body {
 
 /* Friends and Ignore List styling */
 .friends-list, .ignore-list {
-  position: relative;
+  position: absolute;
   width: calc(100% - 8px);
   background: #382418;
   padding: 4px;
   display: none;
+  top: 204px;
+  left: 0;
+  z-index: 1;
 }
 
 .friends-list.shown, .ignore-list.shown {
@@ -150,8 +158,8 @@ body {
 .list-buttons {
   display: flex;
   justify-content: space-between;
+  margin-top: 4px;
   gap: 4px;
-  padding: 4px;
 }
 
 .list-button {
@@ -250,6 +258,16 @@ body {
 #add-ignore-overlay.shown,
 #del-ignore-overlay.shown {
   display: block;
+}
+
+/* Inventory styling - update positioning */
+#inventory {
+  position: absolute;
+  top: 204px;
+  left: 0;
+  width: 100%;
+  background: #382418;
+  z-index: 1;
 }
 
 /* Action tooltip styling */
