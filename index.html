@@ -81,7 +81,6 @@
         <div class="inventory-slot"></div>
         <div class="inventory-slot"></div>
         <div class="inventory-slot"></div>
-        <div class="inventory-slot"></div>
       </div>
       <div id="bottom-icons">
         <div class="bottom-icon"></div>
@@ -127,9 +126,8 @@
         const messageDiv = document.createElement('div');
         messageDiv.className = 'chat-message user';
         messageDiv.textContent = `${room.party.client.username}: ${message}`;
-        chatContent.appendChild(messageDiv);
-        chatContent.scrollTop = chatContent.scrollHeight;
-
+        chatContent.insertBefore(messageDiv, chatContent.firstChild); // Insert at the beginning
+        
         // Clear input
         chatInput.value = '';
       }
@@ -142,8 +140,7 @@
         const messageDiv = document.createElement('div');
         messageDiv.className = 'chat-message user';
         messageDiv.textContent = `${event.data.username}: ${event.data.message}`;
-        chatContent.appendChild(messageDiv);
-        chatContent.scrollTop = chatContent.scrollHeight;
+        chatContent.insertBefore(messageDiv, chatContent.firstChild); // Insert at the beginning
       }
     };
   </script>

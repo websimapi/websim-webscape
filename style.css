@@ -79,7 +79,7 @@ body {
   border-color: #5a473a;
 }
 
-/* Chat content area */
+/* Chat content area - modified for bottom-up messages */
 .chat-content {
   padding: 8px;
   color: #fff;
@@ -87,6 +87,8 @@ body {
   line-height: 1.3;
   height: calc(100% - 60px); 
   overflow-y: auto;
+  display: flex;
+  flex-direction: column-reverse; /* Makes content flow from bottom up */
 }
 
 /* Chat tabs */
@@ -116,9 +118,10 @@ body {
   background: linear-gradient(to bottom, #5a473a, #483428);
 }
 
-/* Message styling */
+/* Message styling - modified for spacing */
 .chat-message {
-  margin-bottom: 2px;
+  margin-top: 2px; /* Changed from margin-bottom to margin-top */
+  padding: 1px 0;
 }
 
 .chat-message.system {
