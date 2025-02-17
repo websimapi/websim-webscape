@@ -126,7 +126,7 @@ ppy-chat-input-area {
 }
 
 .chat-message.user {
-  color: #00bfff; /* Light blue for chat messages */
+  color: #0000CD; /* Changed to a darker blue */
 }
 
 .chat-message.user .username,
