@@ -227,7 +227,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function addTooltip(element, actionText, menuCount = 0) {
     element.addEventListener('mouseover', (e) => {
       tooltip.style.display = 'block';
-      tooltip.textContent = menuCount ? `${actionText} / ${menuCount} more options` : actionText;
+      
+      // Format tooltip text based on whether it's a menu item
+      let tooltipText = actionText;
+      if (menuCount > 0) {
+        tooltipText = `${actionText} / ${menuCount} more action${menuCount !== 1 ? 's' : ''}`;
+      }
+      
+      tooltip.textContent = tooltipText;
       
       // Position tooltip in top-left of game screen
       const gameScreen = document.getElementById('game-screen');
@@ -247,13 +254,13 @@ document.addEventListener('DOMContentLoaded', () => {
   addTooltip(addIgnoreButton, 'Add name to ignore list');
   addTooltip(delIgnoreButton, 'Delete name from ignore list');
 
-  // Add tooltips to player names (with menu count and first action)
+  // Add tooltips to player names (with menu count)
   const friendsListContainer = document.querySelector('.friends-list .list-container');
   friendsListContainer.addEventListener('mouseover', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
       const username = playerNameElement.textContent;
-      addTooltip(playerNameElement, `Message ${username}`, 2); // 2 additional options: Remove and Cancel
+      addTooltip(playerNameElement, 'Message', 1); // Shows as "Message / 1 more action"
     }
   });
 
