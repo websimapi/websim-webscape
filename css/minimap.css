@@ -25,8 +25,9 @@
   font-size: 12px;
 }
 
+/* Move compass letters 1px to the right */
 #compass-n, #compass-s {
-  left: 51%;
+  left: calc(51% + 1px);
   transform: translateX(-50%);
 }
 
@@ -44,11 +45,11 @@
 }
 
 #compass-e {
-  right: 4px;  
+  right: 3px;
 }
 
 #compass-w {
-  left: 3px;
+  left: 4px;
 }
 
 /* Minimap styling */
@@ -93,7 +94,7 @@
   justify-content: center;
   align-items: center;
   color: #fff;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: bold;
   text-shadow: 1px 1px 1px #000;
 }

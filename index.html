@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="css/chat.css">
   <link rel="stylesheet" href="css/minimap.css">
   <link rel="stylesheet" href="css/inventory.css">
-  <link rel="stylesheet" href="css/buttons.css">
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -20,7 +19,7 @@
       </div>
       <div id="chat-window">
         <div class="chat-content">
-          <div class="chat-message system">Welcome to Webscape!</div>
+          <div class="chat-message system" style="color: #000;">Welcome to Webscape!</div>
         </div>
         <div class="chat-input-area">
           <span class="chat-username" id="current-username">Loading...</span>
@@ -49,48 +48,18 @@
           </div>
         </div>
         <div class="minimap-icons">
-          <div class="icon">1</div>
-          <div class="icon">2</div>
-          <div class="icon">3</div>
-          <div class="icon">4</div>
-          <div class="icon">5</div>
-          <div class="icon">6</div>
-          <div class="icon">7</div>
+          <div class="icon compass">1</div>
+          <div class="icon prayer">2</div>
+          <div class="icon magic">3</div>
+          <div class="icon run">4</div>
+          <div class="icon stats">5</div>
+          <div class="icon quests">6</div>
+          <div class="icon inventory">7</div>
         </div>
       </div>
-      
-      <div id="inventory-container">
-        <div id="inventory-slots">
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-          <div class="inventory-slot"></div>
-        </div>
+      <div id="inventory">
+        <!-- Inventory slots will be generated dynamically -->
       </div>
-
       <div id="bottom-icons">
         <div class="bottom-icon">8</div>
         <div class="bottom-icon">9</div>
@@ -104,6 +73,7 @@
   </div>
 
   <script src="js/chat.js"></script>
+  <script src="js/inventory.js"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
