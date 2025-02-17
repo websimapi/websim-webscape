@@ -105,10 +105,11 @@ body {
 /* Friends and Ignore List styling */
 .friends-list, .ignore-list {
   position: relative;
-  width: 100%;
+  width: calc(100% - 8px);
   background: #382418;
   padding: 4px;
   display: none;
+  margin-top: 4px;
 }
 
 .friends-list.shown, .ignore-list.shown {
@@ -128,14 +129,19 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  white-space: nowrap;
 }
 
 .player-name {
   color: white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 8px;
 }
 
 .world-status {
   color: lime;
+  flex-shrink: 0;
 }
 
 .world-status.offline {
@@ -146,9 +152,11 @@ body {
   display: flex;
   justify-content: space-between;
   margin-top: 4px;
+  gap: 4px;
 }
 
 .list-button {
+  flex: 1;
   background: linear-gradient(to bottom, #7b0000, #580000);
   border: 2px solid #000;
   color: #fff;
@@ -157,6 +165,8 @@ body {
   font-size: 12px;
   cursor: pointer;
   text-shadow: 1px 1px 0 #000;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .list-button:hover {
