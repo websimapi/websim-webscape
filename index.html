@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="css/chat.css">
   <link rel="stylesheet" href="css/minimap.css">
   <link rel="stylesheet" href="css/inventory.css">
-  <link rel="stylesheet" href="css/icons.css">
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -49,12 +48,13 @@
           </div>
         </div>
         <div class="minimap-icons">
-          <div class="icon quests"></div>
-          <div class="icon magic"></div>
-          <div class="icon equipment"></div>
-          <div class="icon prayer"></div>
-          <div class="icon stats"></div>
-          <div class="icon inventory selected"></div>
+          <div class="icon compass" style="--number: '1'"></div>
+          <div class="icon prayer" style="--number: '2'"></div>
+          <div class="icon magic" style="--number: '3'"></div>
+          <div class="icon run" style="--number: '4'"></div>
+          <div class="icon stats" style="--number: '5'"></div>
+          <div class="icon quests" style="--number: '6'"></div>
+          <div class="icon inventory" style="--number: '7'"></div>
         </div>
       </div>
       <div id="inventory">
@@ -86,24 +86,29 @@
         <div class="inventory-slot"></div>
         <div class="inventory-slot"></div>
         <div class="inventory-slot"></div>
-        <div class="inventory-slot"></div>
-        <div class="inventory-slot"></div>
-        <div class="inventory-slot"></div>
       </div>
       <div id="bottom-icons">
-        <div class="bottom-icon"></div>
-        <div class="bottom-icon"></div>
-        <div class="bottom-icon"></div>
-        <div class="bottom-icon"></div>
-        <div class="bottom-icon"></div>
-        <div class="bottom-icon"></div>
-        <div class="bottom-icon"></div>
+        <div class="bottom-icon" style="--number: '8'"></div>
+        <div class="bottom-icon" style="--number: '9'"></div>
+        <div class="bottom-icon" style="--number: '10'"></div>
+        <div class="bottom-icon" style="--number: '11'"></div>
+        <div class="bottom-icon" style="--number: '12'"></div>
+        <div class="bottom-icon" style="--number: '13'"></div>
+        <div class="bottom-icon" style="--number: '14'"></div>
       </div>
     </div>
   </div>
 
   <script src="js/chat.js"></script>
-  <script src="js/icons.js"></script>
+  <style>
+    /* Adding the numbers via CSS content */
+    .icon::after {
+      content: var(--number);
+    }
+    .bottom-icon::after {
+      content: var(--number);
+    }
+  </style>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
