@@ -42,51 +42,7 @@ body {
   flex-direction: column;
 }
 
-/* Unified panel heights */
-.friends-list, .ignore-list, #logout-popup, #inventory {
-  position: relative;
-  width: calc(100% - 8px);
-  height: 228px;
-  background: #382418;
-  margin-top: 4px;
-}
-
-/* Friends and Ignore List specific styles */
-.friends-list, .ignore-list {
-  padding: 4px;
-  display: none;
-}
-
-.friends-list.shown, .ignore-list.shown {
-  display: block;
-}
-
-.list-container {
-  background: #474745;
-  border: 2px solid #5a473a;
-  height: 192px;
-  overflow-y: auto;
-}
-
-/* Inventory specific styles */
-#inventory {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2px;
-  padding: 4px;
-}
-
-#inventory.hidden {
-  display: none;
-}
-
-/* Minimap section - fixed height */
-#minimap-section {
-  height: 204px;
-  flex-shrink: 0;
-}
-
-/* Bottom icons container - fixed height and position */
+/* Bottom status icons - removing redundant styles since they're now in minimap.css */
 #bottom-icons {
   height: 40px;
   display: flex;
@@ -96,21 +52,19 @@ body {
   background: #382418;
   border-top: 2px solid #000;
   margin-top: auto;
-  flex-shrink: 0;
-}
-
-/* Ensure the space between minimap and bottom icons remains consistent */
-.minimap-icons {
-  height: 32px;
-  flex-shrink: 0;
 }
 
 /* Logout popup styling */
 #logout-popup {
+  position: relative;
+  width: 100%;
+  height: 228px;
+  background: #382418;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 8px 0;
+  margin-top: 4px;
 }
 
 #logout-popup.hidden {
@@ -146,6 +100,77 @@ body {
 }
 
 .logout-button:hover {
+  background: linear-gradient(to bottom, #8b0000, #680000);
+}
+
+/* Friends and Ignore List styling */
+.friends-list, .ignore-list {
+  position: relative;
+  width: calc(100% - 8px);
+  background: #382418;
+  padding: 4px;
+  display: none;
+  margin-top: 4px;
+}
+
+.friends-list.shown, .ignore-list.shown {
+  display: block;
+}
+
+.list-container {
+  background: #474745;
+  border: 2px solid #5a473a;
+  height: 182px;
+  overflow-y: auto;
+}
+
+.list-entry {
+  padding: 4px 8px;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.player-name {
+  color: white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 8px;
+}
+
+.world-status {
+  color: lime;
+  flex-shrink: 0;
+}
+
+.world-status.offline {
+  color: red;
+}
+
+.list-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  gap: 4px;
+}
+
+.list-button {
+  flex: 1;
+  background: linear-gradient(to bottom, #7b0000, #580000);
+  border: 2px solid #000;
+  color: #fff;
+  padding: 4px 8px;
+  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  text-shadow: 1px 1px 0 #000;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.list-button:hover {
   background: linear-gradient(to bottom, #8b0000, #680000);
 }
 
@@ -270,54 +295,4 @@ body {
 
 .context-menu-option.cancel {
   color: #fff; 
-}
-
-.list-entry {
-  padding: 4px 8px;
-  font-size: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  white-space: nowrap;
-}
-
-.player-name {
-  color: white;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-right: 8px;
-}
-
-.world-status {
-  color: lime;
-  flex-shrink: 0;
-}
-
-.world-status.offline {
-  color: red;
-}
-
-.list-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 4px;
-  gap: 4px;
-}
-
-.list-button {
-  flex: 1;
-  background: linear-gradient(to bottom, #7b0000, #580000);
-  border: 2px solid #000;
-  color: #fff;
-  padding: 4px 8px;
-  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
-  font-size: 12px;
-  cursor: pointer;
-  text-shadow: 1px 1px 0 #000;
-  white-space: nowrap;
-  min-width: 0;
-}
-
-.list-button:hover {
-  background: linear-gradient(to bottom, #8b0000, #680000);
 }
