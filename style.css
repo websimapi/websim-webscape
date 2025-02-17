@@ -122,16 +122,16 @@ ppy-chat-input-area {
 }
 
 .chat-message.system {
-  color: #fff;
+  color: #000;
 }
 
 .chat-message.user {
-  color: #0000CD; /* Changed to a darker blue */
+  color: #0000CD;
 }
 
 .chat-message.user .username,
 .chat-message.user .separator {
-  color: #000; /* Black for username and colon */
+  color: #000;
 }
 
 /* Right side panel */
