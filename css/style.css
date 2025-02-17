@@ -178,8 +178,9 @@ body {
   background: red;
 }
 
-/* Add Friend Input UI */
-#add-friend-overlay {
+/* Add Friend and Del Friend Input UI */
+#add-friend-overlay,
+#del-friend-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -190,11 +191,13 @@ body {
   z-index: 1000;
 }
 
-#add-friend-overlay.shown {
+#add-friend-overlay.shown,
+#del-friend-overlay.shown {
   display: block;
 }
 
-.add-friend-container {
+.add-friend-container,
+.del-friend-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -204,7 +207,8 @@ body {
   background: transparent;  
 }
 
-.add-friend-text {
+.add-friend-text,
+.del-friend-text {
   color: #000;
   font-size: 14px;
   margin-bottom: 15px;
@@ -213,7 +217,8 @@ body {
   padding: 5px;
 }
 
-.add-friend-input {
+.add-friend-input,
+.del-friend-input {
   width: 80%;
   padding: 5px;
   background: #d2b48c;  
@@ -225,6 +230,7 @@ body {
   text-align: center;
 }
 
-.add-friend-input:focus {
+.add-friend-input:focus,
+.del-friend-input:focus {
   outline: none;
 }

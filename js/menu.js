@@ -14,6 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const addFriendOverlay = document.querySelector('#add-friend-overlay');
   const addFriendInput = addFriendOverlay.querySelector('.add-friend-input');
 
+  // Add new elements for delete friend functionality
+  const delFriendButton = document.querySelector('.friends-list .list-button:nth-child(2)');
+  const delFriendOverlay = document.querySelector('#del-friend-overlay');
+  const delFriendInput = delFriendOverlay ? delFriendOverlay.querySelector('.del-friend-input') : null;
+
   // Function to close all menus
   const closeAllMenus = () => {
     // Close inventory
@@ -28,8 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Close ignore list
     ignoreButton.classList.remove('selected');
     ignoreList.classList.remove('shown');
-    // Close add friend overlay
+    // Close both add and del friend overlays
     addFriendOverlay.classList.remove('shown');
+    delFriendOverlay.classList.remove('shown');
   };
 
   // Chest icon toggle
@@ -92,10 +98,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Add Friend button click handler
   addFriendButton.addEventListener('click', () => {
-    // Instead of closing all menus, just show the overlay
     addFriendOverlay.classList.add('shown');
     addFriendInput.value = '';
     addFriendInput.focus();
+  });
+
+  // Del Friend button click handler
+  delFriendButton.addEventListener('click', () => {
+    delFriendOverlay.classList.add('shown');
+    delFriendInput.value = '';
+    delFriendInput.focus();
   });
 
   // Handle add friend input submission
@@ -113,15 +125,42 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       listContainer.appendChild(newFriend);
 
-      // Just hide the overlay without closing the friends list
+      // Hide the overlay
       addFriendOverlay.classList.remove('shown');
     }
   });
 
-  // Close overlay when clicking outside
+  // Handle del friend input submission
+  delFriendInput.addEventListener('keypress', async (e) => {
+    if (e.key === 'Enter' && delFriendInput.value.trim()) {
+      const friendName = delFriendInput.value.trim();
+      
+      // Find and remove the friend from the list
+      const listContainer = document.querySelector('.friends-list .list-container');
+      const friendEntries = listContainer.querySelectorAll('.list-entry');
+      
+      friendEntries.forEach(entry => {
+        const playerName = entry.querySelector('.player-name').textContent;
+        if (playerName === friendName) {
+          entry.remove();
+        }
+      });
+
+      // Hide the overlay
+      delFriendOverlay.classList.remove('shown');
+    }
+  });
+
+  // Close overlays when clicking outside
   addFriendOverlay.addEventListener('click', (e) => {
     if (e.target === addFriendOverlay) {
       addFriendOverlay.classList.remove('shown');
+    }
+  });
+
+  delFriendOverlay.addEventListener('click', (e) => {
+    if (e.target === delFriendOverlay) {
+      delFriendOverlay.classList.remove('shown');
     }
   });
 });
