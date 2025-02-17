@@ -48,15 +48,15 @@ ppy-chat-input-area {
   left: 0;
   width: 100%;
   height: 24px;
-  background: rgba(0, 0, 0, 0.8);
-  border-top: 1px solid #382418;
+  background: #d2b48c;
+  border-top: 1px solid #666;
   display: flex;
   align-items: center;
   padding: 0 4px;
 }
 
 .chat-username {
-  color: #ff0;
+  color: #000;
   font-size: 12px;
   padding: 0 8px;
   white-space: nowrap;
@@ -65,9 +65,9 @@ ppy-chat-input-area {
 .chat-input {
   flex: 1;
   height: 20px;
-  background: #000;
-  border: 1px solid #382418;
-  color: #fff;
+  background: #fff;
+  border: 1px solid #666;
+  color: #000;
   font-family: 'RuneScape UF', 'RuneScape', sans-serif;
   font-size: 12px;
   padding: 0 4px;
@@ -76,7 +76,7 @@ ppy-chat-input-area {
 
 .chat-input:focus {
   outline: none;
-  border-color: #5a473a;
+  border-color: #333;
 }
 
 /* Chat content area - modified for bottom-up messages */
@@ -134,7 +134,7 @@ ppy-chat-input-area {
 
 .chat-message.user .username,
 .chat-message.user .separator {
-  color: #fff; /* White for username and colon */
+  color: #000; /* Black for username and colon */
 }
 
 /* Right side panel */
