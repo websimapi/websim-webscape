@@ -1,0 +1,44 @@
+/* Common icon styles */
+.icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Selected state for menu buttons */
+.icon.selected {
+  background: #8B0000 !important;
+}
+
+/* Top icons specific styles */
+.icon.quests svg path {
+  fill: #C0C0C0;
+}
+
+.icon.stats svg path {
+  fill: #C0C0C0;
+}
+
+.icon.inventory svg path {
+  fill: #C0C0C0;
+}
+
+/* Bottom icons specific styles */
+.icon.emotes svg path {
+  fill: #FFD700;
+}
+
+.icon.logout svg path {
+  fill: #C0C0C0;
+}
+
+.icon.settings svg path {
+  fill: #C0C0C0;
+}
+
+.icon.run svg path {
+  fill: #C0C0C0;
+}
+
+.icon.combat svg path {
+  fill: #C0C0C0;
+}
