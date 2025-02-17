@@ -256,7 +256,7 @@ body {
 /* Context Menu Styling */
 .context-menu {
   position: absolute;
-  background: #382418;
+  background: #474745; 
   border: 2px solid #5a473a;
   min-width: 120px;
   z-index: 1001;
@@ -269,7 +269,7 @@ body {
 
 .context-menu-option {
   padding: 4px 8px;
-  color: #ff981f;
+  color: #fff; 
   font-size: 12px;
   cursor: pointer;
   white-space: nowrap;
@@ -280,5 +280,5 @@ body {
 }
 
 .context-menu-option.cancel {
-  color: #fff;
+  color: #fff; 
 }
