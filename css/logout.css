@@ -1,16 +1,16 @@
 .logout-dialog {
   display: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 300px;
-  padding: 20px;
+  position: absolute;
+  top: 204px; 
+  left: 0;
+  width: 204px; 
+  height: 240px; 
   background: linear-gradient(to bottom, #45332b, #382418);
-  border: 2px solid #382418;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  border-top: 2px solid #000;
   z-index: 1000;
   text-align: center;
+  box-sizing: border-box;
+  padding: 20px 10px;
 }
 
 .logout-message {
@@ -39,11 +39,11 @@
 
 .logout-overlay {
   display: none;
-  position: fixed;
-  top: 0;
+  position: absolute;
+  top: 204px; 
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 204px;
+  height: calc(100% - 204px); 
   background: rgba(0, 0, 0, 0.7);
   z-index: 999;
 }

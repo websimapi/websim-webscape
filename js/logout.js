@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Add logout dialog HTML to the document
+  // Add logout dialog HTML to the right panel
   const logoutDialogHTML = `
     <div class="logout-overlay"></div>
     <div class="logout-dialog">
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <button class="logout-button">Click here to logout</button>
     </div>
   `;
-  document.body.insertAdjacentHTML('beforeend', logoutDialogHTML);
+  document.getElementById('right-panel').insertAdjacentHTML('beforeend', logoutDialogHTML);
 
   // Get DOM elements
   const logoutButton = document.querySelector('.bottom-icon:nth-child(4)');
@@ -21,6 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Show logout dialog when logout button is clicked
   logoutButton.addEventListener('click', () => {
+    // Hide inventory if it's showing
+    const inventory = document.getElementById('inventory');
+    const chestIcon = document.querySelector('.icon.chest');
+    if (!inventory.classList.contains('hidden')) {
+      inventory.classList.add('hidden');
+      chestIcon.classList.remove('selected');
+    }
+    
     logoutDialog.style.display = 'block';
     logoutOverlay.style.display = 'block';
   });
