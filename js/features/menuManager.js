@@ -61,4 +61,15 @@ function toggleMenu(button, panelSelector) {
   activePanel = panel;
 }
 
-export { hideAllPanels, toggleMenu };
+function setDefaultMenu(button, panelSelector) {
+  const panel = document.querySelector(panelSelector);
+  
+  // Set initial state
+  button.classList.add('selected');
+  panel.classList.remove('hidden');
+  
+  activeButton = button;
+  activePanel = panel;
+}
+
+export { hideAllPanels, toggleMenu, setDefaultMenu };

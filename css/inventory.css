@@ -18,6 +18,7 @@
   border-radius: 2px;
 }
 
-#inventory.hidden {
-  display: none;
+/* Remove the hidden class by default since inventory will be shown on startup */
+#inventory {
+  display: grid;
 }
