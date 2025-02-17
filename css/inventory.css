@@ -17,3 +17,7 @@
   border: 1px solid #000;
   border-radius: 2px;
 }
+
+#inventory.hidden {
+  display: none;
+}

@@ -104,3 +104,16 @@
   width: 100%;
   height: 100%;
 }
+
+/* Menu selection styling for chest icon */
+.icon.chest.selected {
+  background: red;
+}
+
+.button-label {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 12px;
+  color: #fff;
+}
