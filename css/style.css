@@ -42,7 +42,7 @@ body {
   flex-direction: column;
 }
 
-/* Bottom status icons - defined here while detailed icon styling is in minimap.css */
+/* Bottom status icons - removing redundant styles since they're now in minimap.css */
 #bottom-icons {
   height: 40px;
   display: flex;
@@ -54,16 +54,16 @@ body {
   margin-top: auto;
 }
 
-/* Logout popup styling – adjusted to match the height of the Friends List UI */
+/* Logout popup styling */
 #logout-popup {
   position: relative;
   width: 100%;
-  height: 202px; 
+  height: 214px; 
   background: #382418;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: 4px 0; 
   margin-top: 4px;
 }
 
@@ -76,19 +76,31 @@ body {
   border: 2px solid #5a473a;
   padding: 12px;
   text-align: center;
-  width: 90%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  width: 85%;
+  max-width: 180px;
 }
 
 .popup-content p {
   color: #ffff00;
-  font-size: 8px;  
+  font-size: 10px; 
   line-height: 1.2;
   margin-bottom: 12px;
   text-shadow: 2px 2px 0 #000;
+}
+
+.logout-button {
+  background: linear-gradient(to bottom, #7b0000, #580000);
+  border: 2px solid #000;
+  color: #fff;
+  padding: 8px 16px;
+  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.logout-button:hover {
+  background: linear-gradient(to bottom, #8b0000, #680000);
 }
 
 /* Friends and Ignore List styling */
@@ -105,11 +117,10 @@ body {
   display: block;
 }
 
-/* Adjusted list container height – increased by about 10px */
 .list-container {
   background: #474745;
   border: 2px solid #5a473a;
-  height: 202px; 
+  height: 182px;
   overflow-y: auto;
 }
 
@@ -163,7 +174,7 @@ body {
   background: linear-gradient(to bottom, #8b0000, #680000);
 }
 
-/* Red background only on the currently selected menu button */
+/* Add selected state for friends/ignore buttons */
 .bottom-icon.selected {
   background: red;
 }
@@ -175,7 +186,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: calc(100% - 25px);
+  height: calc(100% - 25px); 
   background: #d2b48c;
   display: none;
   z-index: 1000;
@@ -194,7 +205,7 @@ body {
   justify-content: center;
   height: 100%;
   padding: 20px;
-  background: transparent;
+  background: transparent;  
 }
 
 .add-friend-text,
@@ -203,7 +214,7 @@ body {
   font-size: 14px;
   margin-bottom: 15px;
   text-align: center;
-  background: #d2b48c;
+  background: #d2b48c;  
   padding: 5px;
 }
 
@@ -211,7 +222,7 @@ body {
 .del-friend-input {
   width: 80%;
   padding: 5px;
-  background: #d2b48c;
+  background: #d2b48c;  
   border: none;
   border-bottom: 2px solid #382418;
   font-family: 'RuneScape UF', 'RuneScape', sans-serif;
@@ -225,14 +236,14 @@ body {
   outline: none;
 }
 
-/* New overlay styles for Ignore List UI */
+/* Add new overlay styles */
 #add-ignore-overlay,
 #del-ignore-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: calc(100% - 25px);
+  height: calc(100% - 25px); 
   background: #d2b48c;
   display: none;
   z-index: 1000;
@@ -259,7 +270,7 @@ body {
 /* Context Menu Styling */
 .context-menu {
   position: absolute;
-  background: #474745;
+  background: #474745; 
   border: 2px solid #5a473a;
   min-width: 120px;
   z-index: 1001;
@@ -272,7 +283,7 @@ body {
 
 .context-menu-option {
   padding: 4px 8px;
-  color: #fff;
+  color: #fff; 
   font-size: 12px;
   cursor: pointer;
   white-space: nowrap;
@@ -283,5 +294,5 @@ body {
 }
 
 .context-menu-option.cancel {
-  color: #fff;
+  color: #fff; 
 }
