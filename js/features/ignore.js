@@ -1,5 +1,6 @@
 import { addTooltip, tooltip } from '../ui/tooltips.js';
 import { setupOverlay } from '../ui/overlays.js';
+import { toggleMenu } from './menuManager.js';
 
 function initializeIgnoreList() {
   const ignoreButton = document.querySelector('.bottom-icon:nth-child(3)');
@@ -16,15 +17,9 @@ function initializeIgnoreList() {
   addTooltip(addIgnoreButton, 'Add name to ignore list');
   addTooltip(delIgnoreButton, 'Delete name from ignore list');
 
-  // Setup ignore list toggle
+  // Setup ignore list toggle with menu management
   ignoreButton.addEventListener('click', () => {
-    if (ignoreButton.classList.contains('selected')) {
-      ignoreButton.classList.remove('selected');
-      ignoreList.classList.remove('shown');
-    } else {
-      ignoreButton.classList.add('selected');
-      ignoreList.classList.add('shown');
-    }
+    toggleMenu(ignoreButton, '.ignore-list');
   });
 
   // Setup overlays

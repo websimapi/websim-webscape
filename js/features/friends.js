@@ -1,6 +1,7 @@
 import { addTooltip, tooltip } from '../ui/tooltips.js';
 import { showContextMenu, hideContextMenu } from '../ui/contextMenu.js';
 import { setupOverlay } from '../ui/overlays.js';
+import { toggleMenu } from './menuManager.js';
 
 function initializeFriendsList() {
   const friendsButton = document.querySelector('.bottom-icon:nth-child(2)');
@@ -17,15 +18,9 @@ function initializeFriendsList() {
   addTooltip(addFriendButton, 'Add friend');
   addTooltip(delFriendButton, 'Delete friend');
 
-  // Setup friends list toggle
+  // Setup friends list toggle with menu management
   friendsButton.addEventListener('click', () => {
-    if (friendsButton.classList.contains('selected')) {
-      friendsButton.classList.remove('selected');
-      friendsList.classList.remove('shown');
-    } else {
-      friendsButton.classList.add('selected');
-      friendsList.classList.add('shown');
-    }
+    toggleMenu(friendsButton, '.friends-list');
   });
 
   // Setup overlays
