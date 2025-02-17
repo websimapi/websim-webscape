@@ -52,7 +52,6 @@ ppy-chat-input-area {
   border-top: 1px solid #666;
   display: flex;
   align-items: center;
-  padding: 0 4px;
 }
 
 .chat-username {
@@ -64,19 +63,17 @@ ppy-chat-input-area {
 
 .chat-input {
   flex: 1;
-  height: 20px;
-  background: #fff;
-  border: 1px solid #666;
+  height: 100%;
+  background: transparent;
+  border: none;
   color: #000;
   font-family: 'RuneScape UF', 'RuneScape', sans-serif;
   font-size: 12px;
   padding: 0 4px;
-  margin-right: 4px;
 }
 
 .chat-input:focus {
   outline: none;
-  border-color: #333;
 }
 
 /* Chat content area - modified for bottom-up messages */
