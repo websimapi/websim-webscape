@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (playerNameElement) {
       const username = playerNameElement.textContent;
       tooltip.style.display = 'block';
-      tooltip.textContent = `Message ${username} / 3`;
+      tooltip.textContent = `Message ${username} / 1`;
       
       // Position tooltip in top-left of game screen
       const gameScreen = document.getElementById('game-screen');
