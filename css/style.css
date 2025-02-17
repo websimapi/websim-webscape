@@ -109,7 +109,6 @@ body {
   background: #382418;
   padding: 4px;
   display: none;
-  margin-top: 4px;
 }
 
 .friends-list.shown, .ignore-list.shown {
@@ -151,8 +150,8 @@ body {
 .list-buttons {
   display: flex;
   justify-content: space-between;
-  margin-top: 4px;
   gap: 4px;
+  padding: 4px;
 }
 
 .list-button {
