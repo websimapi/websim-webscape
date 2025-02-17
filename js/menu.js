@@ -217,6 +217,67 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Add context menu element to the document
+  const contextMenu = document.createElement('div');
+  contextMenu.className = 'context-menu';
+  document.body.appendChild(contextMenu);
+
+  // Handle clicks on player names in friends list
+  const friendsListContainer = document.querySelector('.friends-list .list-container');
+  friendsListContainer.addEventListener('click', (e) => {
+    const playerNameElement = e.target.closest('.player-name');
+    if (playerNameElement) {
+      e.preventDefault();
+      
+      const username = playerNameElement.textContent;
+      
+      // Position and show context menu
+      contextMenu.style.left = `${e.pageX}px`;
+      contextMenu.style.top = `${e.pageY}px`;
+      
+      // Set menu options
+      contextMenu.innerHTML = `
+        <div class="context-menu-option message">Message ${username}</div>
+        <div class="context-menu-option remove">Remove ${username}</div>
+        <div class="context-menu-option cancel">Cancel</div>
+      `;
+      
+      contextMenu.classList.add('shown');
+      
+      // Add click handlers for menu options
+      const messageOption = contextMenu.querySelector('.message');
+      const removeOption = contextMenu.querySelector('.remove');
+      const cancelOption = contextMenu.querySelector('.cancel');
+      
+      messageOption.addEventListener('click', () => {
+        // TODO: Implement private messaging
+        contextMenu.classList.remove('shown');
+      });
+      
+      removeOption.addEventListener('click', () => {
+        // Remove friend from list
+        playerNameElement.closest('.list-entry').remove();
+        contextMenu.classList.remove('shown');
+      });
+      
+      cancelOption.addEventListener('click', () => {
+        contextMenu.classList.remove('shown');
+      });
+    }
+  });
+
+  // Close context menu when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.context-menu') && !e.target.closest('.player-name')) {
+      contextMenu.classList.remove('shown');
+    }
+  });
+
+  // Also close context menu when scrolling
+  document.addEventListener('scroll', () => {
+    contextMenu.classList.remove('shown');
+  });
+
   // Close overlays when clicking outside
   addFriendOverlay.addEventListener('click', (e) => {
     if (e.target === addFriendOverlay) {

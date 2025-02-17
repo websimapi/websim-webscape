@@ -252,3 +252,33 @@ body {
 #del-ignore-overlay.shown {
   display: block;
 }
+
+/* Context Menu Styling */
+.context-menu {
+  position: absolute;
+  background: #382418;
+  border: 2px solid #5a473a;
+  min-width: 120px;
+  z-index: 1001;
+  display: none;
+}
+
+.context-menu.shown {
+  display: block;
+}
+
+.context-menu-option {
+  padding: 4px 8px;
+  color: #ff981f;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.context-menu-option:hover {
+  background: #5a473a;
+}
+
+.context-menu-option.cancel {
+  color: #fff;
+}
