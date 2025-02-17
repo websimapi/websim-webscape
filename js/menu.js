@@ -16,28 +16,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Function to close all menus
   const closeAllMenus = () => {
-    // Store currently selected button states before closing
-    const selectedInventory = chestIcon.classList.contains('selected');
-    const selectedLogout = logoutButton.classList.contains('selected');
-    const selectedFriends = friendsButton.classList.contains('selected');
-    const selectedIgnore = ignoreButton.classList.contains('selected');
-
     // Close inventory
+    chestIcon.classList.remove('selected');
     inventoryContainer.classList.add('hidden');
     // Close logout
+    logoutButton.classList.remove('selected');
     logoutPopup.classList.add('hidden');
     // Close friends list
+    friendsButton.classList.remove('selected');
     friendsList.classList.remove('shown');
     // Close ignore list
+    ignoreButton.classList.remove('selected');
     ignoreList.classList.remove('shown');
     // Close add friend overlay
     addFriendOverlay.classList.remove('shown');
-
-    // Restore selected states
-    chestIcon.classList.toggle('selected', selectedInventory);
-    logoutButton.classList.toggle('selected', selectedLogout);
-    friendsButton.classList.toggle('selected', selectedFriends);
-    ignoreButton.classList.toggle('selected', selectedIgnore);
   };
 
   // Chest icon toggle
@@ -100,12 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Add Friend button click handler
   addFriendButton.addEventListener('click', () => {
-    // Only close menus that would conflict with the add friend overlay
-    inventoryContainer.classList.add('hidden');
-    logoutPopup.classList.add('hidden');
-    friendsList.classList.remove('shown');
-    ignoreList.classList.remove('shown');
-    
+    // Instead of closing all menus, just show the overlay
     addFriendOverlay.classList.add('shown');
     addFriendInput.value = '';
     addFriendInput.focus();
@@ -116,8 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter' && addFriendInput.value.trim()) {
       const friendName = addFriendInput.value.trim();
       
-      // Here you would typically validate the username and add it to the friends list
-      // For now, we'll just add it to the list container
+      // Add the friend to the list container
       const listContainer = document.querySelector('.friends-list .list-container');
       const newFriend = document.createElement('div');
       newFriend.className = 'list-entry';
@@ -127,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       listContainer.appendChild(newFriend);
 
-      // Hide the overlay
+      // Just hide the overlay without closing the friends list
       addFriendOverlay.classList.remove('shown');
     }
   });
