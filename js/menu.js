@@ -5,9 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoutPopup = document.getElementById('logout-popup');
   const closeLogoutButtons = document.querySelectorAll('.logout-button');
 
-  // Initialize WebSocket connection
-  const room = new WebsimSocket();
-
   // Function to close all menus
   const closeAllMenus = () => {
     // Close inventory
@@ -43,12 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Handle final logout action
+    // Close logout popup when clicking the logout button in popup
     closeLogoutButtons.forEach(button => {
-      button.addEventListener('click', async () => {
+      button.addEventListener('click', () => {
         closeAllMenus();
-        await room.disconnect(); // Disconnect from WebSocket
-        window.location.reload(); // Refresh the page to completely reset state
       });
     });
   }
