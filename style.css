@@ -170,29 +170,30 @@ body {
   gap: 1px;
   padding: 2px;
   background: #382418;
-  margin-top: auto;
-  max-height: 240px;
+  height: 180px;
+  margin-top: 4px;
 }
 
 .inventory-slot {
   width: 48px;
-  height: 40px;
+  height: 32px;
   background: #474745;
   border: 1px solid #000;
   border-radius: 4px;
 }
 
-/* Game status icons */
-#status-icons {
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
+/* Bottom status icons */
+#bottom-icons {
+  height: 40px;
   display: flex;
-  gap: 4px;
+  justify-content: space-around;
+  align-items: center;
   padding: 4px;
+  background: #382418;
+  border-top: 2px solid #000;
 }
 
-.status-icon {
+.bottom-icon {
   width: 24px;
   height: 24px;
   background: #474745;
