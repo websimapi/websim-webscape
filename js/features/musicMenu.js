@@ -21,7 +21,7 @@ const tracks = [
 
 function loadMusicSettings() {
   const storedMode = localStorage.getItem('musicMode');
-  console.log("Loaded music settings from localStorage:", storedMode);
+  console.log("Loaded music mode from localStorage:", storedMode);
   return storedMode === 'auto';
 }
 
@@ -32,44 +32,41 @@ function saveMusicSettings(isAuto) {
 
 function playTrack(track, trackElement, trackList) {
   if (!hasUserInteracted) { 
-    console.log("User hasn't interacted yet. Not playing track.");
+    console.log("User hasn't interacted yet, will not play track:", track.name);
     return;
   }
-
   console.log("playTrack triggered for track:", track.name);
   if (track.unlocked) {
     if (currentAudio) {
-      console.log("Pausing currentAudio. Previous track was:", currentTrack);
+      console.log("Pausing current audio. Previous track:", currentTrack);
       currentAudio.pause();
       currentAudio = null;
     }
-
     currentAudio = new Audio(track.path);
     currentTrack = track.name;
-
+    
     const trackDisplay = document.querySelector('#music-menu .track');
     trackDisplay.textContent = `Playing: ${currentTrack}`;
-    console.log("About to play track:", currentTrack);
-
+    console.log("Attempting to play track:", currentTrack);
     currentAudio.play().then(() => {
       console.log("Track started playing:", currentTrack);
     }).catch(e => {
       console.error("Error playing audio:", e);
       trackDisplay.textContent = 'Playing: No track';
     });
-
-    // Update appearance of all track entries
+    
+    // Reset styling for all track entries
     trackList.querySelectorAll('.track-entry').forEach(entry => {
       entry.classList.remove('selected');
-      entry.style.color = ""; // reset any previous inline color styling
+      entry.style.color = ""; // reset any previous inline styling
     });
     trackElement.classList.add('selected');
-    trackElement.style.color = "green"; // force green text
-
+    trackElement.style.color = "lightgreen"; // use lighter green for select indication
+    
     // Setup auto-play for next track if autoPlayMode is enabled
     if (autoPlayMode) {
       currentAudio.addEventListener('ended', () => {
-        console.log("Current track ended:", currentTrack);
+        console.log("Track ended:", currentTrack);
         currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
         const nextTrack = tracks[currentTrackIndex];
         const nextTrackElement = trackList.children[currentTrackIndex];
@@ -101,21 +98,19 @@ function initializeMusicMenu() {
   } else {
     console.log("Found existing track list container");
   }
-
+  
   // Clear and populate track list
   trackList.innerHTML = "";
   tracks.forEach((track, index) => {
     const trackElement = document.createElement('div');
     trackElement.className = 'track-entry';
     trackElement.textContent = track.name;
-
     if (track.unlocked) {
       trackElement.classList.add('unlocked');
-      trackElement.style.color = "green";
+      trackElement.style.color = "lightgreen"; // update unlocked color to lighter green
     } else {
       trackElement.style.color = "gray";
     }
-
     trackElement.addEventListener('click', () => {
       hasUserInteracted = true;
       console.log("Track clicked:", track.name);
@@ -123,23 +118,24 @@ function initializeMusicMenu() {
         currentTrackIndex = index;
         playTrack(track, trackElement, trackList);
       } else {
-        console.log("Clicked track is not unlocked:", track.name);
+        console.log("Clicked track is locked:", track.name);
       }
     });
-
     trackList.appendChild(trackElement);
     console.log("Added track to list:", track.name);
   });
-
+  console.log("Total tracks in list:", trackList.children.length);
+  
   // For Firefox compatibility, use 'mouseup' if InstallTrigger exists
   const eventType = (typeof InstallTrigger !== 'undefined') ? 'mouseup' : 'click';
+  if (typeof InstallTrigger !== 'undefined') {
+    console.log("Firefox detected - using 'mouseup' for auto/manual buttons.");
+  }
   console.log("Using event type for auto/manual buttons:", eventType);
 
-  // Handle music menu toggle
   musicButton.addEventListener('click', () => {
     console.log("Music Button clicked.");
     toggleMenu(musicButton, '#music-menu');
-
     if (hasUserInteracted && autoPlayMode && !currentAudio && tracks.length > 0) {
       const firstTrack = tracks[0];
       const firstTrackElement = trackList.children[0];
@@ -150,7 +146,6 @@ function initializeMusicMenu() {
     }
   });
 
-  // Auto/Manual button functionality using eventType for Firefox
   autoButton.addEventListener(eventType, () => {
     console.log("Auto Button event triggered.");
     hasUserInteracted = true;
@@ -158,7 +153,6 @@ function initializeMusicMenu() {
     saveMusicSettings(true);
     autoButton.classList.add('selected');
     manualButton.classList.remove('selected');
-
     if (!currentAudio && tracks.length > 0) {
       const firstTrack = tracks[0];
       const firstTrackElement = trackList.children[0];
@@ -174,7 +168,6 @@ function initializeMusicMenu() {
     saveMusicSettings(false);
     manualButton.classList.add('selected');
     autoButton.classList.remove('selected');
-
     if (currentAudio) {
       currentAudio.onended = null;
       console.log("Manual mode: Stopped auto-play functionality.");
