@@ -19,7 +19,7 @@ function showContextMenu(e, username, onMessage, onRemove) {
   
   contextMenu.classList.add('shown');
   
-  // Add click handlers for menu options with stopPropagation
+  // Add click handlers for menu options with stopPropagation for Firefox compatibility
   const messageOption = contextMenu.querySelector('.message');
   const removeOption = contextMenu.querySelector('.remove');
   const cancelOption = contextMenu.querySelector('.cancel');
@@ -28,18 +28,18 @@ function showContextMenu(e, username, onMessage, onRemove) {
     ev.stopPropagation();
     onMessage && onMessage();
     contextMenu.classList.remove('shown');
-  }, { once: true });
+  });
   
   removeOption.addEventListener('click', (ev) => {
     ev.stopPropagation();
     onRemove && onRemove();
     contextMenu.classList.remove('shown');
-  }, { once: true });
+  });
   
   cancelOption.addEventListener('click', (ev) => {
     ev.stopPropagation();
     contextMenu.classList.remove('shown');
-  }, { once: true });
+  });
 }
 
 function hideContextMenu() {
