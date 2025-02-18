@@ -73,7 +73,17 @@
         </div>
         <div class="minimap-icons">
           <div class="icon compass">1</div>
-          <div class="icon prayer">2</div>
+          <div class="icon prayer">
+            <!-- Bar Graph Icon -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <!-- Red Bar (Medium) -->
+              <rect x="4" y="10" width="4" height="10" fill="#ff0000"/>
+              <!-- Green Bar (Tallest) -->
+              <rect x="10" y="4" width="4" height="16" fill="#00ff00"/>
+              <!-- Dark Blue Bar (Shortest) -->
+              <rect x="16" y="14" width="4" height="6" fill="#00008b"/>
+            </svg>
+          </div>
           <div class="icon quest">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <circle cx="12" cy="12" r="11" fill="#add8e6" />
@@ -114,8 +124,8 @@
       <div id="inventory" class="hidden">
         <!-- Inventory slots will be generated dynamically -->
       </div>
-      <div id="new-ui" class="hidden">
-        <!-- New UI slots will be generated dynamically -->
+      <div id="skills-menu" class="hidden">
+        <!-- Skill slots will be generated dynamically -->
       </div>
 
       <!-- Friends List UI -->
@@ -281,7 +291,6 @@ Out</div>
 
   <script src="js/chat.js"></script>
   <script src="js/inventory.js"></script>
-  <script src="js/new-ui.js"></script>
   <script src="js/menu.js" type="module"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
