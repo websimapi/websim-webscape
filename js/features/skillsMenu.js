@@ -10,27 +10,27 @@ function initializeSkillsMenu() {
 
   // Initialize skills data with 21 skills
   const skills = [
-    { name: 'Attack', level: 1, icon: '⚔️' },
-    { name: 'Defense', level: 1, icon: '🛡️' },
-    { name: 'Strength', level: 1, icon: '💪' },
-    { name: 'Hitpoints', level: 10, icon: '❤️' },
-    { name: 'Ranged', level: 1, icon: '🏹' },
-    { name: 'Prayer', level: 1, icon: '✨' },
-    { name: 'Magic', level: 1, icon: '🔮' },
-    { name: 'Cooking', level: 1, icon: '🍳' },
-    { name: 'Woodcutting', level: 1, icon: '🪓' },
-    { name: 'Fletching', level: 1, icon: '🏃' },
-    { name: 'Fishing', level: 1, icon: '🎣' },
-    { name: 'Firemaking', level: 1, icon: '🔥' },
-    { name: 'Crafting', level: 1, icon: '✂️' },
-    { name: 'Smithing', level: 1, icon: '⚒️' },
-    { name: 'Mining', level: 1, icon: '⛏️' },
-    { name: 'Herblore', level: 1, icon: '🌿' },
-    { name: 'Agility', level: 1, icon: '🏃' },
-    { name: 'Thieving', level: 1, icon: '👥' },
-    { name: 'Slayer', level: 1, icon: '💀' },
-    { name: 'Farming', level: 1, icon: '🌱' },
-    { name: 'Runecrafting', level: 1, icon: '🔯' }
+    { name: 'Attack', level: 1, maxLevel: 1, icon: '⚔️' },
+    { name: 'Defense', level: 1, maxLevel: 1, icon: '🛡️' },
+    { name: 'Strength', level: 1, maxLevel: 1, icon: '💪' },
+    { name: 'Hitpoints', level: 10, maxLevel: 10, icon: '❤️' },
+    { name: 'Ranged', level: 1, maxLevel: 1, icon: '🏹' },
+    { name: 'Prayer', level: 1, maxLevel: 1, icon: '✨' },
+    { name: 'Magic', level: 1, maxLevel: 1, icon: '🔮' },
+    { name: 'Cooking', level: 1, maxLevel: 1, icon: '🍳' },
+    { name: 'Woodcutting', level: 1, maxLevel: 1, icon: '🪓' },
+    { name: 'Fletching', level: 1, maxLevel: 1, icon: '🏃' },
+    { name: 'Fishing', level: 1, maxLevel: 1, icon: '🎣' },
+    { name: 'Firemaking', level: 1, maxLevel: 1, icon: '🔥' },
+    { name: 'Crafting', level: 1, maxLevel: 1, icon: '✂️' },
+    { name: 'Smithing', level: 1, maxLevel: 1, icon: '⚒️' },
+    { name: 'Mining', level: 1, maxLevel: 1, icon: '⛏️' },
+    { name: 'Herblore', level: 1, maxLevel: 1, icon: '🌿' },
+    { name: 'Agility', level: 1, maxLevel: 1, icon: '🏃' },
+    { name: 'Thieving', level: 1, maxLevel: 1, icon: '👥' },
+    { name: 'Slayer', level: 1, maxLevel: 1, icon: '💀' },
+    { name: 'Farming', level: 1, maxLevel: 1, icon: '🌱' },
+    { name: 'Runecrafting', level: 1, maxLevel: 1, icon: '🔯' }
   ];
 
   const skillsContainer = skillsMenu.querySelector('.skills-grid');
@@ -44,7 +44,7 @@ function initializeSkillsMenu() {
     skillSlot.className = 'skill-slot';
     skillSlot.innerHTML = `
       <div class="skill-icon">${skill.icon}</div>
-      <div class="skill-level">${skill.level}</div>
+      <div class="skill-level">${skill.level}/${skill.maxLevel}</div>
     `;
     skillSlot.title = skill.name; // Add tooltip showing skill name
     skillsContainer.appendChild(skillSlot);
