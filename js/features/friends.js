@@ -1,5 +1,5 @@
 import { addTooltip, tooltip } from '../ui/tooltips.js';
-import { showContextMenu } from '../ui/contextMenu.js';
+import { showContextMenu, hideContextMenu } from '../ui/contextMenu.js';
 import { setupOverlay } from '../ui/overlays.js';
 import { toggleMenu } from './menuManager.js';
 
@@ -27,6 +27,39 @@ function initializeFriendsList() {
   setupOverlay(addFriendOverlay, addFriendInput);
   setupOverlay(delFriendOverlay, delFriendInput);
 
+  // --- Local Storage Persistence Functions ---
+  function saveFriendsList() {
+    const friendEntries = friendsListContainer.querySelectorAll('.list-entry');
+    const friendsData = Array.from(friendEntries).map(entry => {
+      return { name: entry.querySelector('.player-name').textContent };
+    });
+    localStorage.setItem('friendsList', JSON.stringify(friendsData));
+  }
+
+  function loadFriendsList() {
+    const stored = localStorage.getItem('friendsList');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (err) {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  // Populate friends list from local storage on initialization
+  const storedFriends = loadFriendsList();
+  storedFriends.forEach(friend => {
+    const newFriend = document.createElement('div');
+    newFriend.className = 'list-entry';
+    newFriend.innerHTML = `
+      <span class="player-name">${friend.name}</span>
+      <span class="world-status offline">Offline</span>
+    `;
+    friendsListContainer.appendChild(newFriend);
+  });
+
   // Add Friend button click handler
   addFriendButton.addEventListener('click', () => {
     addFriendOverlay.classList.add('shown');
@@ -44,11 +77,8 @@ function initializeFriendsList() {
   // Handle overlay submissions
   document.addEventListener('overlay-submit', (e) => {
     const { name, overlay } = e.detail;
+    
     if (overlay === addFriendOverlay) {
-      // Prevent duplicate friend entries (non case sensitive)
-      const duplicate = Array.from(friendsListContainer.querySelectorAll('.list-entry .player-name'))
-        .some(el => el.textContent.trim().toLowerCase() === name.trim().toLowerCase());
-      if (duplicate) return;
       const newFriend = document.createElement('div');
       newFriend.className = 'list-entry';
       newFriend.innerHTML = `
@@ -56,14 +86,16 @@ function initializeFriendsList() {
         <span class="world-status offline">Offline</span>
       `;
       friendsListContainer.appendChild(newFriend);
+      saveFriendsList();
     } else if (overlay === delFriendOverlay) {
       const friendEntries = friendsListContainer.querySelectorAll('.list-entry');
       friendEntries.forEach(entry => {
         const playerName = entry.querySelector('.player-name').textContent;
-        if (playerName.trim().toLowerCase() === name.trim().toLowerCase()) {
+        if (playerName === name) {
           entry.remove();
         }
       });
+      saveFriendsList();
     }
   });
 
@@ -88,7 +120,7 @@ function initializeFriendsList() {
     }
   });
 
-  // Handle friend list clicks – now the Message option will correctly open the messaging overlay
+  // Handle friend list clicks – Message action and removal via context menu
   friendsListContainer.addEventListener('click', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
@@ -104,6 +136,7 @@ function initializeFriendsList() {
         },
         () => {
           playerNameElement.closest('.list-entry').remove();
+          saveFriendsList();
         }
       );
     }

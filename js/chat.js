@@ -182,35 +182,25 @@ function showChatContextMenu(e, username) {
 
   addFriendOption.addEventListener('click', (event) => {
     event.stopPropagation();
-    const friendsListContainer = document.querySelector('.friends-list .list-container');
-    const duplicate = Array.from(friendsListContainer.querySelectorAll('.list-entry .player-name'))
-      .some(el => el.textContent.trim().toLowerCase() === username.trim().toLowerCase());
-    if (!duplicate) {
-      const newFriend = document.createElement('div');
-      newFriend.className = 'list-entry';
-      newFriend.innerHTML = `
-        <span class="player-name">${username}</span>
-        <span class="world-status offline">Offline</span>
-      `;
-      friendsListContainer.appendChild(newFriend);
-    }
+    const newFriend = document.createElement('div');
+    newFriend.className = 'list-entry';
+    newFriend.innerHTML = `
+      <span class="player-name">${username}</span>
+      <span class="world-status offline">Offline</span>
+    `;
+    document.querySelector('.friends-list .list-container').appendChild(newFriend);
     hideAllContextMenus();
   });
 
   addIgnoreOption.addEventListener('click', (event) => {
     event.stopPropagation();
-    const ignoreListContainer = document.querySelector('.ignore-list .list-container');
-    const duplicate = Array.from(ignoreListContainer.querySelectorAll('.list-entry .player-name'))
-      .some(el => el.textContent.trim().toLowerCase() === username.trim().toLowerCase());
-    if (!duplicate) {
-      const newIgnore = document.createElement('div');
-      newIgnore.className = 'list-entry';
-      newIgnore.innerHTML = `
-        <span class="player-name">${username}</span>
-        <span class="world-status offline">Offline</span>
-      `;
-      ignoreListContainer.appendChild(newIgnore);
-    }
+    const newIgnore = document.createElement('div');
+    newIgnore.className = 'list-entry';
+    newIgnore.innerHTML = `
+      <span class="player-name">${username}</span>
+      <span class="world-status offline">Offline</span>
+    `;
+    document.querySelector('.ignore-list .list-container').appendChild(newIgnore);
     hideAllContextMenus();
   });
 

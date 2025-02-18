@@ -26,6 +26,39 @@ function initializeIgnoreList() {
   setupOverlay(addIgnoreOverlay, addIgnoreInput);
   setupOverlay(delIgnoreOverlay, delIgnoreInput);
 
+  // --- Local Storage Persistence Functions ---
+  function saveIgnoreList() {
+    const ignoreEntries = ignoreListContainer.querySelectorAll('.list-entry');
+    const ignoreData = Array.from(ignoreEntries).map(entry => {
+      return { name: entry.querySelector('.player-name').textContent };
+    });
+    localStorage.setItem('ignoreList', JSON.stringify(ignoreData));
+  }
+
+  function loadIgnoreList() {
+    const stored = localStorage.getItem('ignoreList');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (err) {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  // Populate ignore list from local storage on initialization
+  const storedIgnores = loadIgnoreList();
+  storedIgnores.forEach(item => {
+    const newIgnore = document.createElement('div');
+    newIgnore.className = 'list-entry';
+    newIgnore.innerHTML = `
+      <span class="player-name">${item.name}</span>
+      <span class="world-status offline">Offline</span>
+    `;
+    ignoreListContainer.appendChild(newIgnore);
+  });
+
   // Add Ignore button click handler
   addIgnoreButton.addEventListener('click', () => {
     addIgnoreOverlay.classList.add('shown');
@@ -45,10 +78,6 @@ function initializeIgnoreList() {
     const { name, overlay } = e.detail;
     
     if (overlay === addIgnoreOverlay) {
-      // Prevent duplicate ignore entries (non case sensitive)
-      const duplicate = Array.from(ignoreListContainer.querySelectorAll('.list-entry .player-name'))
-        .some(el => el.textContent.trim().toLowerCase() === name.trim().toLowerCase());
-      if (duplicate) return;
       const newIgnore = document.createElement('div');
       newIgnore.className = 'list-entry';
       newIgnore.innerHTML = `
@@ -56,14 +85,16 @@ function initializeIgnoreList() {
         <span class="world-status offline">Offline</span>
       `;
       ignoreListContainer.appendChild(newIgnore);
+      saveIgnoreList();
     } else if (overlay === delIgnoreOverlay) {
       const ignoreEntries = ignoreListContainer.querySelectorAll('.list-entry');
       ignoreEntries.forEach(entry => {
         const playerName = entry.querySelector('.player-name').textContent;
-        if (playerName.trim().toLowerCase() === name.trim().toLowerCase()) {
+        if (playerName === name) {
           entry.remove();
         }
       });
+      saveIgnoreList();
     }
   });
 
@@ -93,6 +124,7 @@ function initializeIgnoreList() {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
       playerNameElement.closest('.list-entry').remove();
+      saveIgnoreList();
     }
   });
 }
