@@ -1,6 +1,3 @@
-// Change to ES module format
-import { showContextMenu, hideContextMenu } from './ui/contextMenu.js';
-
 // Initialize WebSocket connection
 const room = new WebsimSocket();
 
@@ -15,10 +12,60 @@ room.party.subscribe((peers) => {
   }
 });
 
-// Create a function to extract username from message element
-function getUsernameFromMessage(element) {
-  const usernameEl = element.querySelector('.username');
-  return usernameEl ? usernameEl.textContent : null;
+function showChatContextMenu(e, username) {
+  e.preventDefault();
+  
+  // Position and show context menu
+  const contextMenu = document.createElement('div');
+  contextMenu.className = 'context-menu shown';
+  contextMenu.style.left = `${e.pageX}px`;
+  contextMenu.style.top = `${e.pageY}px`;
+  
+  // Set menu options
+  contextMenu.innerHTML = `
+    <div class="context-menu-option add-friend">Add Friend ${username}</div>
+    <div class="context-menu-option add-ignore">Add Ignore ${username}</div>
+    <div class="context-menu-option cancel">Cancel</div>
+  `;
+  
+  document.body.appendChild(contextMenu);
+  
+  // Add click handlers for menu options
+  contextMenu.querySelector('.add-friend').addEventListener('click', () => {
+    // Add friend logic here
+    const newFriend = document.createElement('div');
+    newFriend.className = 'list-entry';
+    newFriend.innerHTML = `
+      <span class="player-name">${username}</span>
+      <span class="world-status offline">Offline</span>
+    `;
+    document.querySelector('.friends-list .list-container').appendChild(newFriend);
+    contextMenu.remove();
+  });
+  
+  contextMenu.querySelector('.add-ignore').addEventListener('click', () => {
+    // Add ignore logic here
+    const newIgnore = document.createElement('div');
+    newIgnore.className = 'list-entry';
+    newIgnore.innerHTML = `
+      <span class="player-name">${username}</span>
+      <span class="world-status offline">Offline</span>
+    `;
+    document.querySelector('.ignore-list .list-container').appendChild(newIgnore);
+    contextMenu.remove();
+  });
+  
+  contextMenu.querySelector('.cancel').addEventListener('click', () => {
+    contextMenu.remove();
+  });
+
+  // Close menu when clicking outside
+  document.addEventListener('click', function closeMenu(e) {
+    if (!e.target.closest('.context-menu')) {
+      contextMenu.remove();
+      document.removeEventListener('click', closeMenu);
+    }
+  });
 }
 
 // Handle chat input
@@ -38,6 +85,12 @@ chatInput.addEventListener('keypress', (e) => {
     const messageDiv = document.createElement('div');
     messageDiv.className = 'chat-message user';
     messageDiv.innerHTML = `<span class="username">${room.party.client.username}</span><span class="separator">: </span>${message}`;
+    
+    // Add click handler to username
+    messageDiv.querySelector('.username').addEventListener('click', (e) => {
+      showChatContextMenu(e, room.party.client.username);
+    });
+    
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
     
     // Clear input
@@ -52,51 +105,12 @@ room.onmessage = (event) => {
     const messageDiv = document.createElement('div');
     messageDiv.className = 'chat-message user';
     messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
+    
+    // Add click handler to username
+    messageDiv.querySelector('.username').addEventListener('click', (e) => {
+      showChatContextMenu(e, event.data.username);
+    });
+    
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
   }
 };
-
-// Add click handler for chat messages and usernames
-document.querySelector('.chat-content').addEventListener('click', (e) => {
-  const messageEl = e.target.closest('.chat-message');
-  if (!messageEl) return;
-
-  const username = getUsernameFromMessage(messageEl);
-  if (!username || username === room.party.client.username) return;
-
-  // Show dropdown menu with chat-specific options
-  showContextMenu(e, username, 
-    null,
-    null,
-    [
-      {
-        text: "Add Friend",
-        action: () => {
-          // Trigger Add Friend overlay
-          const addFriendOverlay = document.getElementById('add-friend-overlay');
-          const addFriendInput = addFriendOverlay.querySelector('.add-friend-input');
-          addFriendOverlay.classList.add('shown');
-          addFriendInput.value = username;
-          // Simulate Enter key press to submit
-          addFriendInput.dispatchEvent(new KeyboardEvent('keypress', { key: 'Enter' }));
-        }
-      },
-      {
-        text: "Add Ignore",
-        action: () => {
-          // Trigger Add Ignore overlay
-          const addIgnoreOverlay = document.getElementById('add-ignore-overlay');
-          const addIgnoreInput = addIgnoreOverlay.querySelector('.add-friend-input');
-          addIgnoreOverlay.classList.add('shown');
-          addIgnoreInput.value = username;
-          // Simulate Enter key press to submit
-          addIgnoreInput.dispatchEvent(new KeyboardEvent('keypress', { key: 'Enter' }));
-        }
-      },
-      {
-        text: "Cancel",
-        action: hideContextMenu
-      }
-    ]
-  );
-});
