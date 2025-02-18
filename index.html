@@ -228,23 +228,32 @@ Out</div>
           </svg>
         </div>
         <div class="bottom-icon">
-          <!-- Running Stick Figure Icon -->
+          <!-- Running Stick Figure Icon for Button Label 13 -->
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <!-- Head -->
-            <circle cx="12" cy="6" r="2.5" fill="#fff"/>
-            <!-- Body and limbs with more dynamic running pose -->
-            <path d="
-              M12 8.5v4 
-              M9 20l3-7.5 
-              M15 20l-3-7.5
-              M9 12.5h6
-              M12 12.5l-2.5-3
-              M12 12.5l2.5-3" 
-              stroke="#fff" 
-              stroke-width="1.5" 
-              fill="none"
-              stroke-linecap="round"
-            />
+            <circle cx="12" cy="4" r="2" fill="white" />
+            <!-- Body -->
+            <line x1="12" y1="6" x2="12" y2="12" stroke="white" stroke-width="2" />
+            <!-- Left arm with simple animation -->
+            <line x1="12" y1="8" x2="8" y2="10" stroke="white" stroke-width="2">
+              <animate attributeName="x2" values="8;7;8" dur="0.6s" repeatCount="indefinite" />
+              <animate attributeName="y2" values="10;9;10" dur="0.6s" repeatCount="indefinite" />
+            </line>
+            <!-- Right arm with simple animation -->
+            <line x1="12" y1="8" x2="16" y2="10" stroke="white" stroke-width="2">
+              <animate attributeName="x2" values="16;17;16" dur="0.6s" repeatCount="indefinite" />
+              <animate attributeName="y2" values="10;11;10" dur="0.6s" repeatCount="indefinite" />
+            </line>
+            <!-- Left leg with simple animation -->
+            <line x1="12" y1="12" x2="9" y2="16" stroke="white" stroke-width="2">
+              <animate attributeName="x2" values="9;8;9" dur="0.6s" repeatCount="indefinite" />
+              <animate attributeName="y2" values="16;17;16" dur="0.6s" repeatCount="indefinite" />
+            </line>
+            <!-- Right leg with simple animation -->
+            <line x1="12" y1="12" x2="15" y2="16" stroke="white" stroke-width="2">
+              <animate attributeName="x2" values="15;16;15" dur="0.6s" repeatCount="indefinite" />
+              <animate attributeName="y2" values="16;15;16" dur="0.6s" repeatCount="indefinite" />
+            </line>
           </svg>
         </div>
         <div class="bottom-icon">14</div>
