@@ -17,13 +17,13 @@ const skills = [
   { name: 'Swiftshot', level: 1, maxLevel: 1, icon: '🏹', xp: 0, nextLevel: 83 },
   { name: 'Detective', level: 1, maxLevel: 1, icon: '👥', xp: 0, nextLevel: 83, style: 'filter: grayscale(100%) brightness(0.3); -webkit-text-stroke: 1px black;' },
   { name: 'Cooking', level: 1, maxLevel: 1, icon: '🍳', xp: 0, nextLevel: 83 },
-  { name: 'Prayer', level: 1, maxLevel: 1, icon: '✨', xp: 0, nextLevel: 83 },
+  { name: 'Sentience', level: 1, maxLevel: 1, icon: '✨', xp: 0, nextLevel: 83 },
   { name: 'Artisan', level: 1, maxLevel: 1, icon: '💎', xp: 0, nextLevel: 83 },
   { name: 'Firemaking', level: 1, maxLevel: 1, icon: '🔥', xp: 0, nextLevel: 83 },
   { name: 'Eldritch', level: 1, maxLevel: 1, icon: '🔮', xp: 0, nextLevel: 83 },
   { name: 'Fletching', level: 1, maxLevel: 1, icon: '🔪', xp: 0, nextLevel: 83 },
   { name: 'Woodcutting', level: 1, maxLevel: 1, icon: '🪓', xp: 0, nextLevel: 83 },
-  { name: 'Runecrafting', level: 1, maxLevel: 1, icon: '🔯', xp: 0, nextLevel: 83 },
+  { name: 'Sacrament', level: 1, maxLevel: 1, icon: '🔯', xp: 0, nextLevel: 83 },
   { name: 'Deathbind', level: 1, maxLevel: 1, icon: '💀', xp: 0, nextLevel: 83 },
   { name: 'Farming', level: 1, maxLevel: 1, icon: '🌱', xp: 0, nextLevel: 83 }
 ];
