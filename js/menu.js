@@ -4,9 +4,9 @@ import { initializeInventory } from './features/inventory.js';
 import { initializeLogout } from './features/logout.js';
 import { initializeGameOptions } from './features/gameOptions.js';
 import { initializeQuestJournal } from './features/questJournal.js';
-import { initializeSkillsMenu } from './features/skillsMenu.js';
 import { hideContextMenu } from './ui/contextMenu.js';
 import { hideAllPanels } from './features/menuManager.js';
+import { initializeSkillsMenu } from './features/skillsMenu.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize all features

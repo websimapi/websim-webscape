@@ -2,7 +2,7 @@
 let activeButton = null;
 let activePanel = null;
 
-// List of menu items with their corresponding panels
+// List of menu items with their corresponding panels, updated to include game options, quest journal and skills menu.
 const menuItems = {
   'friends-button': '.friends-list',
   'ignore-button': '.ignore-list',
@@ -10,11 +10,11 @@ const menuItems = {
   'logout-button': '#logout-popup',
   'game-options-button': '#game-options',
   'quest': '#quest-journal',
-  'stats': '#skills-menu'
+  'skills': '#skills-menu'
 };
 
 function hideAllPanels() {
-  // Hide all panels defined in the menuItems mapping
+  // Hide all panels defined in the menuItems mapping.
   Object.values(menuItems).forEach(panelSelector => {
     const panel = document.querySelector(panelSelector);
     if (panel) {
@@ -41,11 +41,7 @@ function toggleMenu(button, panelSelector) {
     hideAllPanels();
     button.classList.add('selected');
     panel.classList.remove('hidden');
-    if (panelSelector.includes('friends') || 
-        panelSelector.includes('ignore') || 
-        panelSelector.includes('game-options') || 
-        panelSelector.includes('quest') ||
-        panelSelector.includes('skills')) {
+    if (panelSelector.includes('friends') || panelSelector.includes('ignore') || panelSelector.includes('game-options') || panelSelector.includes('quest')) {
       panel.classList.add('shown');
     }
     return;
@@ -57,11 +53,7 @@ function toggleMenu(button, panelSelector) {
   // Show the selected panel and mark button as selected
   button.classList.add('selected');
   panel.classList.remove('hidden');
-  if (panelSelector.includes('friends') || 
-      panelSelector.includes('ignore') || 
-      panelSelector.includes('game-options') || 
-      panelSelector.includes('quest') ||
-      panelSelector.includes('skills')) {
+  if (panelSelector.includes('friends') || panelSelector.includes('ignore') || panelSelector.includes('game-options') || panelSelector.includes('quest')) {
     panel.classList.add('shown');
   }
 

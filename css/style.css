@@ -231,32 +231,6 @@ body {
   background: red;
 }
 
-/* Skills Menu styling update */
-#skills-menu {
-  position: relative;
-  width: calc(100% - 8px);
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
-  padding: 4px;
-  background: #382418;
-  height: 200px;
-  margin-top: 4px;
-  display: none;
-}
-
-#skills-menu.shown {
-  display: grid;
-}
-
-.skill-slot {
-  width: 46px;
-  height: 28px;
-  background: #474745;
-  border: 1px solid #000;
-  border-radius: 2px;
-}
-
 /* Add Friend and Del Friend Input UI */
 #add-friend-overlay,
 #del-friend-overlay {
