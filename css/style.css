@@ -44,7 +44,7 @@ body {
 
 /* Bottom status icons */
 #bottom-icons {
-  height: 40px;
+  height: 36px;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -55,8 +55,8 @@ body {
 }
 
 .bottom-icon {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   background: #474745;
   border: 1px solid #000;
   border-radius: 4px;
@@ -70,11 +70,6 @@ body {
   font-weight: bold;
   text-shadow: 1px 1px 1px #000;
   padding: 2px;
-  text-align: center;
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* Adjust the Log Out text specifically to ensure it fits with line break */
@@ -87,12 +82,14 @@ body {
   padding: 1px;
   line-height: 0.9;
   white-space: pre;
+  width: 28px;
+  height: 28px;
 }
 
 /* Unified icon styling for both minimap and bottom icons */
 .icon {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   background: #474745;
   border: 1px solid #000;
   border-radius: 4px;
@@ -114,7 +111,7 @@ body {
   padding: 4px;
   background: #382418;
   border-top: 2px solid #000;
-  height: 32px;
+  height: 36px;
 }
 
 /* Logout popup styling */
