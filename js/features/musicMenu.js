@@ -1,13 +1,19 @@
 import { toggleMenu } from './menuManager.js';
 
-// Initialize WebSocket connection
-const room = new WebsimSocket();
+let room;
+try {
+  if (typeof WebsimSocket !== 'function') {
+    throw new Error('WebsimSocket is not available or not a function');
+  }
+  room = new WebsimSocket();
+  console.log("MusicMenu: WebsimSocket instance created successfully:", room);
+} catch (err) {
+  console.error("MusicMenu: Error creating WebsimSocket instance:", err);
+}
 
-// Track audio state
 let currentAudio = null;
-let isPlaying = false;
 let currentTrack = 'No track';
-let autoPlayMode = false;
+let autoPlayMode = loadMusicSettings();
 let currentTrackIndex = 0;
 let hasUserInteracted = false;
 
@@ -21,24 +27,24 @@ const tracks = [
 
 function loadMusicSettings() {
   const storedMode = localStorage.getItem('musicMode');
-  console.log("Loaded music mode from localStorage:", storedMode);
+  console.log("MusicMenu: Loaded music mode from localStorage:", storedMode);
   return storedMode === 'auto';
 }
 
 function saveMusicSettings(isAuto) {
   localStorage.setItem('musicMode', isAuto ? 'auto' : 'manual');
-  console.log("Saved music mode to localStorage:", isAuto ? 'auto' : 'manual');
+  console.log("MusicMenu: Saved music mode to localStorage:", isAuto ? 'auto' : 'manual');
 }
 
 function playTrack(track, trackElement, trackList) {
   if (!hasUserInteracted) { 
-    console.log("User hasn't interacted yet, will not play track:", track.name);
+    console.log("MusicMenu: User hasn't interacted yet, will not play track:", track.name);
     return;
   }
-  console.log("playTrack triggered for track:", track.name);
+  console.log("MusicMenu: playTrack triggered for track:", track.name);
   if (track.unlocked) {
     if (currentAudio) {
-      console.log("Pausing current audio. Previous track:", currentTrack);
+      console.log("MusicMenu: Pausing current audio. Previous track:", currentTrack);
       currentAudio.pause();
       currentAudio = null;
     }
@@ -47,11 +53,11 @@ function playTrack(track, trackElement, trackList) {
     
     const trackDisplay = document.querySelector('#music-menu .track');
     trackDisplay.textContent = `Playing: ${currentTrack}`;
-    console.log("Attempting to play track:", currentTrack);
+    console.log("MusicMenu: Attempting to play track:", currentTrack);
     currentAudio.play().then(() => {
-      console.log("Track started playing:", currentTrack);
+      console.log("MusicMenu: Track started playing:", currentTrack);
     }).catch(e => {
-      console.error("Error playing audio:", e);
+      console.error("MusicMenu: Error playing audio:", e);
       trackDisplay.textContent = 'Playing: No track';
     });
     
@@ -61,28 +67,32 @@ function playTrack(track, trackElement, trackList) {
       entry.style.color = ""; // reset any previous inline styling
     });
     trackElement.classList.add('selected');
-    trackElement.style.color = "lightgreen"; // use lighter green for select indication
+    trackElement.style.color = "#00ff00"; // using online green color
     
     // Setup auto-play for next track if autoPlayMode is enabled
     if (autoPlayMode) {
       currentAudio.addEventListener('ended', () => {
-        console.log("Track ended:", currentTrack);
+        console.log("MusicMenu: Track ended:", currentTrack);
         currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
         const nextTrack = tracks[currentTrackIndex];
         const nextTrackElement = trackList.children[currentTrackIndex];
-        console.log("Auto-playing next track:", nextTrack.name);
+        console.log("MusicMenu: Auto-playing next track:", nextTrack.name);
         playTrack(nextTrack, nextTrackElement, trackList);
       });
     }
   } else {
-    console.log("Track is not unlocked:", track.name);
+    console.log("MusicMenu: Track is not unlocked:", track.name);
   }
 }
 
 function initializeMusicMenu() {
-  console.log("Initializing Music Menu");
+  console.log("MusicMenu: Initializing Music Menu");
   const musicButton = document.querySelector('.bottom-icon.music');
   const musicMenu = document.getElementById('music-menu');
+  if (!musicMenu) {
+    console.error("MusicMenu: Music menu element not found!");
+    return;
+  }
   const musicContent = musicMenu.querySelector('.music-content');
   const trackDisplay = musicMenu.querySelector('.track');
   const autoButton = musicMenu.querySelector('.music-auto');
@@ -94,9 +104,9 @@ function initializeMusicMenu() {
     trackList = document.createElement('div');
     trackList.className = 'track-list';
     musicContent.appendChild(trackList);
-    console.log("Created new track list container");
+    console.log("MusicMenu: Created new track list container");
   } else {
-    console.log("Found existing track list container");
+    console.log("MusicMenu: Found existing track list container");
   }
   
   // Clear and populate track list
@@ -107,47 +117,44 @@ function initializeMusicMenu() {
     trackElement.textContent = track.name;
     if (track.unlocked) {
       trackElement.classList.add('unlocked');
-      trackElement.style.color = "lightgreen"; // update unlocked color to lighter green
+      trackElement.style.color = "#00ff00"; // using online green color
     } else {
       trackElement.style.color = "gray";
     }
     trackElement.addEventListener('click', () => {
       hasUserInteracted = true;
-      console.log("Track clicked:", track.name);
+      console.log("MusicMenu: Track clicked:", track.name, "Index:", index, "Unlocked:", track.unlocked);
       if (track.unlocked) {
         currentTrackIndex = index;
         playTrack(track, trackElement, trackList);
       } else {
-        console.log("Clicked track is locked:", track.name);
+        console.log("MusicMenu: Clicked track is locked:", track.name);
       }
     });
     trackList.appendChild(trackElement);
-    console.log("Added track to list:", track.name);
+    console.log("MusicMenu: Added track to list:", track.name);
   });
-  console.log("Total tracks in list:", trackList.children.length);
+  console.log("MusicMenu: Total tracks in list:", trackList.children.length);
   
   // For Firefox compatibility, use 'mouseup' if InstallTrigger exists
   const eventType = (typeof InstallTrigger !== 'undefined') ? 'mouseup' : 'click';
-  if (typeof InstallTrigger !== 'undefined') {
-    console.log("Firefox detected - using 'mouseup' for auto/manual buttons.");
-  }
-  console.log("Using event type for auto/manual buttons:", eventType);
+  console.log("MusicMenu: Using event type for auto/manual buttons:", eventType);
 
   musicButton.addEventListener('click', () => {
-    console.log("Music Button clicked.");
+    console.log("MusicMenu: Music Button clicked.");
     toggleMenu(musicButton, '#music-menu');
     if (hasUserInteracted && autoPlayMode && !currentAudio && tracks.length > 0) {
       const firstTrack = tracks[0];
       const firstTrackElement = trackList.children[0];
-      console.log("Auto mode active - auto playing first track:", firstTrack.name);
+      console.log("MusicMenu: Auto mode active - auto playing first track:", firstTrack.name);
       playTrack(firstTrack, firstTrackElement, trackList);
     } else {
-      console.log("Music menu toggled; auto play conditions not met.");
+      console.log("MusicMenu: Music menu toggled; auto play conditions not met.");
     }
   });
 
   autoButton.addEventListener(eventType, () => {
-    console.log("Auto Button event triggered.");
+    console.log("MusicMenu: Auto Button event triggered.");
     hasUserInteracted = true;
     autoPlayMode = true;
     saveMusicSettings(true);
@@ -156,13 +163,13 @@ function initializeMusicMenu() {
     if (!currentAudio && tracks.length > 0) {
       const firstTrack = tracks[0];
       const firstTrackElement = trackList.children[0];
-      console.log("Starting auto mode play for track:", firstTrack.name);
+      console.log("MusicMenu: Starting auto mode play for track:", firstTrack.name);
       playTrack(firstTrack, firstTrackElement, trackList);
     }
   });
 
   manualButton.addEventListener(eventType, () => {
-    console.log("Manual Button event triggered.");
+    console.log("MusicMenu: Manual Button event triggered.");
     hasUserInteracted = true;
     autoPlayMode = false;
     saveMusicSettings(false);
@@ -170,24 +177,24 @@ function initializeMusicMenu() {
     autoButton.classList.remove('selected');
     if (currentAudio) {
       currentAudio.onended = null;
-      console.log("Manual mode: Stopped auto-play functionality.");
+      console.log("MusicMenu: Manual mode: Stopped auto-play functionality.");
     }
   });
 
   if (autoPlayMode) {
     autoButton.classList.add('selected');
     manualButton.classList.remove('selected');
-    console.log("Initial mode set to Auto.");
+    console.log("MusicMenu: Initial mode set to Auto.");
   } else {
     manualButton.classList.add('selected');
     autoButton.classList.remove('selected');
-    console.log("Initial mode set to Manual.");
+    console.log("MusicMenu: Initial mode set to Manual.");
   }
 
   // Ensure we mark first user interaction to allow audio play
   document.addEventListener('click', () => {
     if (!hasUserInteracted) {
-      console.log("First user interaction detected.");
+      console.log("MusicMenu: First user interaction detected.");
     }
     hasUserInteracted = true;
   }, { once: true });
