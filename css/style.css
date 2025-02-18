@@ -172,7 +172,7 @@ body {
 .list-container {
   background: #474745;
   border: 2px solid #5a473a;
-  height: 162px;
+  height: 172px;
   overflow-y: auto;
 }
 
@@ -204,9 +204,8 @@ body {
 .list-buttons {
   display: flex;
   justify-content: space-between;
-  margin-top: 14px;
+  margin-top: 4px;
   gap: 4px;
-  padding-bottom: 4px;
 }
 
 .list-button {
@@ -229,6 +228,94 @@ body {
 
 /* Add selected state for friends/ignore buttons */
 .bottom-icon.selected {
+  background: red;
+}
+
+/* Game Options Menu styling */
+.game-options {
+  position: relative;
+  width: calc(100% - 8px);
+  background: #382418;
+  padding: 4px;
+  display: none;
+  margin-top: 4px;
+  height: 172px;
+}
+
+.game-options.shown {
+  display: block;
+}
+
+.options-content {
+  background: #474745;
+  border: 2px solid #5a473a;
+  height: 100%;
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.options-title {
+  color: #00ffff;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.option-section {
+  margin-bottom: 8px;
+}
+
+.option-header {
+  color: #fff;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.option-buttons {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.option-buttons.inline {
+  flex-wrap: nowrap;
+}
+
+.option-button {
+  background: #382418;
+  border: 1px solid #000;
+  color: #fff;
+  padding: 2px 6px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
+}
+
+.option-button:hover {
+  background: #483428;
+}
+
+.option-button.selected {
+  background: #584438;
+}
+
+.option-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.option-column {
+  flex: 1;
+}
+
+/* Wrench icon specific styling */
+.wrench-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.wrench-icon.selected {
   background: red;
 }
 

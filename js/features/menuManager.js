@@ -7,7 +7,8 @@ const menuItems = {
   'friends-button': '.friends-list',
   'ignore-button': '.ignore-list',
   'inventory-button': '#inventory',
-  'logout-button': '#logout-popup'
+  'logout-button': '#logout-popup',
+  'wrench-button': '.game-options'  
 };
 
 function hideAllPanels() {

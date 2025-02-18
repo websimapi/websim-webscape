@@ -4,6 +4,7 @@ import { initializeInventory } from './features/inventory.js';
 import { initializeLogout } from './features/logout.js';
 import { hideContextMenu } from './ui/contextMenu.js';
 import { hideAllPanels } from './features/menuManager.js';
+import { initializeGameOptions } from './features/gameOptions.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize all features
@@ -11,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeIgnoreList();
   initializeInventory();
   initializeLogout();
+  initializeGameOptions();
 
   // Set default menu selection to menu 4
   const defaultButton = document.querySelector('.bottom-icon:nth-child(4)');
