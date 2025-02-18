@@ -8,7 +8,7 @@ function initializeSkillsMenu() {
     toggleMenu(skillsButton, '#skills-menu');
   });
 
-  // Initialize skills data
+  // Initialize skills data with 21 skills
   const skills = [
     { name: 'Attack', level: 1, icon: '⚔️' },
     { name: 'Defense', level: 1, icon: '🛡️' },
@@ -28,6 +28,9 @@ function initializeSkillsMenu() {
     { name: 'Herblore', level: 1, icon: '🌿' },
     { name: 'Agility', level: 1, icon: '🏃' },
     { name: 'Thieving', level: 1, icon: '👥' },
+    { name: 'Slayer', level: 1, icon: '💀' },
+    { name: 'Farming', level: 1, icon: '🌱' },
+    { name: 'Runecrafting', level: 1, icon: '🔯' }
   ];
 
   const skillsContainer = skillsMenu.querySelector('.skills-grid');
@@ -43,6 +46,7 @@ function initializeSkillsMenu() {
       <div class="skill-icon">${skill.icon}</div>
       <div class="skill-level">${skill.level}</div>
     `;
+    skillSlot.title = skill.name; // Add tooltip showing skill name
     skillsContainer.appendChild(skillSlot);
   });
 
