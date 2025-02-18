@@ -92,7 +92,8 @@
 }
 
 .track-entry.selected {
-  color: #ffff00;
+  color: #00ff00;
+  text-decoration: underline;
 }
 
 .track-entry:hover {
