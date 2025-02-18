@@ -1,14 +1,109 @@
 // Initialize WebSocket connection
 const room = new WebsimSocket();
 
+// Track online users
+let onlineUsers = new Set();
+
 // Get the username element
 const usernameElement = document.getElementById('current-username');
 
-// Update username when connection is established
+// Update username and online users when connection is established
 room.party.subscribe((peers) => {
   const currentUser = room.party.client;
   if (currentUser && currentUser.username) {
     usernameElement.textContent = currentUser.username;
+  }
+  
+  // Update online users
+  onlineUsers.clear();
+  for (const clientId in peers) {
+    onlineUsers.add(peers[clientId].username);
+  }
+  
+  // Update online status in friends list
+  updateOnlineStatus();
+});
+
+// Function to update online status in friends list
+function updateOnlineStatus() {
+  const friendEntries = document.querySelectorAll('.friends-list .list-entry');
+  friendEntries.forEach(entry => {
+    const username = entry.querySelector('.player-name').textContent;
+    const statusElement = entry.querySelector('.world-status');
+    if (onlineUsers.has(username)) {
+      statusElement.textContent = 'World-1';
+      statusElement.classList.remove('offline');
+    } else {
+      statusElement.textContent = 'Offline';
+      statusElement.classList.add('offline');
+    }
+  });
+}
+
+// Create message overlay
+const messageOverlay = document.createElement('div');
+messageOverlay.id = 'message-overlay';
+messageOverlay.className = 'message-overlay';
+messageOverlay.innerHTML = `
+  <div class="message-container">
+    <div class="message-text">Enter message to send to <span class="message-username"></span></div>
+    <input type="text" class="message-input" maxlength="80">
+  </div>
+`;
+document.body.appendChild(messageOverlay);
+
+const messageInput = messageOverlay.querySelector('.message-input');
+const messageUsernameSpan = messageOverlay.querySelector('.message-username');
+
+// Function to show message overlay
+function showMessageOverlay(username) {
+  messageUsernameSpan.textContent = username;
+  messageOverlay.classList.add('shown');
+  messageInput.value = '';
+  messageInput.focus();
+}
+
+// Setup message overlay
+function setupOverlay(overlay, input) {
+  // Add event listener for clicking outside the overlay
+  document.addEventListener('click', (e) => {
+    if (!overlay.contains(e.target) && !input.contains(e.target)) {
+      overlay.classList.remove('shown');
+    }
+  });
+}
+
+setupOverlay(messageOverlay, messageInput);
+
+// Handle message submission
+messageInput.addEventListener('keypress', async (e) => {
+  if (e.key === 'Enter' && messageInput.value.trim()) {
+    const message = messageInput.value.trim();
+    const recipient = messageUsernameSpan.textContent;
+    
+    if (onlineUsers.has(recipient)) {
+      room.send({
+        type: 'private-message',
+        message: message,
+        recipient: recipient
+      });
+      
+      // Add message to chat
+      const chatContent = document.querySelector('.chat-content');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'chat-message private-message';
+      messageDiv.innerHTML = `To ${recipient}: ${message}`;
+      chatContent.insertBefore(messageDiv, chatContent.firstChild);
+    } else {
+      // Add error message to chat
+      const chatContent = document.querySelector('.chat-content');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'chat-message system';
+      messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
+      chatContent.insertBefore(messageDiv, chatContent.firstChild);
+    }
+    
+    messageOverlay.classList.remove('shown');
   }
 });
 
@@ -44,6 +139,7 @@ function showChatContextMenu(e, username) {
 
   // Set menu content.
   chatContextMenu.innerHTML = `
+    <div class="context-menu-option message">Message ${username}</div>
     <div class="context-menu-option add-friend">Add Friend ${username}</div>
     <div class="context-menu-option add-ignore">Add Ignore ${username}</div>
     <div class="context-menu-option cancel">Cancel</div>
@@ -71,9 +167,16 @@ function showChatContextMenu(e, username) {
   chatContextMenu.style.top = `${yPos}px`;
 
   // Add click handlers for each menu option.
+  const messageOption = chatContextMenu.querySelector('.message');
   const addFriendOption = chatContextMenu.querySelector('.add-friend');
   const addIgnoreOption = chatContextMenu.querySelector('.add-ignore');
   const cancelOption = chatContextMenu.querySelector('.cancel');
+
+  messageOption.addEventListener('click', (event) => {
+    event.stopPropagation();
+    showMessageOverlay(username);
+    hideAllContextMenus();
+  });
 
   addFriendOption.addEventListener('click', (event) => {
     event.stopPropagation();
@@ -162,23 +265,37 @@ chatInput.addEventListener('keypress', (e) => {
 });
 
 room.onmessage = (event) => {
-  if (event.data.type === 'chat' && event.data.clientId !== room.party.client.id) {
-    const chatContent = document.querySelector('.chat-content');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'chat-message user';
-    messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
+  const chatContent = document.querySelector('.chat-content');
+  const messageDiv = document.createElement('div');
+  
+  switch (event.data.type) {
+    case 'chat':
+      if (event.data.clientId !== room.party.client.id) {
+        messageDiv.className = 'chat-message user';
+        messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
 
-    const usernameSpan = messageDiv.querySelector('.username');
-    usernameSpan.addEventListener('click', (e) => {
-      showChatContextMenu(e, event.data.username);
-    });
-    usernameSpan.addEventListener('mouseover', (e) => {
-      showUsernameHoverTooltip(e, event.data.username);
-    });
-    usernameSpan.addEventListener('mouseout', (e) => {
-      hideUsernameHoverTooltip();
-    });
-
+        const usernameSpan = messageDiv.querySelector('.username');
+        usernameSpan.addEventListener('click', (e) => {
+          showChatContextMenu(e, event.data.username);
+        });
+        usernameSpan.addEventListener('mouseover', (e) => {
+          showUsernameHoverTooltip(e, event.data.username);
+        });
+        usernameSpan.addEventListener('mouseout', (e) => {
+          hideUsernameHoverTooltip();
+        });
+      }
+      break;
+      
+    case 'private-message':
+      if (event.data.recipient === room.party.client.username) {
+        messageDiv.className = 'chat-message private-message';
+        messageDiv.innerHTML = `From ${event.data.username}: ${event.data.message}`;
+      }
+      break;
+  }
+  
+  if (messageDiv.innerHTML) {
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
   }
 };
