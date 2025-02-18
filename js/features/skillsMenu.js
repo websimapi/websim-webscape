@@ -1,4 +1,30 @@
-import { toggleMenu } from './menuManager.js';
+// Initialize WebSocket connection
+const room = new WebsimSocket();
+
+// Initialize skills data with 21 skills in the specified order
+const skills = [
+  { name: 'Attack', level: 1, maxLevel: 1, icon: '⚔️' },
+  { name: 'Hitpoints', level: 10, maxLevel: 10, icon: '❤️' },
+  { name: 'Mining', level: 1, maxLevel: 1, icon: '⛏️' },
+  { name: 'Strength', level: 1, maxLevel: 1, icon: '💪' },
+  { name: 'Agility', level: 1, maxLevel: 1, icon: '🏃' },
+  { name: 'Smithing', level: 1, maxLevel: 1, icon: '⚒️' },
+  { name: 'Defence', level: 1, maxLevel: 1, icon: '🛡️' },
+  { name: 'Herblore', level: 1, maxLevel: 1, icon: '🌿' },
+  { name: 'Fishing', level: 1, maxLevel: 1, icon: '🎣' },
+  { name: 'Ranged', level: 1, maxLevel: 1, icon: '🏹' },
+  { name: 'Thieving', level: 1, maxLevel: 1, icon: '👥', style: 'filter: grayscale(100%) brightness(0.7); -webkit-text-stroke: 1px black;' },
+  { name: 'Cooking', level: 1, maxLevel: 1, icon: '🍳' },
+  { name: 'Prayer', level: 1, maxLevel: 1, icon: '✨' },
+  { name: 'Crafting', level: 1, maxLevel: 1, icon: '✂️' },
+  { name: 'Firemaking', level: 1, maxLevel: 1, icon: '🔥' },
+  { name: 'Magic', level: 1, maxLevel: 1, icon: '🔮' },
+  { name: 'Fletching', level: 1, maxLevel: 1, icon: '🔪' },
+  { name: 'Woodcutting', level: 1, maxLevel: 1, icon: '🪓' },
+  { name: 'Runecrafting', level: 1, maxLevel: 1, icon: '🔯' },
+  { name: 'Slayer', level: 1, maxLevel: 1, icon: '💀' },
+  { name: 'Farming', level: 1, maxLevel: 1, icon: '🌱' }
+];
 
 function initializeSkillsMenu() {
   const skillsButton = document.querySelector('.icon.skills');
@@ -7,31 +33,6 @@ function initializeSkillsMenu() {
   skillsButton.addEventListener('click', () => {
     toggleMenu(skillsButton, '#skills-menu');
   });
-
-  // Initialize skills data with 21 skills in the specified order
-  const skills = [
-    { name: 'Attack', level: 1, maxLevel: 1, icon: '⚔️' },
-    { name: 'Hitpoints', level: 10, maxLevel: 10, icon: '❤️' },
-    { name: 'Mining', level: 1, maxLevel: 1, icon: '⛏️' },
-    { name: 'Strength', level: 1, maxLevel: 1, icon: '💪' },
-    { name: 'Agility', level: 1, maxLevel: 1, icon: '🏃' },
-    { name: 'Smithing', level: 1, maxLevel: 1, icon: '⚒️' },
-    { name: 'Defence', level: 1, maxLevel: 1, icon: '🛡️' },
-    { name: 'Herblore', level: 1, maxLevel: 1, icon: '🌿' },
-    { name: 'Fishing', level: 1, maxLevel: 1, icon: '🎣' },
-    { name: 'Ranged', level: 1, maxLevel: 1, icon: '🏹' },
-    { name: 'Thieving', level: 1, maxLevel: 1, icon: '👥', style: 'filter: brightness(0);' },
-    { name: 'Cooking', level: 1, maxLevel: 1, icon: '🍳' },
-    { name: 'Prayer', level: 1, maxLevel: 1, icon: '✨' },
-    { name: 'Crafting', level: 1, maxLevel: 1, icon: '✂️' },
-    { name: 'Firemaking', level: 1, maxLevel: 1, icon: '🔥' },
-    { name: 'Magic', level: 1, maxLevel: 1, icon: '🔮' },
-    { name: 'Fletching', level: 1, maxLevel: 1, icon: '🔪' },
-    { name: 'Woodcutting', level: 1, maxLevel: 1, icon: '🪓' },
-    { name: 'Runecrafting', level: 1, maxLevel: 1, icon: '🔯' },
-    { name: 'Slayer', level: 1, maxLevel: 1, icon: '💀' },
-    { name: 'Farming', level: 1, maxLevel: 1, icon: '🌱' }
-  ];
 
   const skillsContainer = skillsMenu.querySelector('.skills-grid');
   
@@ -53,7 +54,7 @@ function initializeSkillsMenu() {
   // Calculate total level
   const totalLevel = skills.reduce((sum, skill) => sum + skill.level, 0);
 
-  // Update the stats summary with new format
+  // Update the stats summary
   const statsContainer = skillsMenu.querySelector('.stats-summary');
   if (statsContainer) {
     statsContainer.innerHTML = `
