@@ -40,14 +40,14 @@ function updateOnlineStatus() {
   });
 }
 
-// Create message overlay
+// Create message overlay with updated styling
 const messageOverlay = document.createElement('div');
 messageOverlay.id = 'message-overlay';
 messageOverlay.className = 'message-overlay';
 messageOverlay.innerHTML = `
-  <div class="message-container">
-    <div class="message-text">Enter message to send to <span class="message-username"></span></div>
-    <input type="text" class="message-input" maxlength="80">
+  <div class="add-friend-container">
+    <div class="add-friend-text">Enter message to send to <span class="message-username"></span></div>
+    <input type="text" class="add-friend-input message-input" maxlength="80">
   </div>
 `;
 document.body.appendChild(messageOverlay);
@@ -63,7 +63,7 @@ function showMessageOverlay(username) {
   messageInput.focus();
 }
 
-// Setup message overlay
+// Setup overlay
 function setupOverlay(overlay, input) {
   // Add event listener for clicking outside the overlay
   document.addEventListener('click', (e) => {
