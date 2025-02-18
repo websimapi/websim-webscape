@@ -1,8 +1,9 @@
 import { toggleMenu } from './menuManager.js';
 
-// Initialize skills data with 21 skills in the specified order, 
-// applying modifications for Lumberjack (formerly Woodcutting), 
-// Pyro (formerly Firemaking), and Umami (formerly Cooking)
+// Initialize WebSocket connection
+const room = new WebsimSocket();
+
+// Initialize skills data with 21 skills in the specified order and add XP info
 const skills = [
   { name: 'Duelist', level: 1, maxLevel: 1, icon: '⚔️', xp: 0, nextLevel: 83 },
   { name: 'Spirit', level: 10, maxLevel: 10, icon: '❤️', xp: 1154, nextLevel: 1358, style: 'filter: hue-rotate(190deg) saturate(0.5) brightness(1.5);' },
@@ -53,7 +54,7 @@ function initializeSkillsMenu() {
       </div>
     `;
     
-    // When hovering over a skill, show its XP details.
+    // When hovering over a skill, show its XP details with a carriage return between lines.
     skillSlot.addEventListener('mouseover', () => {
       const statsContainer = skillsMenu.querySelector('.stats-summary');
       if (statsContainer) {
@@ -63,7 +64,7 @@ function initializeSkillsMenu() {
       }
     });
 
-    // Restore the default stats view on mouseout.
+    // Restore the default stats view on mouseout so non-hover state remains unaffected.
     skillSlot.addEventListener('mouseout', () => {
       const statsContainer = skillsMenu.querySelector('.stats-summary');
       if (statsContainer) {

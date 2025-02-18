@@ -1,33 +1,36 @@
-import { room, addMessageHandler, getActiveUsernames } from './connection.js';
+// Initialize WebSocket connection
+const room = new WebsimSocket();
 
-// Track online users using heartbeat-based active usernames.
+// Track online users
 let onlineUsers = new Set();
 
-// Get the username element from the chat UI.
+// Get the username element
 const usernameElement = document.getElementById('current-username');
 
-// Subscribe to party updates.
-// We now update our onlineUsers set using our heartbeat logic.
+// Update username and online users when connection is established
 room.party.subscribe((peers) => {
   const currentUser = room.party.client;
   if (currentUser && currentUser.username) {
     usernameElement.textContent = currentUser.username;
   }
-  // Use heartbeat info to determine active users.
-  onlineUsers = getActiveUsernames();
+  
+  // Update online users
+  onlineUsers.clear();
+  for (const clientId in peers) {
+    onlineUsers.add(peers[clientId].username);
+  }
+  
+  // Update online status in friends list
   updateOnlineStatus();
 });
 
-// Function to update online status in the friends list UI.
+// Function to update online status in friends list
 function updateOnlineStatus() {
-  const activeUsers = getActiveUsernames();
   const friendEntries = document.querySelectorAll('.friends-list .list-entry');
   friendEntries.forEach(entry => {
-    const nameElem = entry.querySelector('.player-name');
-    if (!nameElem) return;
-    const username = nameElem.textContent;
+    const username = entry.querySelector('.player-name').textContent;
     const statusElement = entry.querySelector('.world-status');
-    if (activeUsers.has(username)) {
+    if (onlineUsers.has(username)) {
       statusElement.textContent = 'World-1';
       statusElement.classList.remove('offline');
     } else {
@@ -37,7 +40,7 @@ function updateOnlineStatus() {
   });
 }
 
-// Setup message overlay UI (identical in style and position to the Add Friend overlay).
+// Create message overlay using the same markup as the Add Friend overlay
 const messageOverlay = document.createElement('div');
 messageOverlay.id = 'message-overlay';
 messageOverlay.className = 'add-friend-overlay';
@@ -52,7 +55,6 @@ document.querySelector('#chat-window').appendChild(messageOverlay);
 const messageInput = messageOverlay.querySelector('.add-friend-input');
 const messageUsernameSpan = messageOverlay.querySelector('.message-username');
 
-// Function to show the message overlay for a given username.
 function showMessageOverlay(username) {
   messageUsernameSpan.textContent = username;
   messageOverlay.classList.add('shown');
@@ -60,10 +62,10 @@ function showMessageOverlay(username) {
   messageInput.focus();
 }
 
-// Expose the showMessageOverlay function globally for use in other modules (e.g. friends.js).
+// Export the showMessageOverlay globally so that it can be used by other modules (such as friends.js)
 window.showMessageOverlay = showMessageOverlay;
 
-// Setup overlay dismissal when clicking outside the input in the chat window.
+// Setup message overlay functionality – attach the click listener to #chat-window so the overlay is dismissed when clicking outside the input.
 function setupOverlay(overlay, input) {
   const chatWindow = document.getElementById('chat-window');
   chatWindow.addEventListener('click', (e) => {
@@ -72,9 +74,10 @@ function setupOverlay(overlay, input) {
     }
   });
 }
+
 setupOverlay(messageOverlay, messageInput);
 
-// Handle message submission from the message overlay.
+// Handle message submission from the overlay
 messageInput.addEventListener('keypress', async (e) => {
   if (e.key === 'Enter' && messageInput.value.trim()) {
     const message = messageInput.value.trim();
@@ -87,14 +90,14 @@ messageInput.addEventListener('keypress', async (e) => {
         recipient: recipient
       });
       
-      // Add the private message to chat UI.
+      // Add message to chat
       const chatContent = document.querySelector('.chat-content');
       const messageDiv = document.createElement('div');
       messageDiv.className = 'chat-message private-message';
       messageDiv.innerHTML = `To ${recipient}: ${message}`;
       chatContent.insertBefore(messageDiv, chatContent.firstChild);
     } else {
-      // If recipient is offline, show an error message.
+      // Add error message to chat
       const chatContent = document.querySelector('.chat-content');
       const messageDiv = document.createElement('div');
       messageDiv.className = 'chat-message system';
@@ -105,46 +108,6 @@ messageInput.addEventListener('keypress', async (e) => {
     messageOverlay.classList.remove('shown');
   }
 });
-
-// Register a message handler for chat and private-message events.
-addMessageHandler((event) => {
-  const chatContent = document.querySelector('.chat-content');
-  if (!chatContent) return;
-  const messageDiv = document.createElement('div');
-  
-  switch (event.data.type) {
-    case 'chat':
-      if (event.data.clientId !== room.party.client.id) {
-        messageDiv.className = 'chat-message user';
-        messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
-        const usernameSpan = messageDiv.querySelector('.username');
-        usernameSpan.addEventListener('click', (e) => {
-          showChatContextMenu(e, event.data.username);
-        });
-        usernameSpan.addEventListener('mouseover', (e) => {
-          showUsernameHoverTooltip(e, event.data.username);
-        });
-        usernameSpan.addEventListener('mouseout', (e) => {
-          hideUsernameHoverTooltip();
-        });
-      }
-      break;
-      
-    case 'private-message':
-      if (event.data.recipient === room.party.client.username) {
-        messageDiv.className = 'chat-message private-message';
-        messageDiv.innerHTML = `From ${event.data.username}: ${event.data.message}`;
-      }
-      break;
-  }
-  
-  if (messageDiv.innerHTML) {
-    chatContent.insertBefore(messageDiv, chatContent.firstChild);
-  }
-});
-
-// Update friends list online/offline status every 3 seconds.
-setInterval(updateOnlineStatus, 3000);
 
 // Create a reusable chat context menu element.
 const chatContextMenu = document.createElement('div');
@@ -302,3 +265,42 @@ chatInput.addEventListener('keypress', (e) => {
     chatInput.value = '';
   }
 });
+
+room.onmessage = (event) => {
+  const chatContent = document.querySelector('.chat-content');
+  const messageDiv = document.createElement('div');
+  
+  switch (event.data.type) {
+    case 'chat':
+      if (event.data.clientId !== room.party.client.id) {
+        messageDiv.className = 'chat-message user';
+        messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
+
+        const usernameSpan = messageDiv.querySelector('.username');
+        usernameSpan.addEventListener('click', (e) => {
+          showChatContextMenu(e, event.data.username);
+        });
+        usernameSpan.addEventListener('mouseover', (e) => {
+          showUsernameHoverTooltip(e, event.data.username);
+        });
+        usernameSpan.addEventListener('mouseout', (e) => {
+          hideUsernameHoverTooltip();
+        });
+      }
+      break;
+      
+    case 'private-message':
+      if (event.data.recipient === room.party.client.username) {
+        messageDiv.className = 'chat-message private-message';
+        messageDiv.innerHTML = `From ${event.data.username}: ${event.data.message}`;
+      }
+      break;
+  }
+  
+  if (messageDiv.innerHTML) {
+    chatContent.insertBefore(messageDiv, chatContent.firstChild);
+  }
+};
+
+// Added interval to update the friends list online/offline status every 3 seconds.
+setInterval(updateOnlineStatus, 3000);
