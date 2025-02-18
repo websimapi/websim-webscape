@@ -99,14 +99,3 @@
 .chat-message.user .separator {
   color: #000;
 }
-
-/* Add clickable styling for usernames and messages */
-.chat-message .username,
-.chat-message .message-text {
-  cursor: pointer;
-}
-
-.chat-message .username:hover,
-.chat-message .message-text:hover {
-  text-decoration: underline;
-}

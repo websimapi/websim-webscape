@@ -1,6 +1,3 @@
-// Import context menu functionality
-import { showContextMenu, hideContextMenu } from './ui/contextMenu.js';
-
 // Initialize WebSocket connection
 const room = new WebsimSocket();
 
@@ -14,6 +11,12 @@ room.party.subscribe((peers) => {
     usernameElement.textContent = currentUser.username;
   }
 });
+
+// Create a function to extract username from message element
+function getUsernameFromMessage(element) {
+  const usernameEl = element.querySelector('.username');
+  return usernameEl ? usernameEl.textContent : null;
+}
 
 // Handle chat input
 const chatInput = document.querySelector('.chat-input');
@@ -31,11 +34,7 @@ chatInput.addEventListener('keypress', (e) => {
     const chatContent = document.querySelector('.chat-content');
     const messageDiv = document.createElement('div');
     messageDiv.className = 'chat-message user';
-    messageDiv.innerHTML = `<span class="username">${room.party.client.username}</span><span class="separator">: </span><span class="message-text">${message}</span>`;
-    
-    // Add click handler for username and message
-    addMessageClickHandlers(messageDiv);
-    
+    messageDiv.innerHTML = `<span class="username">${room.party.client.username}</span><span class="separator">: </span>${message}`;
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
     
     // Clear input
@@ -43,65 +42,64 @@ chatInput.addEventListener('keypress', (e) => {
   }
 });
 
-// Function to add click handlers to usernames and messages
-function addMessageClickHandlers(messageDiv) {
-  const usernameSpan = messageDiv.querySelector('.username');
-  const messageText = messageDiv.querySelector('.message-text');
-  
-  [usernameSpan, messageText].forEach(element => {
-    element.addEventListener('click', (e) => {
-      e.preventDefault();
-      const username = messageDiv.querySelector('.username').textContent;
-      
-      showContextMenu(e, username, {
-        options: [
-          {
-            text: `Add Friend ${username}`,
-            handler: async () => {
-              const newFriend = document.createElement('div');
-              newFriend.className = 'list-entry';
-              newFriend.innerHTML = `
-                <span class="player-name">${username}</span>
-                <span class="world-status offline">Offline</span>
-              `;
-              document.querySelector('.friends-list .list-container').appendChild(newFriend);
-            }
-          },
-          {
-            text: `Add Ignore ${username}`,
-            handler: async () => {
-              const newIgnore = document.createElement('div');
-              newIgnore.className = 'list-entry';
-              newIgnore.innerHTML = `
-                <span class="player-name">${username}</span>
-                <span class="world-status offline">Offline</span>
-              `;
-              document.querySelector('.ignore-list .list-container').appendChild(newIgnore);
-            }
-          },
-          {
-            text: 'Cancel',
-            handler: () => {
-              hideContextMenu();
-            }
-          }
-        ]
-      });
-    });
-  });
-}
-
 // Handle incoming chat messages
 room.onmessage = (event) => {
   if (event.data.type === 'chat' && event.data.clientId !== room.party.client.id) {
     const chatContent = document.querySelector('.chat-content');
     const messageDiv = document.createElement('div');
     messageDiv.className = 'chat-message user';
-    messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span><span class="message-text">${event.data.message}</span>`;
-    
-    // Add click handler for username and message
-    addMessageClickHandlers(messageDiv);
-    
+    messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
   }
 };
+
+// Import context menu functionality
+import { showContextMenu, hideContextMenu } from './ui/contextMenu.js';
+
+// Add click handler for chat messages
+document.querySelector('.chat-content').addEventListener('click', (e) => {
+  const messageEl = e.target.closest('.chat-message');
+  if (!messageEl) return;
+
+  const username = getUsernameFromMessage(messageEl);
+  if (!username || username === room.party.client.username) return;
+
+  // Show context menu with chat-specific options
+  showContextMenu(e, username, 
+    // Pass null for onMessage since we're using custom options
+    null,
+    // Pass null for onRemove since we're using custom options
+    null,
+    // Pass custom options
+    [
+      {
+        text: `Add Friend ${username}`,
+        action: () => {
+          // Trigger Add Friend overlay
+          const addFriendOverlay = document.getElementById('add-friend-overlay');
+          const addFriendInput = addFriendOverlay.querySelector('.add-friend-input');
+          addFriendOverlay.classList.add('shown');
+          addFriendInput.value = username;
+          // Simulate Enter key press to submit
+          addFriendInput.dispatchEvent(new KeyboardEvent('keypress', { key: 'Enter' }));
+        }
+      },
+      {
+        text: `Add Ignore ${username}`,
+        action: () => {
+          // Trigger Add Ignore overlay
+          const addIgnoreOverlay = document.getElementById('add-ignore-overlay');
+          const addIgnoreInput = addIgnoreOverlay.querySelector('.add-friend-input');
+          addIgnoreOverlay.classList.add('shown');
+          addIgnoreInput.value = username;
+          // Simulate Enter key press to submit
+          addIgnoreInput.dispatchEvent(new KeyboardEvent('keypress', { key: 'Enter' }));
+        }
+      },
+      {
+        text: 'Cancel',
+        action: hideContextMenu
+      }
+    ]
+  );
+});
