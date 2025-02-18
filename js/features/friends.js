@@ -85,16 +85,22 @@ function initializeFriendsList() {
     }
   });
 
-  // Handle friend list clicks: use same Message route as chat for messaging
+  // Handle friend list clicks
   friendsListContainer.addEventListener('click', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
       const username = playerNameElement.textContent;
       showContextMenu(e, username, 
         () => {
-          if (window.showMessageOverlay) {
-            window.showMessageOverlay(username);
-          }
+          // Show message overlay when Message option is clicked
+          const messageOverlay = document.getElementById('message-overlay');
+          const messageInput = messageOverlay.querySelector('.message-input');
+          const messageUsernameSpan = messageOverlay.querySelector('.message-username');
+          
+          messageUsernameSpan.textContent = username;
+          messageOverlay.classList.add('shown');
+          messageInput.value = '';
+          messageInput.focus();
         },
         () => {
           playerNameElement.closest('.list-entry').remove();
