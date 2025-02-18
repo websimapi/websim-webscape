@@ -26,7 +26,7 @@ function initializeSkillsMenu() {
     { name: 'Crafting', level: 1, maxLevel: 1, icon: '✂️' },
     { name: 'Firemaking', level: 1, maxLevel: 1, icon: '🔥' },
     { name: 'Magic', level: 1, maxLevel: 1, icon: '🔮' },
-    { name: 'Fletching', level: 1, maxLevel: 1, icon: '🏃' },
+    { name: 'Fletching', level: 1, maxLevel: 1, icon: '🔪🪵' },
     { name: 'Woodcutting', level: 1, maxLevel: 1, icon: '🪓' },
     { name: 'Runecrafting', level: 1, maxLevel: 1, icon: '🔯' },
     { name: 'Slayer', level: 1, maxLevel: 1, icon: '💀' },
