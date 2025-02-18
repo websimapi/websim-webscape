@@ -10,15 +10,13 @@ function initializeGameOptions() {
     });
   }
 
-  // Add event listeners to each button inside the game options panel.
+  // Add event listeners to each button inside the game options panel
   const buttons = gameOptionsPanel.querySelectorAll('.game-options-buttons button');
   buttons.forEach(button => {
     button.addEventListener('click', () => {
-      // For demonstration, mark the clicked button as selected while unselecting its siblings.
       const parent = button.parentElement;
       parent.querySelectorAll('button').forEach(btn => btn.classList.remove('selected'));
       button.classList.add('selected');
-      console.log(`Selected option: ${button.textContent} under "${parent.previousElementSibling?.textContent || 'section'}"`);
     });
   });
 }

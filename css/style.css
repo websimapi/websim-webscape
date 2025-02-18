@@ -351,19 +351,26 @@ body {
 
 /* Game Options Menu */
 #game-options {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 180px;
+  position: relative;
+  width: calc(100% - 8px);
   background: #382418;
-  border: 2px solid #000;
-  padding: 10px;
-  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
-  z-index: 1000;
+  padding: 4px;
+  display: none;
+  margin-top: 4px;
 }
 
 #game-options.hidden {
   display: none;
+}
+
+#game-options.shown {
+  display: block;
+}
+
+.game-options-content {
+  background: #474745;
+  border: 2px solid #5a473a;
+  padding: 8px;
 }
 
 .game-options-title {
