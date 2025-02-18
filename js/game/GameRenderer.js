@@ -22,17 +22,25 @@ export class GameRenderer {
     const aspect = this.width / this.height;
     this.camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
     
-    // Position camera for isometric-like view
+    // Initial camera position will be updated when player spawns
     this.camera.position.set(50, -50, 40);
     this.camera.lookAt(32, 32, 0);
     
-    // Add orbit controls
+    // Add orbit controls with constraints
     this.controls = new THREE.OrbitControls(
       this.camera, 
       this.container
     );
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.05;
+    
+    // Limit zoom
+    this.controls.minDistance = 20;
+    this.controls.maxDistance = 100;
+    
+    // Limit rotation
+    this.controls.minPolarAngle = Math.PI / 8; // Limit how high you can orbit
+    this.controls.maxPolarAngle = Math.PI / 2.5; // Limit how low you can orbit
   }
 
   setupLights() {
@@ -85,5 +93,22 @@ export class GameRenderer {
 
   getScene() {
     return this.scene;
+  }
+
+  // New method to focus camera on player
+  focusOnPlayer(playerDot) {
+    // Get player position
+    const pos = playerDot.position;
+    
+    // Position camera relative to player
+    this.camera.position.set(
+      pos.x - 20, 
+      pos.y - 20, 
+      pos.z + 30
+    );
+    
+    // Look at player
+    this.controls.target.set(pos.x, pos.y, pos.z);
+    this.controls.update();
   }
 }

@@ -32,7 +32,7 @@ export class Game {
     this.playerDot = new THREE.Mesh(geometry, material);
 
     // Position player at a random tile in the first chunk
-    // Pick middle of a random tile near center
+    // Pick a specific tile near center (32,32) for consistency
     const tileX = 32; // Center of chunk
     const tileY = 32;
     const height = this.mapManager.getChunkAt(0, 0).getHeight(tileX, tileY);
@@ -62,6 +62,11 @@ export class Game {
         this.playerDot.material.emissive.setHSL(hue/360, 1, 0.3);
       }
     });
+
+    // Focus camera on player after a short delay to ensure everything is loaded
+    setTimeout(() => {
+      this.renderer.focusOnPlayer(this.playerDot);
+    }, 100);
   }
 
   // Simple hash function for consistent colors
