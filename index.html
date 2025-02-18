@@ -1,198 +1,311 @@
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RuneScape 2004</title>
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/chat.css" />
-    <link rel="stylesheet" href="css/minimap.css" />
-    <link rel="stylesheet" href="css/inventory.css" />
-    <link rel="stylesheet" href="css/skills.css" />
-    <link rel="stylesheet" href="css/music.css" />
-    <link rel="stylesheet" href="css/spellbook.css" />
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  </head>
-  <body>
-    <div id="client-wrapper">
-      <div id="left-column">
-        <div id="game-screen">
-          <!-- Seamless iframe for game world -->
-          <iframe 
-            src="https://world1.on.websim.com/?pin_sidebar=false" 
-            style="width: 100%; height: 100%; border: none;"
-            allow="fullscreen"
-            loading="eager"
-            title="Game World"
-          ></iframe>
-          <div id="split-private-chat"></div>
-        </div>
-        <div id="chat-window">
-          <div class="chat-content">
-            <div class="chat-message system" style="color: #000;">
-              Welcome to Webscape!
-            </div>
-          </div>
-          <!-- // removed overlays (moved to js/features/friends.js and js/features/ignore.js) -->
-          <div class="chat-input-area">
-            <span class="chat-username" id="current-username">Loading...</span>
-            <input
-              type="text"
-              class="chat-input"
-              placeholder="Enter message..."
-            />
-          </div>
-          <div class="chat-tabs">
-            <div class="chat-tab">Public chat</div>
-            <div class="chat-tab">Private chat</div>
-            <div class="chat-tab">Trade/duel</div>
-            <div class="chat-tab">Report abuse</div>
-          </div>
-        </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>RuneScape 2004</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/chat.css">
+  <link rel="stylesheet" href="css/minimap.css">
+  <link rel="stylesheet" href="css/inventory.css">
+  <link rel="stylesheet" href="css/skills.css">
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="client-wrapper">
+    <div id="left-column">
+      <div id="game-screen">
+        <!-- Game content would be rendered here -->
       </div>
-
-      <div id="right-panel">
-        <div id="minimap-section">
-          <div id="compass-container">
-            <div id="compass-n">N</div>
-            <div id="compass-s">S</div>
-            <div id="compass-e">E</div>
-            <div id="compass-w">W</div>
-          </div>
-          <div id="minimap-container">
-            <div id="minimap">
-              <!-- Minimap content would be rendered here -->
-            </div>
-          </div>
-          <div class="minimap-icons">
-            <div class="icon compass">1</div>
-            <div class="icon skills">
-              <!-- Bar Graph Icon SVG -->
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
-                <rect x="4" y="10" width="4" height="10" fill="#ff0000" />
-                <rect x="10" y="4" width="4" height="16" fill="#00ff00" />
-                <rect x="16" y="14" width="4" height="6" fill="#00008b" />
-              </svg>
-            </div>
-            <div class="icon quest">
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="11" fill="#add8e6" />
-                <polygon
-                  points="22,12 16.62,13.91 19.07,19.07 13.91,16.62 12,22 10.09,16.62 4.93,19.07 7.38,13.91 2,12 7.38,10.09 4.93,4.93 10.09,7.38 12,2 13.91,7.38 19.07,4.93 16.62,10.09"
-                  fill="#0000ff"
-                />
-                <circle cx="12" cy="12" r="3" fill="#ffffff" />
-              </svg>
-            </div>
-            <div class="icon chest">
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="chestGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#b5651d" />
-                    <stop offset="100%" stop-color="#8b4513" />
-                  </linearGradient>
-                </defs>
-                <rect
-                  x="2"
-                  y="10"
-                  width="20"
-                  height="10"
-                  rx="2"
-                  ry="2"
-                  fill="url(#chestGradient)"
-                  stroke="#654321"
-                  stroke-width="1"
-                />
-                <rect
-                  x="4"
-                  y="4"
-                  width="16"
-                  height="8"
-                  rx="2"
-                  ry="2"
-                  fill="url(#chestGradient)"
-                  stroke="#654321"
-                  stroke-width="1"
-                />
-                <line x1="4" y1="10" x2="20" y2="10" stroke="#654321" stroke-width="1" />
-                <rect
-                  x="10"
-                  y="13"
-                  width="4"
-                  height="4"
-                  fill="#D2B48C"
-                  stroke="#654321"
-                  stroke-width="1"
-                />
-              </svg>
-            </div>
-            <div class="icon stats">5</div>
-            <div class="icon quests">
-              <!-- New Sacrament Icon -->
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
-                <defs>
-                  <linearGradient id="chaliceGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#ffd700"/>
-                    <stop offset="100%" stop-color="#daa520"/>
-                  </linearGradient>
-                  <linearGradient id="altarGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#8b4513"/>
-                    <stop offset="100%" stop-color="#654321"/>
-                  </linearGradient>
-                </defs>
-                <!-- Stone altar base - made smaller -->
-                <rect x="3" y="17" width="18" height="5" fill="url(#altarGradient)" rx="1"/>
-                <!-- Chalice stem - made shorter and moved down -->
-                <rect x="11" y="12" width="2" height="5" fill="url(#chaliceGradient)"/>
-                <!-- Chalice bowl - made smaller -->
-                <path d="M9.5 12 C9.5 9.5 14.5 9.5 14.5 12 L9.5 12" fill="url(#chaliceGradient)"/>
-                <!-- Holy light rays - adjusted position -->
-                <path d="M12 2 L12 7" stroke="#fff" stroke-width="0.5" opacity="0.8"/>
-                <path d="M9 3 L10 7" stroke="#fff" stroke-width="0.5" opacity="0.8"/>
-                <path d="M15 3 L14 7" stroke="#fff" stroke-width="0.5" opacity="0.8"/>
-                <!-- Offering symbols - moved up slightly -->
-                <circle cx="7" cy="14" r="1" fill="#dc143c" opacity="0.9"/>
-                <circle cx="17" cy="14" r="1" fill="#dc143c" opacity="0.9"/>
-              </svg>
-            </div>
-            <div class="icon inventory">
-              <!-- Eldritch Spellbook Icon -->
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
-                <defs>
-                  <linearGradient id="spellbookGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#4B0082"/>
-                    <stop offset="100%" stop-color="#000000"/>
-                  </linearGradient>
-                </defs>
-                <!-- Book cover -->
-                <path d="M4 3 H20 A1 1 0 0 1 21 4 V20 A1 1 0 0 1 20 21 H4 A1 1 0 0 1 3 20 V4 A1 1 0 0 1 4 3 Z" fill="url(#spellbookGradient)" stroke="#800080" stroke-width="1"/>
-                <!-- Spine detail -->
-                <line x1="8" y1="4" x2="8" y2="20" stroke="#dda0dd" stroke-width="0.5"/>
-                <!-- Arcane symbol (a stylized pentagram) - moved right -->
-                <polygon points="14,7 15,10 18,10 16,12 17,15 14,13 11,15 12,12 10,10 13,10" fill="none" stroke="#dda0dd" stroke-width="0.8"/>
-              </svg>
-            </div>
+      <div id="chat-window">
+        <div class="chat-content">
+          <div class="chat-message system" style="color: #000;">Welcome to Webscape!</div>
+        </div>
+        <div id="add-friend-overlay">
+          <div class="add-friend-container">
+            <div class="add-friend-text">Enter name of friend to add to list</div>
+            <input type="text" class="add-friend-input" maxlength="12">
           </div>
         </div>
-
-        <!-- // removed div#game-options (moved to js/features/gameOptions.js) -->
-        <!-- // removed div#skills-menu (moved to js/features/skillsMenu.js) -->
-        <!-- // removed div#music-menu (moved to js/features/musicMenu.js) -->
-        <!-- // removed div#quest-journal (moved to js/features/questJournal.js) -->
-        <!-- // removed div#inventory (moved to js/features/inventory.js) -->
-        <!-- // removed div#spellbook (moved to js/features/spellbook.js) -->
-        <!-- // removed div.friends-list (moved to js/features/friends.js) -->
-        <!-- // removed div.ignore-list (moved to js/features/ignore.js) -->
-        <!-- // removed div#logout-popup (moved to js/features/logout.js) -->
-        <!-- // removed div#bottom-icons (moved to js/ui/navigation.js) -->
+        <div id="del-friend-overlay">
+          <div class="del-friend-container">
+            <div class="del-friend-text">Enter name of friend to delete from list</div>
+            <input type="text" class="del-friend-input" maxlength="12">
+          </div>
+        </div>
+        <div id="add-ignore-overlay">
+          <div class="add-friend-container">
+            <div class="add-friend-text">Enter name to add to ignore list</div>
+            <input type="text" class="add-friend-input" maxlength="12">
+          </div>
+        </div>
+        <div id="del-ignore-overlay">
+          <div class="del-friend-container">
+            <div class="del-friend-text">Enter name to delete from ignore list</div>
+            <input type="text" class="del-friend-input" maxlength="12">
+          </div>
+        </div>
+        <!-- The message overlay will be dynamically created and appended to #chat-window -->
+        <div class="chat-input-area">
+          <span class="chat-username" id="current-username">Loading...</span>
+          <input type="text" class="chat-input" placeholder="Enter message...">
+        </div>
+        <div class="chat-tabs">
+          <div class="chat-tab">Public chat</div>
+          <div class="chat-tab">Private chat</div>
+          <div class="chat-tab">Trade/duel</div>
+          <div class="chat-tab">Report abuse</div>
+        </div>
       </div>
     </div>
-
-    <!-- // removed inline script block, moved to js/main.js -->
-    <script type="module" src="js/main.js"></script>
     
-    <script type="module" src="js/inventory.js"></script>
-  <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+    <div id="right-panel">
+      <div id="minimap-section">
+        <div id="compass-container">
+          <div id="compass-n">N</div>
+          <div id="compass-s">S</div>
+          <div id="compass-e">E</div>
+          <div id="compass-w">W</div>
+        </div>
+        <div id="minimap-container">
+          <div id="minimap">
+            <!-- Minimap content would be rendered here -->
+          </div>
+        </div>
+        <div class="minimap-icons">
+          <div class="icon compass">1</div>
+          <div class="icon skills">
+            <!-- Bar Graph Icon -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <!-- Red Bar (Medium) -->
+              <rect x="4" y="10" width="4" height="10" fill="#ff0000"/>
+              <!-- Green Bar (Tallest) -->
+              <rect x="10" y="4" width="4" height="16" fill="#00ff00"/>
+              <!-- Dark Blue Bar (Shortest) -->
+              <rect x="16" y="14" width="4" height="6" fill="#00008b"/>
+            </svg>
+          </div>
+          <div class="icon quest">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="11" fill="#add8e6" />
+              <polygon points="22,12 16.62,13.91 19.07,19.07 13.91,16.62 12,22 10.09,16.62 4.93,19.07 7.38,13.91 2,12 7.38,10.09 4.93,4.93 10.09,7.38 12,2 13.91,7.38 19.07,4.93 16.62,10.09" fill="#0000ff"/>
+              <circle cx="12" cy="12" r="3" fill="#ffffff"/>
+            </svg>
+          </div>
+          <div class="icon chest">
+            <!-- Custom detailed Chest icon -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="chestGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#b5651d"/>
+                  <stop offset="100%" stop-color="#8b4513"/>
+                </linearGradient>
+              </defs>
+              <!-- Chest base -->
+              <rect x="2" y="10" width="20" height="10" rx="2" ry="2" fill="url(#chestGradient)" stroke="#654321" stroke-width="1"/>
+              <!-- Chest lid -->
+              <rect x="4" y="4" width="16" height="8" rx="2" ry="2" fill="url(#chestGradient)" stroke="#654321" stroke-width="1"/>
+              <!-- Lid separation line -->
+              <line x1="4" y1="10" x2="20" y2="10" stroke="#654321" stroke-width="1"/>
+              <!-- Chest lock detail -->
+              <rect x="10" y="13" width="4" height="4" fill="#D2B48C" stroke="#654321" stroke-width="1"/>
+            </svg>
+          </div>
+          <div class="icon stats">5</div>
+          <div class="icon quests">6</div>
+          <div class="icon inventory">7</div>
+        </div>
+      </div>
+      <div id="quest-journal" class="hidden">
+        <div class="quest-journal-title">Quest Journal</div>
+        <div class="quest-journal-content">
+          <!-- Quest entries will be populated dynamically -->
+        </div>
+      </div>
+      <div id="inventory" class="hidden">
+        <!-- Inventory slots will be generated dynamically -->
+      </div>
+
+      <!-- Friends List UI -->
+      <div class="friends-list">
+        <div class="list-container">
+          <!-- Empty container - friends will be added dynamically -->
+        </div>
+        <div class="list-buttons">
+          <button class="list-button">Add Friend</button>
+          <button class="list-button">Del Friend</button>
+        </div>
+      </div>
+
+      <!-- Ignore List UI -->
+      <div class="ignore-list">
+        <div class="list-container">
+          <!-- Empty container - ignored users will be added dynamically -->
+        </div>
+        <div class="list-buttons">
+          <button class="list-button">Add Name</button>
+          <button class="list-button">Del Name</button>
+        </div>
+      </div>
+      
+      <!-- Game Options Menu -->
+      <div id="game-options" class="hidden">
+        <div class="game-options-content">
+          <div class="game-options-title">Game Options</div>
+          
+          <div class="game-options-section">
+            <div class="game-options-header">Screen Brightness</div>
+            <div class="game-options-buttons">
+              <button type="button">Dark</button>
+              <button type="button">Normal</button>
+              <button type="button">Bright</button>
+              <button type="button">V-Bright</button>
+            </div>
+          </div>
+          
+          <div class="game-options-section">
+            <div class="game-options-two-column">
+              <div class="game-options-column">
+                <div class="game-options-header">Mouse Buttons</div>
+                <div class="game-options-buttons">
+                  <button type="button">One</button>
+                  <button type="button">Two</button>
+                </div>
+              </div>
+              <div class="game-options-column">
+                <div class="game-options-header">Chat Effects</div>
+                <div class="game-options-buttons">
+                  <button type="button">On</button>
+                  <button type="button">Off</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="game-options-section">
+            <div class="game-options-header">Split Private-chat</div>
+            <div class="game-options-buttons">
+              <button type="button">On</button>
+              <button type="button">Off</button>
+            </div>
+          </div>
+          
+          <div class="game-options-section">
+            <div class="game-options-header">Music Volume</div>
+            <div class="game-options-buttons">
+              <button type="button">Off</button>
+              <button type="button">1</button>
+              <button type="button">2</button>
+              <button type="button">3</button>
+              <button type="button">4</button>
+            </div>
+          </div>
+          
+          <div class="game-options-section">
+            <div class="game-options-header">Effect Volume</div>
+            <div class="game-options-buttons">
+              <button type="button">Off</button>
+              <button type="button">1</button>
+              <button type="button">2</button>
+              <button type="button">3</button>
+              <button type="button">4</button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- Skills Menu -->
+      <div id="skills-menu" class="hidden">
+        <div class="skills-content">
+          <div class="skills-grid">
+            <!-- Skills will be populated dynamically -->
+          </div>
+          <div class="stats-summary">
+            <div class="stats-item">QP: 0</div>
+            <div class="stats-item">Combat Lvl: 3</div>
+            <div class="stats-item">Total Lvl: 0</div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="logout-popup" class="hidden">
+        <div class="popup-content">
+          <p>When you have finished playing<br>Webscape, always use the<br>button below to logout safely.</p>
+          <button class="logout-button">Click here to logout</button>
+        </div>
+      </div>
+      
+      <div id="bottom-icons">
+        <div class="bottom-icon">8</div>
+        <div class="bottom-icon">
+          <!-- Yellow Smiley Face -->
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
+            <circle cx="12" cy="12" r="10" fill="#ffff00" stroke="#000" stroke-width="1"/>
+            <circle cx="8" cy="9" r="2" fill="#000"/>
+            <circle cx="16" cy="9" r="2" fill="#000"/>
+            <path d="M7 14 Q12 18 17 14" fill="none" stroke="#000" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="bottom-icon">
+          <!-- Red Frowning Face -->
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
+            <circle cx="12" cy="12" r="10" fill="#ff0000" stroke="#000" stroke-width="1"/>
+            <circle cx="8" cy="9" r="2" fill="#000"/>
+            <circle cx="16" cy="9" r="2" fill="#000"/>
+            <path d="M7 16 Q12 12 17 16" fill="none" stroke="#000" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="bottom-icon">Log
+Out</div>
+        <div class="bottom-icon game-options-button">
+          <!-- Wrench Icon for Game Options -->
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.7 19.3l-6.1-6.1c1-1.5 1-3.5 0-4.9l-3-3c-1.5-1.5-3.9-1.5-5.4 0l-2.5 2.5c-1.1 1.1-1.3 2.8-.5 4.1l-2.2 2.2c-.4.4-.4 1 0 1.4l3.5 3.5c.4.4 1 .4 1.4 0l2.2-2.2c1.3.8 3 .6 4.1-.5l2.5 2.5c1.5 1.5 3.9 1.5 5.4 0l3-3c1.4-1.4 1.4-3.4 0-4.8zM3.1 14.4l-1.1-1.1 2.2-2.2 1.1 1.1L3.1 14.4zM17.2 8.3l-2.2-2.2 1.1-1.1 2.2 2.2-1.1 1.1z" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="bottom-icon">
+          <!-- Enhanced Running Stick Figure Icon -->
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
+            <!-- Head -->
+            <circle cx="24" cy="8" r="7" fill="#fff" stroke="#000" stroke-width="3"/>
+            <!-- Body -->
+            <line x1="24" y1="15" x2="24" y2="28" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+            <!-- Right Arm -->
+            <line x1="24" y1="19" x2="32" y2="25" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+            <!-- Left Arm -->
+            <line x1="24" y1="19" x2="16" y2="25" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+            <!-- Right Leg -->
+            <line x1="24" y1="28" x2="30" y2="38" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="34" y2="44" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+            <!-- Left Leg -->
+            <line x1="24" y1="28" x2="18" y2="38" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+            <line x1="18" y1="38" x2="14" y2="44" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="bottom-icon">
+          <!-- Detailed Piano Icon for Button 14 with 3 white keys and 2 black keys -->
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
+            <!-- Outer frame -->
+            <rect x="2" y="4" width="20" height="16" fill="#eee" stroke="#000" stroke-width="1"/>
+            <!-- White keys -->
+            <rect x="3" y="8" width="5" height="10" fill="#fff" stroke="#000" stroke-width="0.5"/>
+            <rect x="9" y="8" width="5" height="10" fill="#fff" stroke="#000" stroke-width="0.5"/>
+            <rect x="15" y="8" width="5" height="10" fill="#fff" stroke="#000" stroke-width="0.5"/>
+            <!-- Black keys -->
+            <rect x="7" y="4" width="3" height="6" fill="#000"/>
+            <rect x="13" y="4" width="3" height="6" fill="#000"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/chat.js"></script>
+  <script src="js/inventory.js"></script>
+  <script src="js/menu.js" type="module"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
