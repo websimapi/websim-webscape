@@ -2,9 +2,9 @@ import { initializeFriendsList } from './features/friends.js';
 import { initializeIgnoreList } from './features/ignore.js';
 import { initializeInventory } from './features/inventory.js';
 import { initializeLogout } from './features/logout.js';
+import { initializeGameOptions } from './features/gameOptions.js';
 import { hideContextMenu } from './ui/contextMenu.js';
 import { hideAllPanels } from './features/menuManager.js';
-import { initializeGameOptions } from './features/gameOptions.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize all features

@@ -231,94 +231,6 @@ body {
   background: red;
 }
 
-/* Game Options Menu styling */
-.game-options {
-  position: relative;
-  width: calc(100% - 8px);
-  background: #382418;
-  padding: 4px;
-  display: none;
-  margin-top: 4px;
-  height: 172px;
-}
-
-.game-options.shown {
-  display: block;
-}
-
-.options-content {
-  background: #474745;
-  border: 2px solid #5a473a;
-  height: 100%;
-  padding: 8px;
-  overflow-y: auto;
-}
-
-.options-title {
-  color: #00ffff;
-  font-size: 14px;
-  text-align: center;
-  margin-bottom: 8px;
-}
-
-.option-section {
-  margin-bottom: 8px;
-}
-
-.option-header {
-  color: #fff;
-  font-size: 12px;
-  margin-bottom: 4px;
-}
-
-.option-buttons {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.option-buttons.inline {
-  flex-wrap: nowrap;
-}
-
-.option-button {
-  background: #382418;
-  border: 1px solid #000;
-  color: #fff;
-  padding: 2px 6px;
-  font-size: 11px;
-  cursor: pointer;
-  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
-}
-
-.option-button:hover {
-  background: #483428;
-}
-
-.option-button.selected {
-  background: #584438;
-}
-
-.option-row {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 8px;
-}
-
-.option-column {
-  flex: 1;
-}
-
-/* Wrench icon specific styling */
-.wrench-icon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.wrench-icon.selected {
-  background: red;
-}
-
 /* Add Friend and Del Friend Input UI */
 #add-friend-overlay,
 #del-friend-overlay {
@@ -326,7 +238,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: calc(100% - 25px); 
+  height: calc(100% - 25px);
   background: #d2b48c;
   display: none;
   z-index: 1000;
@@ -345,7 +257,7 @@ body {
   justify-content: center;
   height: 100%;
   padding: 20px;
-  background: transparent;  
+  background: transparent;
 }
 
 .add-friend-text,
@@ -354,7 +266,7 @@ body {
   font-size: 14px;
   margin-bottom: 15px;
   text-align: center;
-  background: #d2b48c;  
+  background: #d2b48c;
   padding: 5px;
 }
 
@@ -362,7 +274,7 @@ body {
 .del-friend-input {
   width: 80%;
   padding: 5px;
-  background: #d2b48c;  
+  background: #d2b48c;
   border: none;
   border-bottom: 2px solid #382418;
   font-family: 'RuneScape UF', 'RuneScape', sans-serif;
@@ -383,7 +295,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: calc(100% - 25px); 
+  height: calc(100% - 25px);
   background: #d2b48c;
   display: none;
   z-index: 1000;
@@ -410,7 +322,7 @@ body {
 /* Context Menu Styling */
 .context-menu {
   position: absolute;
-  background: #474745; 
+  background: #474745;
   border: 2px solid #5a473a;
   min-width: 120px;
   z-index: 1001;
@@ -423,7 +335,7 @@ body {
 
 .context-menu-option {
   padding: 4px 8px;
-  color: #fff; 
+  color: #fff;
   font-size: 12px;
   cursor: pointer;
   white-space: nowrap;
@@ -434,5 +346,67 @@ body {
 }
 
 .context-menu-option.cancel {
-  color: #fff; 
+  color: #fff;
+}
+
+/* Game Options Menu */
+#game-options {
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  width: 180px;
+  background: #382418;
+  border: 2px solid #000;
+  padding: 10px;
+  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
+  z-index: 1000;
+}
+
+#game-options.hidden {
+  display: none;
+}
+
+.game-options-title {
+  text-align: center;
+  color: cyan;
+  font-size: 16px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #000;
+  padding-bottom: 5px;
+}
+
+.game-options-section {
+  margin-bottom: 8px;
+}
+
+.game-options-header {
+  color: white;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.game-options-buttons {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.game-options-buttons button {
+  flex: 1;
+  background: #474745;
+  border: 1px solid #000;
+  color: #fff;
+  padding: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.game-options-two-column {
+  display: flex;
+  gap: 8px;
+}
+
+.game-options-column {
+  flex: 1;
 }

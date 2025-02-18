@@ -1,21 +1,24 @@
-import { toggleMenu } from './menuManager.js';
+import { toggleMenu } from '../features/menuManager.js';
 
 function initializeGameOptions() {
-  const wrenchButton = document.querySelector('.bottom-icon.wrench-icon');
-  
-  wrenchButton.addEventListener('click', () => {
-    toggleMenu(wrenchButton, '.game-options');
-  });
+  const gameOptionsButton = document.querySelector('.bottom-icon.game-options-button');
+  const gameOptionsPanel = document.getElementById('game-options');
 
-  // Handle option button clicks
-  const optionButtons = document.querySelectorAll('.option-button');
-  optionButtons.forEach(button => {
-    button.addEventListener('click', (e) => {
-      // Remove selected class from siblings
-      const siblings = e.target.parentElement.querySelectorAll('.option-button');
-      siblings.forEach(sibling => sibling.classList.remove('selected'));
-      // Add selected class to clicked button
-      e.target.classList.add('selected');
+  if (gameOptionsButton && gameOptionsPanel) {
+    gameOptionsButton.addEventListener('click', () => {
+      toggleMenu(gameOptionsButton, '#game-options');
+    });
+  }
+
+  // Add event listeners to each button inside the game options panel.
+  const buttons = gameOptionsPanel.querySelectorAll('.game-options-buttons button');
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      // For demonstration, mark the clicked button as selected while unselecting its siblings.
+      const parent = button.parentElement;
+      parent.querySelectorAll('button').forEach(btn => btn.classList.remove('selected'));
+      button.classList.add('selected');
+      console.log(`Selected option: ${button.textContent} under "${parent.previousElementSibling?.textContent || 'section'}"`);
     });
   });
 }

@@ -2,17 +2,17 @@
 let activeButton = null;
 let activePanel = null;
 
-// List of menu items with their corresponding panels
+// List of menu items with their corresponding panels, updated to include game options.
 const menuItems = {
   'friends-button': '.friends-list',
   'ignore-button': '.ignore-list',
   'inventory-button': '#inventory',
   'logout-button': '#logout-popup',
-  'wrench-button': '.game-options'  
+  'game-options-button': '#game-options'
 };
 
 function hideAllPanels() {
-  // Hide all panels
+  // Hide all panels defined in the menuItems mapping.
   Object.values(menuItems).forEach(panelSelector => {
     const panel = document.querySelector(panelSelector);
     if (panel) {
@@ -35,7 +35,7 @@ function toggleMenu(button, panelSelector) {
   
   // If clicking the same button that's already active
   if (button === activeButton) {
-    // Keep current selection but ensure only this button is selected
+    // Keep current selection but ensure only this button remains selected
     hideAllPanels();
     button.classList.add('selected');
     panel.classList.remove('hidden');
