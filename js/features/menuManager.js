@@ -41,7 +41,14 @@ function toggleMenu(button, panelSelector) {
     hideAllPanels();
     button.classList.add('selected');
     panel.classList.remove('hidden');
-    if (panelSelector.includes('friends') || panelSelector.includes('ignore') || panelSelector.includes('game-options') || panelSelector.includes('quest')) {
+    // Now including skills in our check so the skills menu is shown properly
+    if (
+      panelSelector.includes('friends') ||
+      panelSelector.includes('ignore') ||
+      panelSelector.includes('game-options') ||
+      panelSelector.includes('quest') ||
+      panelSelector.includes('skills')
+    ) {
       panel.classList.add('shown');
     }
     return;
@@ -53,7 +60,13 @@ function toggleMenu(button, panelSelector) {
   // Show the selected panel and mark button as selected
   button.classList.add('selected');
   panel.classList.remove('hidden');
-  if (panelSelector.includes('friends') || panelSelector.includes('ignore') || panelSelector.includes('game-options') || panelSelector.includes('quest')) {
+  if (
+    panelSelector.includes('friends') ||
+    panelSelector.includes('ignore') ||
+    panelSelector.includes('game-options') ||
+    panelSelector.includes('quest') ||
+    panelSelector.includes('skills')
+  ) {
     panel.classList.add('shown');
   }
 
