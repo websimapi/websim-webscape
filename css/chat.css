@@ -48,10 +48,14 @@
   color: #fff;
   font-size: 13px;
   line-height: 1.3;
-  height: calc(100% - 60px); 
+  height: calc(100% - 60px);
   overflow-y: auto;
   display: flex;
   flex-direction: column-reverse;
+  /* Add padding at the bottom to prevent scrollbar arrow from being hidden */
+  padding-bottom: 35px;
+  /* Adjust margin to compensate for added padding */
+  margin-bottom: -25px;
 }
 
 /* Chat tabs */
