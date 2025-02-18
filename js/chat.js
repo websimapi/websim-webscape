@@ -56,7 +56,7 @@ room.onmessage = (event) => {
   }
 };
 
-// Add click handler for chat messages
+// Add click handler for chat messages and usernames
 document.querySelector('.chat-content').addEventListener('click', (e) => {
   const messageEl = e.target.closest('.chat-message');
   if (!messageEl) return;
@@ -64,16 +64,13 @@ document.querySelector('.chat-content').addEventListener('click', (e) => {
   const username = getUsernameFromMessage(messageEl);
   if (!username || username === room.party.client.username) return;
 
-  // Show context menu with chat-specific options
+  // Show dropdown menu with chat-specific options
   showContextMenu(e, username, 
-    // Pass null for onMessage since we're using custom options
     null,
-    // Pass null for onRemove since we're using custom options
     null,
-    // Pass custom options
     [
       {
-        text: `Add Friend ${username}`,
+        text: "Add Friend",
         action: () => {
           // Trigger Add Friend overlay
           const addFriendOverlay = document.getElementById('add-friend-overlay');
@@ -85,7 +82,7 @@ document.querySelector('.chat-content').addEventListener('click', (e) => {
         }
       },
       {
-        text: `Add Ignore ${username}`,
+        text: "Add Ignore",
         action: () => {
           // Trigger Add Ignore overlay
           const addIgnoreOverlay = document.getElementById('add-ignore-overlay');
@@ -97,7 +94,7 @@ document.querySelector('.chat-content').addEventListener('click', (e) => {
         }
       },
       {
-        text: 'Cancel',
+        text: "Cancel",
         action: hideContextMenu
       }
     ]
