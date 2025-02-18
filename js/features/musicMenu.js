@@ -66,15 +66,12 @@ function playTrack(track, trackElement, trackList) {
 function initializeMusicMenu() {
   const musicButton = document.querySelector('.bottom-icon.music');
   const musicMenu = document.getElementById('music-menu');
-  const musicContent = musicMenu.querySelector('.music-content');
   const trackDisplay = musicMenu.querySelector('.track');
   const autoButton = musicMenu.querySelector('.music-auto');
   const manualButton = musicMenu.querySelector('.music-manual');
-
-  // Initialize track list
-  const trackList = document.createElement('div');
-  trackList.className = 'track-list';
-  musicContent.appendChild(trackList);
+  
+  // Use the existing container from the HTML instead of creating a new element;
+  const trackList = musicMenu.querySelector('.music-list-container');
 
   // Load saved music mode
   autoPlayMode = loadMusicSettings();
