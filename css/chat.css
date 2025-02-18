@@ -196,10 +196,6 @@
 }
 
 /* World status styling */
-.world-status {
+.world-status:not(.offline) {
   color: #00ff00;
-}
-
-.world-status.offline {
-  color: #ff0000;
 }
