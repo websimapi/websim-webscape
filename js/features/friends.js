@@ -41,7 +41,7 @@ function initializeFriendsList() {
     delFriendInput.focus();
   });
 
-  // Handle overlay submissions for adding and deleting friends
+  // Handle overlay submissions
   document.addEventListener('overlay-submit', (e) => {
     const { name, overlay } = e.detail;
     
@@ -64,6 +64,27 @@ function initializeFriendsList() {
     }
   });
 
+  // Setup friend list hover effects
+  friendsListContainer.addEventListener('mouseover', (e) => {
+    const playerNameElement = e.target.closest('.player-name');
+    if (playerNameElement) {
+      const username = playerNameElement.textContent;
+      tooltip.style.display = 'block';
+      tooltip.textContent = `Message ${username} / 1 more option`;
+      
+      const gameScreen = document.getElementById('game-screen');
+      const gameRect = gameScreen.getBoundingClientRect();
+      tooltip.style.left = `${gameRect.left + 5}px`;
+      tooltip.style.top = `${gameRect.top + 5}px`;
+    }
+  });
+
+  friendsListContainer.addEventListener('mouseout', (e) => {
+    if (e.target.closest('.player-name')) {
+      tooltip.style.display = 'none';
+    }
+  });
+
   // Handle friend list clicks
   friendsListContainer.addEventListener('click', (e) => {
     const playerNameElement = e.target.closest('.player-name');
@@ -71,7 +92,7 @@ function initializeFriendsList() {
       const username = playerNameElement.textContent;
       showContextMenu(e, username, 
         () => {
-          window.showPrivateMessageOverlay(username);
+          // TODO: Implement messaging
         },
         () => {
           playerNameElement.closest('.list-entry').remove();
@@ -79,37 +100,6 @@ function initializeFriendsList() {
       );
     }
   });
-
-  // Update friend list statuses based on online state
-  function updateFriendsStatus() {
-    const entries = friendsListContainer.querySelectorAll('.list-entry');
-    entries.forEach(entry => {
-      const nameElem = entry.querySelector('.player-name');
-      const statusElem = entry.querySelector('.world-status');
-      const friendName = nameElem.textContent;
-      let isOnline = false;
-      for (const peerId in window.room.party.peers) {
-        if (window.room.party.peers[peerId].username === friendName) {
-          isOnline = true;
-          break;
-        }
-      }
-      if (isOnline) {
-        statusElem.textContent = 'world-1';
-        statusElem.classList.remove('offline');
-        statusElem.classList.add('online');
-      } else {
-        statusElem.textContent = 'Offline';
-        statusElem.classList.remove('online');
-        statusElem.classList.add('offline');
-      }
-    });
-  }
-  window.room.party.subscribe((peers) => {
-    updateFriendsStatus();
-  });
-  // Initial update
-  updateFriendsStatus();
 }
 
 export { initializeFriendsList };
