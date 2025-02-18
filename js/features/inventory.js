@@ -1,15 +1,12 @@
 import { toggleMenu } from './menuManager.js';
 
 function initializeInventory() {
-  // Update selector to target the inventory icon
-  const inventoryIcon = document.querySelector('.icon.inventory');
+  const chestIcon = document.querySelector('.icon.chest');
   const inventoryContainer = document.getElementById('inventory');
 
-  if (inventoryIcon && inventoryContainer) {
-    inventoryIcon.addEventListener('click', () => {
-      toggleMenu(inventoryIcon, '#inventory');
-    });
-  }
+  chestIcon.addEventListener('click', () => {
+    toggleMenu(chestIcon, '#inventory');
+  });
 }
 
 export { initializeInventory };

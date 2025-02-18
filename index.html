@@ -74,16 +74,30 @@
         <div class="minimap-icons">
           <div class="icon compass">1</div>
           <div class="icon prayer">2</div>
-          <div class="icon magic">
-            <!-- Quest Icon - 8 pointed star -->
+          <div class="icon quest">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <!-- Light blue circular background -->
-              <circle cx="12" cy="12" r="11" fill="#ADD8E6"/>
-              <!-- 8-pointed star -->
-              <path d="
-                M 12 2 L 13.5 9.5 L 21 12 L 13.5 14.5 L 12 22 L 10.5 14.5 L 3 12 L 10.5 9.5 Z
-                M 7 7 L 12 10.5 L 17 7 L 13.5 12 L 17 17 L 12 13.5 L 7 17 L 10.5 12 Z
-              " fill="#0000FF" stroke="#000" stroke-width="0.5"/>
+              <rect x="0" y="0" width="24" height="24" fill="#add8e6" />
+              <polygon points="22,12 16.62,13.91 19.07,19.07 13.91,16.62 12,22 10.09,16.62 4.93,19.07 7.38,13.91 2,12 7.38,10.09 4.93,4.93 10.09,7.38 12,2 13.91,7.38 19.07,4.93 16.62,10.09" fill="#0000ff"/>
+              <circle cx="12" cy="12" r="3" fill="#ffffff"/>
+            </svg>
+          </div>
+          <div class="icon chest">
+            <!-- Custom detailed Chest icon -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="chestGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#b5651d"/>
+                  <stop offset="100%" stop-color="#8b4513"/>
+                </linearGradient>
+              </defs>
+              <!-- Chest base -->
+              <rect x="2" y="10" width="20" height="10" rx="2" ry="2" fill="url(#chestGradient)" stroke="#654321" stroke-width="1"/>
+              <!-- Chest lid -->
+              <rect x="4" y="4" width="16" height="8" rx="2" ry="2" fill="url(#chestGradient)" stroke="#654321" stroke-width="1"/>
+              <!-- Lid separation line -->
+              <line x1="4" y1="10" x2="20" y2="10" stroke="#654321" stroke-width="1"/>
+              <!-- Chest lock detail -->
+              <rect x="10" y="13" width="4" height="4" fill="#D2B48C" stroke="#654321" stroke-width="1"/>
             </svg>
           </div>
           <div class="icon stats">5</div>
