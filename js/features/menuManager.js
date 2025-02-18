@@ -5,12 +5,12 @@ let activePanel = null;
 // List of menu items with their corresponding panels, updated to include game options, quest journal and skills menu.
 const menuItems = {
   'friends-button': '.friends-list',
-  'ignore-button': '.ignore-list',
+  'ignore-button': '.ignore-list', 
   'inventory-button': '#inventory',
   'logout-button': '#logout-popup',
   'game-options-button': '#game-options',
-  'quest': '#quest-journal',
-  'skills': '#skills-menu'
+  'skills': '#skills-menu',
+  'quest': '#quest-journal'
 };
 
 function hideAllPanels() {
@@ -41,7 +41,6 @@ function toggleMenu(button, panelSelector) {
     hideAllPanels();
     button.classList.add('selected');
     panel.classList.remove('hidden');
-    // Now including skills in our check so the skills menu is shown properly
     if (
       panelSelector.includes('friends') ||
       panelSelector.includes('ignore') ||
@@ -51,6 +50,8 @@ function toggleMenu(button, panelSelector) {
     ) {
       panel.classList.add('shown');
     }
+    activeButton = button;
+    activePanel = panel;
     return;
   }
 

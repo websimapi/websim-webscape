@@ -226,6 +226,11 @@ body {
   background: linear-gradient(to bottom, #8b0000, #680000);
 }
 
+/* Update icon selected state */
+.icon.selected {
+  background: red !important;
+}
+
 /* Add selected state for friends/ignore buttons */
 .bottom-icon.selected {
   background: red;
