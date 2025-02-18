@@ -63,9 +63,38 @@
   min-width: 36px;
 }
 
+.music-header .music-buttons button.selected {
+  background: #800040;
+}
+
 .music-content p {
   color: #fff;
   font-size: 11px;
   margin: 4px 8px;
   padding: 0;
+}
+
+.track-list {
+  padding: 4px 8px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.track-entry {
+  font-size: 11px;
+  padding: 2px 0;
+  cursor: pointer;
+  color: #808080;
+}
+
+.track-entry.unlocked {
+  color: #00ff00;
+}
+
+.track-entry.selected {
+  color: #ffff00;
+}
+
+.track-entry:hover {
+  text-decoration: underline;
 }
