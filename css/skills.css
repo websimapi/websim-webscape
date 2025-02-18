@@ -26,7 +26,7 @@
   gap: 2px;
   padding: 0;
   margin: 0;
-  margin-bottom: 14px; /* Adjusted from 29px to 14px to move up halfway */
+  margin-bottom: 14px;
 }
 
 .skill-slot {
@@ -89,7 +89,7 @@
   font-size: 12px;
   color: #ffff00;
   text-align: center;
-  height: 45px; /* Increased from 25px to 45px */
+  height: 52px;
 }
 
 .stats-item {
