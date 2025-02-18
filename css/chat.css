@@ -13,7 +13,7 @@
   color: #fff;
   font-size: 13px;
   line-height: 1.3;
-  height: calc(100% - 58px); 
+  height: calc(100% - 65px); 
   overflow-y: auto;
   display: flex;
   flex-direction: column-reverse;
