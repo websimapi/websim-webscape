@@ -2,15 +2,14 @@
 let activeButton = null;
 let activePanel = null;
 
-// List of menu items with their corresponding panels
+// List of menu items with their corresponding panels, updated to include game options and quest journal.
 const menuItems = {
   'friends-button': '.friends-list',
   'ignore-button': '.ignore-list',
   'inventory-button': '#inventory',
   'logout-button': '#logout-popup',
   'game-options-button': '#game-options',
-  'quest': '#quest-journal',
-  'stats': '#stats-menu'
+  'quest': '#quest-journal'
 };
 
 function hideAllPanels() {

@@ -421,6 +421,30 @@ body {
   flex: 1;
 }
 
+/* New UI styling */
+#new-ui {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  padding: 4px;
+  background: #382418;
+  height: 200px;
+  margin-top: 4px;
+}
+
+#new-ui.hidden {
+  display: none;
+}
+
+.new-ui-slot {
+  width: 46px;
+  height: 28px;
+  background: #474745;
+  border: 1px solid #000;
+  border-radius: 2px;
+}
+
 /* Update Quest Journal styles */
 #quest-journal {
   position: relative;
