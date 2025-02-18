@@ -4,6 +4,7 @@ import { initializeInventory } from './features/inventory.js';
 import { initializeLogout } from './features/logout.js';
 import { initializeGameOptions } from './features/gameOptions.js';
 import { initializeQuestJournal } from './features/questJournal.js';
+import { initializeStatsMenu } from './features/statsMenu.js';
 import { hideContextMenu } from './ui/contextMenu.js';
 import { hideAllPanels } from './features/menuManager.js';
 
@@ -15,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeLogout();
   initializeGameOptions();
   initializeQuestJournal();
+  initializeStatsMenu();
 
   // Set default menu selection to logout button
   const defaultButton = document.querySelector('.bottom-icon:nth-child(4)');
