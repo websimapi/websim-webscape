@@ -7,22 +7,32 @@ let onlineUsers = new Set();
 // Get the username element
 const usernameElement = document.getElementById('current-username');
 
-// Update username and online users when connection is established
+// Handle connection events and party updates
 room.party.subscribe((peers) => {
   const currentUser = room.party.client;
   if (currentUser && currentUser.username) {
     usernameElement.textContent = currentUser.username;
   }
   
-  // Update online users
+  // Update online users - clear and rebuild from current peers
   onlineUsers.clear();
   for (const clientId in peers) {
-    onlineUsers.add(peers[clientId].username);
+    // Only add users that have an active connection
+    if (peers[clientId] && peers[clientId].username) {
+      onlineUsers.add(peers[clientId].username);
+    }
   }
   
-  // Update online status in friends list
+  // Update online status immediately when peers change
   updateOnlineStatus();
 });
+
+// Handle disconnection events
+room.onclose = () => {
+  onlineUsers.clear();
+  // Update UI to show all users as offline when connection is lost
+  updateOnlineStatus();
+};
 
 // Function to update online status in friends list
 function updateOnlineStatus() {
@@ -30,6 +40,8 @@ function updateOnlineStatus() {
   friendEntries.forEach(entry => {
     const username = entry.querySelector('.player-name').textContent;
     const statusElement = entry.querySelector('.world-status');
+    
+    // Check if user is currently connected
     if (onlineUsers.has(username)) {
       statusElement.textContent = 'World-1';
       statusElement.classList.remove('offline');
@@ -271,6 +283,16 @@ room.onmessage = (event) => {
   const messageDiv = document.createElement('div');
   
   switch (event.data.type) {
+    case 'heartbeat':
+      // Connection is still alive, do nothing
+      break;
+      
+    case 'disconnected':
+      // Remove disconnected user from online users
+      onlineUsers.delete(event.data.username);
+      updateOnlineStatus();
+      break;
+      
     case 'chat':
       if (event.data.clientId !== room.party.client.id) {
         messageDiv.className = 'chat-message user';
@@ -302,5 +324,23 @@ room.onmessage = (event) => {
   }
 };
 
-// Added interval to update the friends list online/offline status every 3 seconds.
+// Set up automatic cleanup of disconnected users
+window.addEventListener('beforeunload', () => {
+  // Attempt to close connection cleanly
+  room.close();
+});
+
+// Add heartbeat to detect stale connections
+setInterval(() => {
+  // Send heartbeat event to keep connection alive and verify connectivity
+  try {
+    room.send({ type: 'heartbeat' });
+  } catch (e) {
+    // If sending fails, connection may be dead - clear online users
+    onlineUsers.clear();
+    updateOnlineStatus();
+  }
+}, 5000);
+
+// Keep status check interval 
 setInterval(updateOnlineStatus, 3000);
