@@ -29,7 +29,7 @@
 }
 
 .skill-slot {
-  width: 100%;
+  width: calc(100% - 3px);
   height: 24px;
   background: #382418;
   border: 1px solid #000;
