@@ -10,9 +10,12 @@ function setupOverlay(overlay, input) {
   if (input) {
     input.addEventListener('keypress', async (e) => {
       if (e.key === 'Enter' && input.value.trim()) {
-        const name = input.value.trim();
         const event = new CustomEvent('overlay-submit', { 
-          detail: { name, overlay }
+          detail: { 
+            name: input.value.trim(), 
+            overlay,
+            input
+          }
         });
         document.dispatchEvent(event);
         overlay.classList.remove('shown');

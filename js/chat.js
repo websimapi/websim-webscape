@@ -23,6 +23,36 @@ chatUsernameTooltip.className = 'action-tooltip';
 chatUsernameTooltip.style.display = 'none';
 document.body.appendChild(chatUsernameTooltip);
 
+// Create message overlay element
+const messageOverlay = document.createElement('div');
+messageOverlay.id = 'message-overlay';
+messageOverlay.className = 'friend-overlay';
+messageOverlay.innerHTML = `
+  <div class="add-friend-container">
+    <div class="add-friend-text">Enter message to send to <span class="message-recipient"></span></div>
+    <input type="text" class="message-input">
+  </div>
+`;
+document.body.appendChild(messageOverlay);
+
+// Set up message overlay functionality
+function setupOverlay(overlay, input) {
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && input.value.trim()) {
+      const event = new CustomEvent('overlay-submit', {
+        detail: {
+          name: 'message',
+          overlay: overlay,
+          input: input
+        }
+      });
+      document.dispatchEvent(event);
+    }
+  });
+}
+
+setupOverlay(messageOverlay, messageOverlay.querySelector('.message-input'));
+
 // Function to show chat context menu when clicking on a username
 function showChatContextMenu(e, username) {
   // Do not show dropdown for your own username
@@ -34,7 +64,7 @@ function showChatContextMenu(e, username) {
   // Hide any existing context menus first.
   hideAllContextMenus();
 
-  // Get game container bounds to ensure our menu doesn’t go outside.
+  // Get game container bounds to ensure our menu doesn't go outside.
   const gameContainer = document.getElementById('client-wrapper');
   const containerBounds = gameContainer.getBoundingClientRect();
 
@@ -44,6 +74,7 @@ function showChatContextMenu(e, username) {
 
   // Set menu content.
   chatContextMenu.innerHTML = `
+    <div class="context-menu-option message-user">Message ${username}</div>
     <div class="context-menu-option add-friend">Add Friend ${username}</div>
     <div class="context-menu-option add-ignore">Add Ignore ${username}</div>
     <div class="context-menu-option cancel">Cancel</div>
@@ -71,9 +102,20 @@ function showChatContextMenu(e, username) {
   chatContextMenu.style.top = `${yPos}px`;
 
   // Add click handlers for each menu option.
+  const messageUserOption = chatContextMenu.querySelector('.message-user');
   const addFriendOption = chatContextMenu.querySelector('.add-friend');
   const addIgnoreOption = chatContextMenu.querySelector('.add-ignore');
   const cancelOption = chatContextMenu.querySelector('.cancel');
+
+  messageUserOption.addEventListener('click', (event) => {
+    event.stopPropagation();
+    // Show message overlay
+    messageOverlay.querySelector('.message-recipient').textContent = username;
+    messageOverlay.classList.add('shown');
+    messageOverlay.querySelector('.message-input').value = '';
+    messageOverlay.querySelector('.message-input').focus();
+    hideAllContextMenus();
+  });
 
   addFriendOption.addEventListener('click', (event) => {
     event.stopPropagation();
@@ -182,3 +224,23 @@ room.onmessage = (event) => {
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
   }
 };
+
+// Handle message overlay submissions
+document.addEventListener('overlay-submit', (e) => {
+  const { name, overlay, input } = e.detail;
+  
+  if (overlay === messageOverlay) {
+    const recipient = overlay.querySelector('.message-recipient').textContent;
+    const message = input.value.trim();
+    
+    // Add the private message to chat
+    const chatContent = document.querySelector('.chat-content');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message private';
+    messageDiv.innerHTML = `To ${recipient}: ${message}`;
+    chatContent.insertBefore(messageDiv, chatContent.firstChild);
+    
+    // Clear input
+    input.value = '';
+  }
+});
