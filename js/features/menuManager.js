@@ -2,7 +2,7 @@
 let activeButton = null;
 let activePanel = null;
 
-// List of menu items with their corresponding panels
+// List of menu items with their corresponding panels, updated to include game options.
 const menuItems = {
   'friends-button': '.friends-list',
   'ignore-button': '.ignore-list',
@@ -12,7 +12,7 @@ const menuItems = {
 };
 
 function hideAllPanels() {
-  // Hide all panels defined in the menuItems mapping
+  // Hide all panels defined in the menuItems mapping.
   Object.values(menuItems).forEach(panelSelector => {
     const panel = document.querySelector(panelSelector);
     if (panel) {
@@ -28,22 +28,24 @@ function hideAllPanels() {
   allButtons.forEach(button => {
     button.classList.remove('selected');
   });
-  
-  // Reset active tracking
-  activeButton = null;
-  activePanel = null;
 }
 
 function toggleMenu(button, panelSelector) {
   const panel = document.querySelector(panelSelector);
   
-  // If clicking the same button that's already active, close everything
+  // If clicking the same button that's already active
   if (button === activeButton) {
+    // Keep current selection but ensure only this button remains selected
     hideAllPanels();
+    button.classList.add('selected');
+    panel.classList.remove('hidden');
+    if (panelSelector.includes('friends') || panelSelector.includes('ignore') || panelSelector.includes('game-options')) {
+      panel.classList.add('shown');
+    }
     return;
   }
 
-  // Hide all panels first
+  // Hide all other panels first
   hideAllPanels();
 
   // Show the selected panel and mark button as selected
@@ -53,7 +55,6 @@ function toggleMenu(button, panelSelector) {
     panel.classList.add('shown');
   }
 
-  // Update active tracking
   activeButton = button;
   activePanel = panel;
 }

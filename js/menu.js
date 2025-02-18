@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeLogout();
   initializeGameOptions();
 
-  // Set default menu selection to menu 4
+  // Set default menu selection to logout button
   const defaultButton = document.querySelector('.bottom-icon:nth-child(4)');
   defaultButton.click();
 
@@ -23,8 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!e.target.closest('.context-menu') && !e.target.closest('.player-name')) {
       hideContextMenu();
     }
-
-    // Don't hide panels on outside clicks anymore, keep current selection
   });
 
   // Close context menu on scroll

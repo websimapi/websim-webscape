@@ -351,12 +351,13 @@ body {
 
 /* Game Options Menu */
 #game-options {
-  flex: 1;
-  display: grid;
-  gap: 2px;
-  padding: 4px;
+  position: relative;
+  width: calc(100% - 8px);
   background: #382418;
-  height: 172px;
+  border: none;
+  padding: 4px;
+  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
+  display: none;
   margin-top: 4px;
 }
 
@@ -368,15 +369,15 @@ body {
   background: #474745;
   border: 2px solid #5a473a;
   padding: 8px;
-  height: 100%;
-  overflow-y: auto;
 }
 
 .game-options-title {
   text-align: left;
   color: #00ffff;
-  font-size: 12px;
+  font-size: 14px;
   margin-bottom: 6px;
+  padding-bottom: 2px;
+  border-bottom: none;
 }
 
 .game-options-section {
@@ -384,8 +385,8 @@ body {
 }
 
 .game-options-header {
-  color: #fff;
-  font-size: 11px;
+  color: #d2b48c;
+  font-size: 12px;
   margin-bottom: 2px;
 }
 
@@ -393,6 +394,7 @@ body {
   display: flex;
   gap: 2px;
   flex-wrap: wrap;
+  margin-bottom: 4px;
 }
 
 .game-options-buttons button {
@@ -401,10 +403,12 @@ body {
   border: 1px solid #000;
   color: #fff;
   padding: 2px 4px;
-  font-size: 10px;
+  font-size: 11px;
   cursor: pointer;
   text-shadow: 1px 1px 0 #000;
   min-width: 0;
+  height: 20px;
+  line-height: 16px;
 }
 
 .game-options-two-column {
