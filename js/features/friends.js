@@ -46,12 +46,7 @@ function initializeFriendsList() {
     const { name, overlay } = e.detail;
     
     if (overlay === addFriendOverlay) {
-      const newFriend = document.createElement('div');
-      newFriend.className = 'list-entry';
-      newFriend.innerHTML = `
-        <span class="player-name">${name}</span>
-        <span class="world-status offline">Offline</span>
-      `;
+      const newFriend = createFriendEntry(name);
       friendsListContainer.appendChild(newFriend);
     } else if (overlay === delFriendOverlay) {
       const friendEntries = friendsListContainer.querySelectorAll('.list-entry');
@@ -64,40 +59,103 @@ function initializeFriendsList() {
     }
   });
 
-  // Setup friend list hover effects
-  friendsListContainer.addEventListener('mouseover', (e) => {
-    const playerNameElement = e.target.closest('.player-name');
-    if (playerNameElement) {
-      const username = playerNameElement.textContent;
-      tooltip.style.display = 'block';
+  // Function to create a friend entry with proper event handlers
+  function createFriendEntry(username) {
+    const entry = document.createElement('div');
+    entry.className = 'list-entry';
+    
+    // Get WebsimSocket instance from chat.js
+    const room = window.room || new WebsimSocket();
+    const isOnline = room.party.peers && Object.values(room.party.peers).some(peer => peer.username === username);
+    
+    entry.innerHTML = `
+      <span class="player-name">${username}</span>
+      <span class="world-status ${isOnline ? '' : 'offline'}">${isOnline ? 'World-1' : 'Offline'}</span>
+    `;
+
+    // Add click handler for the player name
+    const playerName = entry.querySelector('.player-name');
+    playerName.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      hideContextMenu();
+
+      const friendContextMenu = document.createElement('div');
+      friendContextMenu.className = 'context-menu shown';
+      friendContextMenu.innerHTML = `
+        <div class="context-menu-option message">Message ${username}</div>
+        <div class="context-menu-option remove">Remove ${username}</div>
+        <div class="context-menu-option cancel">Cancel</div>
+      `;
+
+      // Position the context menu
+      const rect = playerName.getBoundingClientRect();
+      friendContextMenu.style.left = `${rect.left}px`;
+      friendContextMenu.style.top = `${rect.bottom}px`;
+      document.body.appendChild(friendContextMenu);
+
+      // Add click handlers for menu options
+      friendContextMenu.querySelector('.message').addEventListener('click', () => {
+        const messageOverlay = document.getElementById('message-overlay');
+        const messageInput = messageOverlay.querySelector('.message-input');
+        const messageUsernameSpan = messageOverlay.querySelector('.message-username');
+        
+        messageUsernameSpan.textContent = username;
+        messageOverlay.classList.add('shown');
+        messageInput.value = '';
+        messageInput.focus();
+        document.querySelector('.chat-input-area').style.visibility = 'hidden';
+        
+        friendContextMenu.remove();
+      });
+
+      friendContextMenu.querySelector('.remove').addEventListener('click', () => {
+        entry.remove();
+        friendContextMenu.remove();
+      });
+
+      friendContextMenu.querySelector('.cancel').addEventListener('click', () => {
+        friendContextMenu.remove();
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener('click', function closeMenu(e) {
+        if (!friendContextMenu.contains(e.target)) {
+          friendContextMenu.remove();
+          document.removeEventListener('click', closeMenu);
+        }
+      });
+    });
+
+    // Add hover effect
+    playerName.addEventListener('mouseover', () => {
       tooltip.textContent = `Message ${username} / 1 more option`;
+      tooltip.style.display = 'block';
       
       const gameScreen = document.getElementById('game-screen');
       const gameRect = gameScreen.getBoundingClientRect();
       tooltip.style.left = `${gameRect.left + 5}px`;
       tooltip.style.top = `${gameRect.top + 5}px`;
-    }
-  });
+    });
 
-  friendsListContainer.addEventListener('mouseout', (e) => {
-    if (e.target.closest('.player-name')) {
+    playerName.addEventListener('mouseout', () => {
       tooltip.style.display = 'none';
-    }
-  });
+    });
 
-  // Handle friend list clicks
+    return entry;
+  }
+
+  // Handle friend list clicks for existing entries
   friendsListContainer.addEventListener('click', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
-      const username = playerNameElement.textContent;
-      showContextMenu(e, username, 
-        () => {
-          // TODO: Implement messaging
-        },
-        () => {
-          playerNameElement.closest('.list-entry').remove();
-        }
-      );
+      const event = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+      });
+      playerNameElement.dispatchEvent(event);
     }
   });
 }
