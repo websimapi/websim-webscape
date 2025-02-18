@@ -110,7 +110,7 @@
   text-decoration: none;
 }
 
-/* Update context menu styling to ensure visibility */
+/* Update context menu styling to ensure visibility and containment */
 .context-menu {
   position: fixed; 
   background: #474745;
@@ -119,6 +119,7 @@
   z-index: 1001;
   display: none;
   padding: 2px;
+  max-width: calc(100% - 40px); 
 }
 
 .context-menu.shown {

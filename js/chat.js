@@ -24,17 +24,40 @@ function showChatContextMenu(e, username) {
   // Hide any existing context menus
   hideAllContextMenus();
   
-  // Position and show context menu
-  chatContextMenu.style.left = `${e.pageX}px`;
-  chatContextMenu.style.top = `${e.pageY}px`;
+  // Get game container bounds
+  const gameContainer = document.getElementById('client-wrapper');
+  const containerBounds = gameContainer.getBoundingClientRect();
   
-  // Set menu options
+  // Calculate initial position
+  let xPos = e.pageX;
+  let yPos = e.pageY;
+  
+  // Position and show menu first to get its dimensions
+  chatContextMenu.style.display = 'block';
   chatContextMenu.innerHTML = `
     <div class="context-menu-option add-friend">Add Friend ${username}</div>
     <div class="context-menu-option add-ignore">Add Ignore ${username}</div>
     <div class="context-menu-option cancel">Cancel</div>
   `;
   
+  // Get menu dimensions
+  const menuBounds = chatContextMenu.getBoundingClientRect();
+  
+  // Adjust position if menu would go outside container
+  if (xPos + menuBounds.width > containerBounds.right) {
+    xPos = containerBounds.right - menuBounds.width - 10;
+  }
+  if (yPos + menuBounds.height > containerBounds.bottom) {
+    yPos = containerBounds.bottom - menuBounds.height - 10;
+  }
+  
+  // Keep menu within left and top bounds
+  xPos = Math.max(containerBounds.left + 10, xPos);
+  yPos = Math.max(containerBounds.top + 10, yPos);
+  
+  // Set final position
+  chatContextMenu.style.left = `${xPos}px`;
+  chatContextMenu.style.top = `${yPos}px`;
   chatContextMenu.classList.add('shown');
   
   // Add click handlers for menu options
