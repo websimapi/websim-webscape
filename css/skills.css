@@ -54,6 +54,22 @@
   color: #ffff00;
   margin-left: auto;
   padding-right: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.skill-level-numerator {
+  transform: translateY(-1px);
+}
+
+.skill-level-slash {
+  font-size: 14px;
+  margin: 0 1px;
+  transform: translateY(-1px);
+}
+
+.skill-level-denominator {
+  transform: translateY(1px);
 }
 
 .stats-summary {

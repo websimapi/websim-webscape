@@ -1,5 +1,3 @@
-import { toggleMenu } from './menuManager.js';
-
 // Initialize WebSocket connection
 const room = new WebsimSocket();
 
@@ -47,7 +45,11 @@ function initializeSkillsMenu() {
     skillSlot.className = 'skill-slot';
     skillSlot.innerHTML = `
       <div class="skill-icon" ${skill.style ? `style="${skill.style}"` : ''}>${skill.icon}</div>
-      <div class="skill-level">${skill.level}/${skill.maxLevel}</div>
+      <div class="skill-level">
+        <span class="skill-level-numerator">${skill.level}</span>
+        <span class="skill-level-slash">/</span>
+        <span class="skill-level-denominator">${skill.maxLevel}</span>
+      </div>
     `;
     skillSlot.title = skill.name; // Add tooltip showing skill name
     skillsContainer.appendChild(skillSlot);
