@@ -40,19 +40,19 @@ function updateOnlineStatus() {
   });
 }
 
-// Create message overlay
+// Create message overlay using the same markup as the Add Friend overlay
 const messageOverlay = document.createElement('div');
 messageOverlay.id = 'message-overlay';
-messageOverlay.className = 'message-overlay';
+messageOverlay.className = 'add-friend-overlay';
 messageOverlay.innerHTML = `
-  <div class="message-container">
-    <div class="message-text">Enter message to send to <span class="message-username"></span></div>
-    <input type="text" class="message-input" maxlength="80">
+  <div class="add-friend-container">
+    <div class="add-friend-text">Enter message to send to <span class="message-username"></span></div>
+    <input type="text" class="add-friend-input" maxlength="80">
   </div>
 `;
 document.querySelector('#chat-window').appendChild(messageOverlay);
 
-const messageInput = messageOverlay.querySelector('.message-input');
+const messageInput = messageOverlay.querySelector('.add-friend-input');
 const messageUsernameSpan = messageOverlay.querySelector('.message-username');
 
 function showMessageOverlay(username) {
@@ -65,7 +65,7 @@ function showMessageOverlay(username) {
 // Export the showMessageOverlay globally so that it can be used by other modules (such as friends.js)
 window.showMessageOverlay = showMessageOverlay;
 
-// Setup message overlay functionality – now we attach the click listener to #chat-window so the overlay is only dismissed when clicking within the chat UI
+// Setup message overlay functionality – attach the click listener to #chat-window so the overlay is dismissed when clicking outside the input.
 function setupOverlay(overlay, input) {
   const chatWindow = document.getElementById('chat-window');
   chatWindow.addEventListener('click', (e) => {

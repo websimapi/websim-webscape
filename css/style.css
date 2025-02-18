@@ -311,6 +311,22 @@ body {
   display: block;
 }
 
+/* Added message overlay styles to mimic Add Friend overlay */
+#message-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 25px);
+  background: #d2b48c;
+  display: none;
+  z-index: 1000;
+}
+
+#message-overlay.shown {
+  display: block;
+}
+
 /* Action tooltip styling */
 .action-tooltip {
   position: fixed;
