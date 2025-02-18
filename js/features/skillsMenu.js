@@ -3,19 +3,19 @@ import { toggleMenu } from './menuManager.js';
 // Initialize WebSocket connection
 const room = new WebsimSocket();
 
-// Initialize skills data with 21 skills in the specified order
+// Initialize skills data with 21 skills in the specified order and add XP info
 const skills = [
   { name: 'Attack', level: 1, maxLevel: 1, icon: '⚔️', xp: 0, nextLevel: 83 },
-  { name: 'Hitpoints', level: 10, maxLevel: 10, icon: '❤️', xp: 1154, nextLevel: 1354 },
+  { name: 'Hitpoints', level: 10, maxLevel: 10, icon: '❤️', xp: 1154, nextLevel: 1358 },
   { name: 'Mining', level: 1, maxLevel: 1, icon: '⛏️', xp: 0, nextLevel: 83 },
   { name: 'Strength', level: 1, maxLevel: 1, icon: '💪', xp: 0, nextLevel: 83 },
-  { name: 'Agility', level: 1, maxLevel: 1, icon: '🏃', style: 'filter: grayscale(100%) brightness(0.3); -webkit-text-stroke: 1px black;', xp: 0, nextLevel: 83 },
+  { name: 'Agility', level: 1, maxLevel: 1, icon: '🏃', xp: 0, nextLevel: 83, style: 'filter: grayscale(100%) brightness(0.3); -webkit-text-stroke: 1px black;' },
   { name: 'Smithing', level: 1, maxLevel: 1, icon: '⚒️', xp: 0, nextLevel: 83 },
   { name: 'Defence', level: 1, maxLevel: 1, icon: '🛡️', xp: 0, nextLevel: 83 },
   { name: 'Herblore', level: 1, maxLevel: 1, icon: '🌿', xp: 0, nextLevel: 83 },
   { name: 'Fishing', level: 1, maxLevel: 1, icon: '🎣', xp: 0, nextLevel: 83 },
   { name: 'Ranged', level: 1, maxLevel: 1, icon: '🏹', xp: 0, nextLevel: 83 },
-  { name: 'Thieving', level: 1, maxLevel: 1, icon: '👥', style: 'filter: grayscale(100%) brightness(0.3); -webkit-text-stroke: 1px black;', xp: 0, nextLevel: 83 },
+  { name: 'Thieving', level: 1, maxLevel: 1, icon: '👥', xp: 0, nextLevel: 83, style: 'filter: grayscale(100%) brightness(0.3); -webkit-text-stroke: 1px black;' },
   { name: 'Cooking', level: 1, maxLevel: 1, icon: '🍳', xp: 0, nextLevel: 83 },
   { name: 'Prayer', level: 1, maxLevel: 1, icon: '✨', xp: 0, nextLevel: 83 },
   { name: 'Crafting', level: 1, maxLevel: 1, icon: '✂️', xp: 0, nextLevel: 83 },
@@ -31,7 +31,6 @@ const skills = [
 function initializeSkillsMenu() {
   const skillsButton = document.querySelector('.icon.skills');
   const skillsMenu = document.getElementById('skills-menu');
-  const statsContainer = skillsMenu.querySelector('.stats-summary');
 
   skillsButton.addEventListener('click', () => {
     toggleMenu(skillsButton, '#skills-menu');
@@ -42,7 +41,7 @@ function initializeSkillsMenu() {
   // Clear any existing content
   skillsContainer.innerHTML = '';
   
-  // Create skill slots
+  // Create skill slots with hover functionality
   skills.forEach(skill => {
     const skillSlot = document.createElement('div');
     skillSlot.className = 'skill-slot';
@@ -54,40 +53,45 @@ function initializeSkillsMenu() {
         <span class="skill-level-denominator">${skill.maxLevel}</span>
       </div>
     `;
-    skillSlot.title = skill.name;
-
-    // Add hover handlers for XP information
-    skillSlot.addEventListener('mouseenter', () => {
-      statsContainer.innerHTML = `
-        <div class="stats-item">${skill.name} XP: ${skill.xp}</div>
-        <div class="stats-item">Next Level At: ${skill.nextLevel}</div>
-      `;
+    
+    // Add mouseover event
+    skillSlot.addEventListener('mouseover', () => {
+      const statsContainer = skillsMenu.querySelector('.stats-summary');
+      if (statsContainer) {
+        statsContainer.innerHTML = `
+          <div class="stats-item">${skill.name} XP: ${skill.xp}</div>
+          <div class="stats-item">Next Level At: ${skill.nextLevel}</div>
+        `;
+      }
     });
 
-    skillSlot.addEventListener('mouseleave', () => {
-      // Reset to default stats view with new layout
-      const totalLevel = skills.reduce((sum, skill) => sum + skill.level, 0);
-      statsContainer.innerHTML = `
-        <div class="stats-item qp">QP: 0</div>
-        <div class="stats-item combat-total">
-          Combat: 1
-          Total: ${totalLevel}
-        </div>
-      `;
+    // Add mouseout event to restore original stats
+    skillSlot.addEventListener('mouseout', () => {
+      const statsContainer = skillsMenu.querySelector('.stats-summary');
+      if (statsContainer) {
+        statsContainer.innerHTML = `
+          <div class="stats-item">QP: 0</div>
+          <div class="stats-item">Combat: 1</div>
+          <div class="stats-item">Total: ${skills.reduce((sum, s) => sum + s.level, 0)}</div>
+        `;
+      }
     });
 
     skillsContainer.appendChild(skillSlot);
   });
 
-  // Calculate and show initial total level
+  // Calculate total level
   const totalLevel = skills.reduce((sum, skill) => sum + skill.level, 0);
-  statsContainer.innerHTML = `
-    <div class="stats-item qp">QP: 0</div>
-    <div class="stats-item combat-total">
-      Combat: 1
-      Total: ${totalLevel}
-    </div>
-  `;
+
+  // Update the stats summary
+  const statsContainer = skillsMenu.querySelector('.stats-summary');
+  if (statsContainer) {
+    statsContainer.innerHTML = `
+      <div class="stats-item">QP: 0</div>
+      <div class="stats-item">Combat: 1</div>
+      <div class="stats-item">Total: ${totalLevel}</div>
+    `;
+  }
 }
 
 export { initializeSkillsMenu };
