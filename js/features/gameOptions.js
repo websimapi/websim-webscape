@@ -14,7 +14,7 @@ function initializeGameOptions() {
   const buttons = gameOptionsPanel.querySelectorAll('.game-options-buttons button');
   buttons.forEach(button => {
     button.addEventListener('click', () => {
-      // Mark the clicked button as selected while unselecting its siblings.
+      // For demonstration, mark the clicked button as selected while unselecting its siblings.
       const parent = button.parentElement;
       parent.querySelectorAll('button').forEach(btn => btn.classList.remove('selected'));
       button.classList.add('selected');
