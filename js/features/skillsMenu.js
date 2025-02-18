@@ -1,9 +1,10 @@
 import { toggleMenu } from './menuManager.js';
 
-// Initialize WebSocket connection
-const room = new WebsimSocket();
+// Use the existing global websocket connection if available; otherwise create a new one.
+const room = window.room || new WebsimSocket();
+window.room = room;
 
-// Initialize skills data with 21 skills in the specified order and add XP info
+// Initialize skills data with 21 skills and their XP info
 const skills = [
   { name: 'Duelist', level: 1, maxLevel: 1, icon: '⚔️', xp: 0, nextLevel: 83 },
   { name: 'Spirit', level: 10, maxLevel: 10, icon: '❤️', xp: 1154, nextLevel: 1358, style: 'filter: hue-rotate(190deg) saturate(0.5) brightness(1.5);' },
@@ -37,7 +38,6 @@ function initializeSkillsMenu() {
   });
 
   const skillsContainer = skillsMenu.querySelector('.skills-grid');
-  
   // Clear any existing content
   skillsContainer.innerHTML = '';
   
@@ -54,7 +54,7 @@ function initializeSkillsMenu() {
       </div>
     `;
     
-    // When hovering over a skill, show its XP details with a carriage return between lines.
+    // When hovering over a skill, show its XP details.
     skillSlot.addEventListener('mouseover', () => {
       const statsContainer = skillsMenu.querySelector('.stats-summary');
       if (statsContainer) {
@@ -64,7 +64,7 @@ function initializeSkillsMenu() {
       }
     });
 
-    // Restore the default stats view on mouseout so non-hover state remains unaffected.
+    // Restore the default stats view on mouseout.
     skillSlot.addEventListener('mouseout', () => {
       const statsContainer = skillsMenu.querySelector('.stats-summary');
       if (statsContainer) {
@@ -79,10 +79,8 @@ function initializeSkillsMenu() {
     skillsContainer.appendChild(skillSlot);
   });
 
-  // Calculate total level for default view.
-  const totalLevel = skills.reduce((sum, skill) => sum + skill.level, 0);
-
   // Update the default stats summary.
+  const totalLevel = skills.reduce((sum, skill) => sum + skill.level, 0);
   const statsContainer = skillsMenu.querySelector('.stats-summary');
   if (statsContainer) {
     statsContainer.innerHTML = `
