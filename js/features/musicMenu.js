@@ -29,6 +29,7 @@ function saveMusicSettings(isAuto) {
 }
 
 function playTrack(track, trackElement, trackList) {
+  // Only attempt to play if we have had a user gesture.
   if (!hasUserInteracted) return;
 
   if (track.unlocked) {
@@ -54,7 +55,7 @@ function playTrack(track, trackElement, trackList) {
     });
     trackElement.classList.add('selected');
 
-    // Setup auto-play for next track
+    // Setup auto-play for next track if in auto mode
     if (autoPlayMode) {
       currentAudio.addEventListener('ended', () => {
         currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
@@ -74,12 +75,12 @@ function initializeMusicMenu() {
   const autoButton = musicMenu.querySelector('.music-auto');
   const manualButton = musicMenu.querySelector('.music-manual');
 
-  // Initialize track list
+  // Create and append the track list container
   const trackList = document.createElement('div');
   trackList.className = 'track-list';
   musicContent.appendChild(trackList);
 
-  // Load saved music mode
+  // Load and set saved music mode
   autoPlayMode = loadMusicSettings();
   if (autoPlayMode) {
     autoButton.classList.add('selected');
@@ -89,7 +90,7 @@ function initializeMusicMenu() {
     autoButton.classList.remove('selected');
   }
 
-  // Populate tracks
+  // Populate track list with available tracks
   tracks.forEach((track, index) => {
     const trackElement = document.createElement('div');
     trackElement.className = 'track-entry';
@@ -99,8 +100,9 @@ function initializeMusicMenu() {
       trackElement.classList.add('unlocked');
     }
 
+    // When a track is clicked, mark user interaction and play the track
     trackElement.addEventListener('click', () => {
-      hasUserInteracted = true; // Set user interaction flag
+      hasUserInteracted = true;
       if (track.unlocked) {
         currentTrackIndex = index;
         playTrack(track, trackElement, trackList);
@@ -110,27 +112,28 @@ function initializeMusicMenu() {
     trackList.appendChild(trackElement);
   });
 
-  // Handle music menu toggle
-  musicButton.addEventListener('click', () => {
+  // Handle music menu toggle – also set the interaction flag on click
+  musicButton.addEventListener('click', (e) => {
+    hasUserInteracted = true;
     toggleMenu(musicButton, '#music-menu');
     
-    // Auto-play first track if in auto mode and no track is playing, but only after user interaction
-    if (hasUserInteracted && autoPlayMode && !currentAudio && tracks.length > 0) {
+    // If in auto mode and no track is playing, start the first track
+    if (autoPlayMode && !currentAudio && tracks.length > 0) {
       const firstTrack = tracks[0];
       const firstTrackElement = trackList.children[0];
       playTrack(firstTrack, firstTrackElement, trackList);
     }
   });
 
-  // Auto/Manual button functionality
+  // Auto-mode button functionality
   autoButton.addEventListener('click', () => {
-    hasUserInteracted = true; // Set user interaction flag
+    hasUserInteracted = true;
     autoPlayMode = true;
     saveMusicSettings(true);
     autoButton.classList.add('selected');
     manualButton.classList.remove('selected');
     
-    // Start playing if nothing is currently playing
+    // If no track is playing, start playing the first track
     if (!currentAudio && tracks.length > 0) {
       const firstTrack = tracks[0];
       const firstTrackElement = trackList.children[0];
@@ -138,30 +141,22 @@ function initializeMusicMenu() {
     }
   });
 
+  // Manual-mode button functionality
   manualButton.addEventListener('click', () => {
-    hasUserInteracted = true; // Set user interaction flag
+    hasUserInteracted = true;
     autoPlayMode = false;
     saveMusicSettings(false);
     manualButton.classList.add('selected');
     autoButton.classList.remove('selected');
     
-    // Stop auto-play functionality
+    // Disable auto-play functionality if audio is playing
     if (currentAudio) {
       currentAudio.onended = null;
     }
   });
 
-  // Set initial mode from local storage but don't auto-play
-  if (autoPlayMode) {
-    autoButton.classList.add('selected');
-    manualButton.classList.remove('selected');
-  } else {
-    manualButton.classList.add('selected');
-    autoButton.classList.remove('selected');
-  }
-
-  // Add click listener to the entire document to track first interaction
-  document.addEventListener('click', () => {
+  // Use a mousedown event (instead of click) at the document level so that Firefox registers a user gesture early
+  document.addEventListener('mousedown', () => {
     hasUserInteracted = true;
   }, { once: true });
 }
