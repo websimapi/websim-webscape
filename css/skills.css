@@ -81,7 +81,7 @@
 .stats-summary {
   background: #000;
   padding: 4px;
-  margin-top: -8px;
+  margin-top: 2px;
   height: 40px;
   display: grid;
   grid-template-columns: 1fr 1fr;
