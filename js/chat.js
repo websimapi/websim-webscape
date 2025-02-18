@@ -1,48 +1,37 @@
-// Initialize WebSocket connection
-const room = new WebsimSocket();
+// Initialize WebSocket connection – expose as global for heartbeat usage
+window.room = new WebsimSocket();
 
-// Track online users
+// Track online users (legacy, kept only for subscription updates)
 let onlineUsers = new Set();
 
 // Get the username element
 const usernameElement = document.getElementById('current-username');
 
-// Handle connection events and party updates
-room.party.subscribe((peers) => {
-  const currentUser = room.party.client;
+// Update username and online users when connection is established
+window.room.party.subscribe((peers) => {
+  const currentUser = window.room.party.client;
   if (currentUser && currentUser.username) {
     usernameElement.textContent = currentUser.username;
   }
   
-  // Update online users - clear and rebuild from current peers
+  // Update online users (legacy list)
   onlineUsers.clear();
   for (const clientId in peers) {
-    // Only add users that have an active connection
-    if (peers[clientId] && peers[clientId].username) {
-      onlineUsers.add(peers[clientId].username);
-    }
+    onlineUsers.add(peers[clientId].username);
   }
   
-  // Update online status immediately when peers change
+  // Update online status in friends list using heartbeat info
   updateOnlineStatus();
 });
 
-// Handle disconnection events
-room.onclose = () => {
-  onlineUsers.clear();
-  // Update UI to show all users as offline when connection is lost
-  updateOnlineStatus();
-};
-
-// Function to update online status in friends list
+// Function to update online status in friends list using heartbeat data
 function updateOnlineStatus() {
   const friendEntries = document.querySelectorAll('.friends-list .list-entry');
   friendEntries.forEach(entry => {
     const username = entry.querySelector('.player-name').textContent;
     const statusElement = entry.querySelector('.world-status');
-    
-    // Check if user is currently connected
-    if (onlineUsers.has(username)) {
+    // Use heartbeat-based aliveStatus if available
+    if (window.aliveStatus && window.aliveStatus[username]) {
       statusElement.textContent = 'World-1';
       statusElement.classList.remove('offline');
     } else {
@@ -78,7 +67,7 @@ function showMessageOverlay(username) {
 window.showMessageOverlay = showMessageOverlay;
 
 // Setup message overlay functionality – attach the click listener to #chat-window so the overlay is dismissed when clicking outside the input.
-function setupOverlay(overlay, input) {
+function setupChatOverlay(overlay, input) {
   const chatWindow = document.getElementById('chat-window');
   chatWindow.addEventListener('click', (e) => {
     if (!overlay.contains(e.target) && !input.contains(e.target)) {
@@ -86,8 +75,7 @@ function setupOverlay(overlay, input) {
     }
   });
 }
-
-setupOverlay(messageOverlay, messageInput);
+setupChatOverlay(messageOverlay, messageInput);
 
 // Handle message submission from the overlay
 messageInput.addEventListener('keypress', async (e) => {
@@ -95,27 +83,20 @@ messageInput.addEventListener('keypress', async (e) => {
     const message = messageInput.value.trim();
     const recipient = messageUsernameSpan.textContent;
     
-    if (onlineUsers.has(recipient)) {
-      room.send({
+    if (window.room && window.room.send) {
+      window.room.send({
         type: 'private-message',
         message: message,
         recipient: recipient
       });
-      
-      // Add message to chat
-      const chatContent = document.querySelector('.chat-content');
-      const messageDiv = document.createElement('div');
-      messageDiv.className = 'chat-message private-message';
-      messageDiv.innerHTML = `To ${recipient}: ${message}`;
-      chatContent.insertBefore(messageDiv, chatContent.firstChild);
-    } else {
-      // Add error message to chat
-      const chatContent = document.querySelector('.chat-content');
-      const messageDiv = document.createElement('div');
-      messageDiv.className = 'chat-message system';
-      messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
-      chatContent.insertBefore(messageDiv, chatContent.firstChild);
     }
+    
+    // Add message to chat UI
+    const chatContent = document.querySelector('.chat-content');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message private-message';
+    messageDiv.innerHTML = `To ${recipient}: ${message}`;
+    chatContent.insertBefore(messageDiv, chatContent.firstChild);
     
     messageOverlay.classList.remove('shown');
   }
@@ -135,7 +116,7 @@ document.body.appendChild(chatUsernameTooltip);
 // Function to show chat context menu when clicking on a username
 function showChatContextMenu(e, username) {
   // Do not show dropdown for your own username
-  if (username === room.party.client.username) return;
+  if (username === window.room.party.client.username) return;
 
   e.preventDefault();
   e.stopPropagation();
@@ -228,12 +209,9 @@ function hideAllContextMenus() {
   chatContextMenu.style.top = '';
 }
 
-// Function to show tooltip on chat username hover in the top left of the game container
+// Function to show tooltip on chat username hover in the top-left of the game container
 function showUsernameHoverTooltip(e, username) {
-  // For your own name, do not show the dropdown tooltip.
-  if (username === room.party.client.username) return;
-  
-  // Display the first action choice and count of remaining options.
+  if (username === window.room.party.client.username) return;
   chatUsernameTooltip.textContent = `Add Friend / 1 more option`;
   chatUsernameTooltip.style.display = 'block';
   const gameScreen = document.getElementById('game-screen');
@@ -251,22 +229,24 @@ chatInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter' && chatInput.value.trim()) {
     const message = chatInput.value.trim();
 
-    room.send({
-      type: 'chat',
-      message: message
-    });
+    if (window.room && window.room.send) {
+      window.room.send({
+        type: 'chat',
+        message: message
+      });
+    }
 
     const chatContent = document.querySelector('.chat-content');
     const messageDiv = document.createElement('div');
     messageDiv.className = 'chat-message user';
-    messageDiv.innerHTML = `<span class="username">${room.party.client.username}</span><span class="separator">: </span>${message}`;
+    messageDiv.innerHTML = `<span class="username">${window.room.party.client.username}</span><span class="separator">: </span>${message}`;
 
     const usernameSpan = messageDiv.querySelector('.username');
     usernameSpan.addEventListener('click', (e) => {
-      showChatContextMenu(e, room.party.client.username);
+      showChatContextMenu(e, window.room.party.client.username);
     });
     usernameSpan.addEventListener('mouseover', (e) => {
-      showUsernameHoverTooltip(e, room.party.client.username);
+      showUsernameHoverTooltip(e, window.room.party.client.username);
     });
     usernameSpan.addEventListener('mouseout', (e) => {
       hideUsernameHoverTooltip();
@@ -278,23 +258,13 @@ chatInput.addEventListener('keypress', (e) => {
   }
 });
 
-room.onmessage = (event) => {
+window.room.onmessage = (event) => {
   const chatContent = document.querySelector('.chat-content');
   const messageDiv = document.createElement('div');
   
   switch (event.data.type) {
-    case 'heartbeat':
-      // Connection is still alive, do nothing
-      break;
-      
-    case 'disconnected':
-      // Remove disconnected user from online users
-      onlineUsers.delete(event.data.username);
-      updateOnlineStatus();
-      break;
-      
     case 'chat':
-      if (event.data.clientId !== room.party.client.id) {
+      if (event.data.clientId !== window.room.party.client.id) {
         messageDiv.className = 'chat-message user';
         messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
 
@@ -312,7 +282,7 @@ room.onmessage = (event) => {
       break;
       
     case 'private-message':
-      if (event.data.recipient === room.party.client.username) {
+      if (event.data.recipient === window.room.party.client.username) {
         messageDiv.className = 'chat-message private-message';
         messageDiv.innerHTML = `From ${event.data.username}: ${event.data.message}`;
       }
@@ -324,23 +294,5 @@ room.onmessage = (event) => {
   }
 };
 
-// Set up automatic cleanup of disconnected users
-window.addEventListener('beforeunload', () => {
-  // Attempt to close connection cleanly
-  room.close();
-});
-
-// Add heartbeat to detect stale connections
-setInterval(() => {
-  // Send heartbeat event to keep connection alive and verify connectivity
-  try {
-    room.send({ type: 'heartbeat' });
-  } catch (e) {
-    // If sending fails, connection may be dead - clear online users
-    onlineUsers.clear();
-    updateOnlineStatus();
-  }
-}, 5000);
-
-// Keep status check interval 
+// Added interval to update the friends list online/offline status every 3 seconds using heartbeat data.
 setInterval(updateOnlineStatus, 3000);
