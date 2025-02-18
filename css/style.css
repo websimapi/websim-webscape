@@ -421,7 +421,7 @@ body {
   flex: 1;
 }
 
-/* Add Quest Journal styles */
+/* Update Quest Journal styles */
 #quest-journal {
   position: relative;
   width: calc(100% - 8px);
@@ -440,7 +440,7 @@ body {
   background: #474745;
   border: 2px solid #5a473a;
   padding: 6px;
-  height: calc(100% - 28px);
+  height: calc(100% - 16px);
   overflow-y: auto;
 }
 
@@ -448,8 +448,10 @@ body {
   text-align: center;
   color: #ffff00;
   font-size: 12px;
-  margin-bottom: 4px;
-  padding: 4px;
+  padding: 0;
+  margin: 0;
+  margin-top: -4px;
+  margin-bottom: 0;
 }
 
 .quest-category {
