@@ -7,7 +7,7 @@ import { initializeQuestJournal } from './features/questJournal.js';
 import { hideContextMenu } from './ui/contextMenu.js';
 import { hideAllPanels } from './features/menuManager.js';
 import { initializeSkillsMenu } from './features/skillsMenu.js';
-import { initializeMusicPlayer } from './features/musicPlayer.js';
+import { initializeMusicMenu } from './features/musicMenu.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize all features
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeGameOptions();
   initializeQuestJournal();
   initializeSkillsMenu();
-  initializeMusicPlayer();
+  initializeMusicMenu();
 
   // Set default menu selection to logout button
   const defaultButton = document.querySelector('.bottom-icon:nth-child(4)');

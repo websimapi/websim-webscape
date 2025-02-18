@@ -2,7 +2,7 @@
 let activeButton = null;
 let activePanel = null;
 
-// List of menu items with their corresponding panels, updated to include game options, quest journal and skills menu.
+// Updated list of menu items with their corresponding panels, including the new Music panel.
 const menuItems = {
   'friends-button': '.friends-list',
   'ignore-button': '.ignore-list', 
@@ -10,7 +10,8 @@ const menuItems = {
   'logout-button': '#logout-popup',
   'game-options-button': '#game-options',
   'skills': '#skills-menu',
-  'quest': '#quest-journal'
+  'quest': '#quest-journal',
+  'music': '#music-menu'
 };
 
 function hideAllPanels() {
@@ -46,7 +47,8 @@ function toggleMenu(button, panelSelector) {
       panelSelector.includes('ignore') ||
       panelSelector.includes('game-options') ||
       panelSelector.includes('quest') ||
-      panelSelector.includes('skills')
+      panelSelector.includes('skills') ||
+      panelSelector.includes('music')
     ) {
       panel.classList.add('shown');
     }
@@ -66,7 +68,8 @@ function toggleMenu(button, panelSelector) {
     panelSelector.includes('ignore') ||
     panelSelector.includes('game-options') ||
     panelSelector.includes('quest') ||
-    panelSelector.includes('skills')
+    panelSelector.includes('skills') ||
+    panelSelector.includes('music')
   ) {
     panel.classList.add('shown');
   }
