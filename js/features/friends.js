@@ -2,6 +2,10 @@ import { addTooltip, tooltip } from '../ui/tooltips.js';
 import { showContextMenu, hideContextMenu } from '../ui/contextMenu.js';
 import { setupOverlay } from '../ui/overlays.js';
 import { toggleMenu } from './menuManager.js';
+import { showPrivateMessageOverlay } from '../ui/messageOverlay.js';
+
+// Initialize WebSocket connection
+const room = new WebsimSocket();
 
 function initializeFriendsList() {
   const friendsButton = document.querySelector('.bottom-icon:nth-child(2)');
@@ -41,6 +45,26 @@ function initializeFriendsList() {
     delFriendInput.focus();
   });
 
+  // Update online status of friends
+  room.party.subscribe((peers) => {
+    const friendEntries = friendsListContainer.querySelectorAll('.list-entry');
+    friendEntries.forEach(entry => {
+      const playerName = entry.querySelector('.player-name').textContent;
+      const statusElement = entry.querySelector('.world-status');
+      const isOnline = Object.values(peers).some(peer => peer.username === playerName);
+      
+      if (isOnline) {
+        statusElement.textContent = 'World-1';
+        statusElement.classList.remove('offline');
+        statusElement.classList.add('online');
+      } else {
+        statusElement.textContent = 'Offline';
+        statusElement.classList.remove('online');
+        statusElement.classList.add('offline');
+      }
+    });
+  });
+
   // Handle overlay submissions
   document.addEventListener('overlay-submit', (e) => {
     const { name, overlay } = e.detail;
@@ -48,9 +72,11 @@ function initializeFriendsList() {
     if (overlay === addFriendOverlay) {
       const newFriend = document.createElement('div');
       newFriend.className = 'list-entry';
+      // Check if user is online by looking through peers
+      const isOnline = Object.values(room.party.peers).some(peer => peer.username === name);
       newFriend.innerHTML = `
         <span class="player-name">${name}</span>
-        <span class="world-status offline">Offline</span>
+        <span class="world-status ${isOnline ? 'online' : 'offline'}">${isOnline ? 'World-1' : 'Offline'}</span>
       `;
       friendsListContainer.appendChild(newFriend);
     } else if (overlay === delFriendOverlay) {
@@ -85,14 +111,26 @@ function initializeFriendsList() {
     }
   });
 
-  // Handle friend list clicks
+  // Handle friend list clicks for messaging and removing
   friendsListContainer.addEventListener('click', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
       const username = playerNameElement.textContent;
+      const statusElement = playerNameElement.nextElementSibling;
+      const isOnline = statusElement.classList.contains('online');
+      
       showContextMenu(e, username, 
         () => {
-          // TODO: Implement messaging
+          if (isOnline) {
+            showPrivateMessageOverlay(username);
+          } else {
+            // Show offline message in chat
+            const chatContent = document.querySelector('.chat-content');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message system';
+            messageDiv.textContent = `Unable to message ${username} - player is offline.`;
+            chatContent.insertBefore(messageDiv, chatContent.firstChild);
+          }
         },
         () => {
           playerNameElement.closest('.list-entry').remove();

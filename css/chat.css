@@ -111,6 +111,65 @@
   text-decoration: none;
 }
 
+/* Add private message styles */
+.chat-message.private-in {
+  color: #00008B;
+}
+
+.chat-message.private-out {
+  color: #8B0000;
+}
+
+#private-message-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 25px);
+  background: #d2b48c;
+  display: none;
+  z-index: 1000;
+}
+
+#private-message-overlay.shown {
+  display: block;
+}
+
+.private-message-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+  background: transparent;
+}
+
+.private-message-text {
+  color: #000;
+  font-size: 14px;
+  margin-bottom: 15px;
+  text-align: center;
+  background: #d2b48c;
+  padding: 5px;
+}
+
+.private-message-input {
+  width: 80%;
+  padding: 5px;
+  background: #d2b48c;
+  border: none;
+  border-bottom: 2px solid #382418;
+  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
+  font-size: 14px;
+  color: #000;
+  text-align: center;
+}
+
+.private-message-input:focus {
+  outline: none;
+}
+
 /* Update context menu styling to ensure visibility and containment */
 .context-menu {
   position: fixed; 
@@ -137,4 +196,18 @@
 
 .context-menu-option:hover {
   background: #5a473a;
+}
+
+.context-menu-option.disabled {
+  color: #666;
+  cursor: not-allowed;
+}
+
+/* Add online/offline status colors */
+.world-status.online {
+  color: lime;
+}
+
+.world-status.offline {
+  color: red;
 }

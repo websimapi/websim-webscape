@@ -254,23 +254,46 @@ body {
   display: block;
 }
 
-/* New Message Overlay styling (for private messaging) */
-#message-user-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: calc(100% - 25px);
+.add-friend-container,
+.del-friend-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+  background: transparent;
+}
+
+.add-friend-text,
+.del-friend-text {
+  color: #000;
+  font-size: 14px;
+  margin-bottom: 15px;
+  text-align: center;
   background: #d2b48c;
-  display: none;
-  z-index: 1000;
+  padding: 5px;
 }
 
-#message-user-overlay.shown {
-  display: block;
+.add-friend-input,
+.del-friend-input {
+  width: 80%;
+  padding: 5px;
+  background: #d2b48c;
+  border: none;
+  border-bottom: 2px solid #382418;
+  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
+  font-size: 14px;
+  color: #000;
+  text-align: center;
 }
 
-/* Existing overlay styles for add/del ignore */
+.add-friend-input:focus,
+.del-friend-input:focus {
+  outline: none;
+}
+
+/* Add new overlay styles */
 #add-ignore-overlay,
 #del-ignore-overlay {
   position: absolute;
@@ -303,14 +326,12 @@ body {
 
 /* Context Menu Styling */
 .context-menu {
-  position: fixed; 
+  position: absolute;
   background: #474745;
   border: 2px solid #5a473a;
   min-width: 120px;
   z-index: 1001;
   display: none;
-  padding: 2px;
-  max-width: calc(100% - 40px);
 }
 
 .context-menu.shown {
@@ -329,13 +350,131 @@ body {
   background: #5a473a;
 }
 
-/* Chat window styling */
-#chat-window {
-  width: 512px;
-  height: 142px;
-  background: #d2b48c;
-  border: 2px solid #382418;
+.context-menu-option.cancel {
+  color: #fff;
+}
+
+/* Game Options Menu */
+#game-options {
   position: relative;
+  width: calc(100% - 8px);
+  background: #382418;
+  border: none;
+  padding: 4px;
+  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
+  display: none;
+  margin-top: 4px;
+}
+
+#game-options.shown {
+  display: block;
+}
+
+.game-options-content {
+  background: #474745;
+  border: 2px solid #5a473a;
+  padding: 6px;
+}
+
+.game-options-title {
+  text-align: left;
+  color: #00ffff;
+  font-size: 12px;
+  margin-bottom: 4px;
+  padding-bottom: 2px;
+  border-bottom: none;
+}
+
+.game-options-section {
+  margin-bottom: 3px;
+}
+
+.game-options-header {
+  color: #d2b48c;
+  font-size: 11px;
+  margin-bottom: 1px;
+}
+
+.game-options-buttons {
+  display: flex;
+  gap: 1px;
+  flex-wrap: wrap;
+  margin-bottom: 3px;
+}
+
+.game-options-buttons button {
+  flex: 1;
+  background: #474745;
+  border: 1px solid #000;
+  color: #fff;
+  padding: 1px 3px;
+  font-size: 10px;
+  cursor: pointer;
+  text-shadow: 1px 1px 0 #000;
+  min-width: 0;
+  height: 16px;
+  line-height: 14px;
+}
+
+.game-options-two-column {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 3px;
+}
+
+.game-options-column {
+  flex: 1;
+}
+
+/* Update Quest Journal styles */
+#quest-journal {
+  position: relative;
+  width: calc(100% - 8px);
+  background: #382418;
+  padding: 4px;
+  display: none;
+  margin-top: 4px;
+  height: calc(100% - 276px);
+}
+
+#quest-journal.shown {
+  display: block;
+}
+
+.quest-journal-content {
+  background: #474745;
+  border: 2px solid #5a473a;
+  padding: 6px;
+  height: calc(100% - 11px);
+  overflow-y: auto;
+}
+
+.quest-journal-title {
+  text-align: center;
+  color: #ffff00;
+  font-size: 12px;
+  padding: 0;
+  margin: 0;
+  margin-top: -4px;
+  margin-bottom: 0;
+}
+
+.quest-category {
+  color: #ffa500;
+  font-size: 11px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.quest-entry {
+  color: #ff0000;
+  font-size: 11px;
+  padding: 2px 0;
+  cursor: pointer;
+}
+
+.quest-entry:hover {
+  text-decoration: underline;
 }
 
 /* Custom scrollbar styling */
