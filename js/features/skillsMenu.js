@@ -16,7 +16,7 @@ const skills = [
   { name: 'Fishing', level: 1, maxLevel: 1, icon: '🎣', xp: 0, nextLevel: 83 },
   { name: 'Swiftshot', level: 1, maxLevel: 1, icon: '🏹', xp: 0, nextLevel: 83 },
   { name: 'Detective', level: 1, maxLevel: 1, icon: '👥', xp: 0, nextLevel: 83, style: 'filter: grayscale(100%) brightness(0.3); -webkit-text-stroke: 1px black;' },
-  { name: 'Cooking', level: 1, maxLevel: 1, icon: '🍳', xp: 0, nextLevel: 83 },
+  { name: 'Umami', level: 1, maxLevel: 1, icon: '🍳', xp: 0, nextLevel: 83 },
   { name: 'Sentience', level: 1, maxLevel: 1, icon: '✨', xp: 0, nextLevel: 83 },
   { name: 'Artisan', level: 1, maxLevel: 1, icon: '💎', xp: 0, nextLevel: 83 },
   { name: 'Pyro', level: 1, maxLevel: 1, icon: '🔥', xp: 0, nextLevel: 83 },
