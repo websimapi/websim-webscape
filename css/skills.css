@@ -38,6 +38,8 @@
   cursor: pointer;
   position: relative;
   padding: 0 1px;
+  justify-content: center;
+  gap: 2px;
 }
 
 .skill-slot:hover {
@@ -46,16 +48,16 @@
 
 .skill-icon {
   font-size: 14px;
-  margin-right: 1px;
+  margin-right: 0px;
 }
 
 .skill-level {
   font-size: 10px;
   color: #ffff00;
-  margin-left: auto;
   padding-right: 1px;
   display: flex;
   align-items: center;
+  margin-left: 1px;
 }
 
 .skill-level-numerator {
