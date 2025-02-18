@@ -17,7 +17,6 @@
   border: 2px solid #5a473a;
   padding: 6px;
   height: calc(100% - 11px);
-  overflow-y: auto;
 }
 
 .skills-title {
@@ -37,7 +36,7 @@
 
 .skill-slot {
   width: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 2 / 1;
   background: #382418;
   border: 1px solid #000;
   display: flex;
