@@ -85,17 +85,14 @@ function initializeFriendsList() {
     }
   });
 
-  // Handle friend list clicks with updated message functionality
+  // Handle friend list clicks
   friendsListContainer.addEventListener('click', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
       const username = playerNameElement.textContent;
       showContextMenu(e, username, 
         () => {
-          const messageOverlay = document.getElementById('message-overlay');
-          if (messageOverlay) {
-            showMessageOverlay(username);
-          }
+          // TODO: Implement messaging
         },
         () => {
           playerNameElement.closest('.list-entry').remove();
