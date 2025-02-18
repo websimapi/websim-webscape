@@ -13,7 +13,6 @@ function initializeFriendsList() {
   const addFriendInput = addFriendOverlay.querySelector('.add-friend-input');
   const delFriendInput = delFriendOverlay.querySelector('.del-friend-input');
   const friendsListContainer = document.querySelector('.friends-list .list-container');
-  const messageOverlay = document.getElementById('message-overlay');
 
   // Setup tooltips
   addTooltip(addFriendButton, 'Add friend');
@@ -65,30 +64,6 @@ function initializeFriendsList() {
     }
   });
 
-  // Handle friend list clicks - now using the same message system as chat
-  friendsListContainer.addEventListener('click', (e) => {
-    const playerNameElement = e.target.closest('.player-name');
-    if (playerNameElement) {
-      const username = playerNameElement.textContent;
-      const room = new WebsimSocket(); // Get access to WebsimSocket
-      
-      showContextMenu(e, username, 
-        () => {
-          // Show message overlay (same as chat system)
-          messageOverlay.classList.add('shown');
-          const messageInput = messageOverlay.querySelector('.message-input');
-          const messageUsernameSpan = messageOverlay.querySelector('.message-username');
-          messageUsernameSpan.textContent = username;
-          messageInput.value = '';
-          messageInput.focus();
-        },
-        () => {
-          playerNameElement.closest('.list-entry').remove();
-        }
-      );
-    }
-  });
-
   // Setup friend list hover effects
   friendsListContainer.addEventListener('mouseover', (e) => {
     const playerNameElement = e.target.closest('.player-name');
@@ -107,6 +82,24 @@ function initializeFriendsList() {
   friendsListContainer.addEventListener('mouseout', (e) => {
     if (e.target.closest('.player-name')) {
       tooltip.style.display = 'none';
+    }
+  });
+
+  // Handle friend list clicks: use same Message route as chat for messaging
+  friendsListContainer.addEventListener('click', (e) => {
+    const playerNameElement = e.target.closest('.player-name');
+    if (playerNameElement) {
+      const username = playerNameElement.textContent;
+      showContextMenu(e, username, 
+        () => {
+          if (window.showMessageOverlay) {
+            window.showMessageOverlay(username);
+          }
+        },
+        () => {
+          playerNameElement.closest('.list-entry').remove();
+        }
+      );
     }
   });
 }

@@ -299,3 +299,6 @@ room.onmessage = (event) => {
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
   }
 };
+
+// Make the showMessageOverlay function available globally so that friends list can use it.
+window.showMessageOverlay = showMessageOverlay;
