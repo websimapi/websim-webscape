@@ -74,10 +74,12 @@
   padding: 0;
 }
 
+/* Fix for Firefox flexbox overflow issue: add min-height: 0 */
 .track-list {
   padding: 4px 8px;
   overflow-y: auto;
   flex: 1;
+  min-height: 0;
 }
 
 .track-entry {

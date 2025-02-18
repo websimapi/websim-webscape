@@ -38,24 +38,18 @@ function playTrack(track, trackElement, trackList) {
     currentTrack = track.name;
     
     const trackDisplay = document.querySelector('#music-menu .track');
-    if (trackDisplay) {
-      trackDisplay.textContent = `Playing: ${currentTrack}`;
-    }
+    trackDisplay.textContent = `Playing: ${currentTrack}`;
     
     currentAudio.play().catch(e => {
       console.error('Error playing audio:', e);
-      if (trackDisplay) {
-        trackDisplay.textContent = 'Playing: No track';
-      }
+      trackDisplay.textContent = 'Playing: No track';
     });
 
     // Update all track entries
     trackList.querySelectorAll('.track-entry').forEach(entry => {
       entry.classList.remove('selected');
     });
-    if (trackElement) {
-      trackElement.classList.add('selected');
-    }
+    trackElement.classList.add('selected');
 
     // Setup auto-play for next track
     if (autoPlayMode) {
@@ -70,35 +64,17 @@ function playTrack(track, trackElement, trackList) {
 }
 
 function initializeMusicMenu() {
-  // Wait for DOM to be fully loaded
-  if (!document.body) {
-    window.requestAnimationFrame(initializeMusicMenu);
-    return;
-  }
-
   const musicButton = document.querySelector('.bottom-icon.music');
   const musicMenu = document.getElementById('music-menu');
-  
-  if (!musicMenu) {
-    console.error('Music menu not found');
-    return;
-  }
-
   const musicContent = musicMenu.querySelector('.music-content');
   const trackDisplay = musicMenu.querySelector('.track');
   const autoButton = musicMenu.querySelector('.music-auto');
   const manualButton = musicMenu.querySelector('.music-manual');
-  
-  // Ensure track list container exists
-  let trackList = musicMenu.querySelector('.track-list');
-  if (!trackList) {
-    trackList = document.createElement('div');
-    trackList.className = 'track-list';
-    musicContent.appendChild(trackList);
-  }
 
-  // Clear existing tracks before populating
-  trackList.innerHTML = '';
+  // Initialize track list
+  const trackList = document.createElement('div');
+  trackList.className = 'track-list';
+  musicContent.appendChild(trackList);
 
   // Load saved music mode
   autoPlayMode = loadMusicSettings();
@@ -176,8 +152,5 @@ function initializeMusicMenu() {
     manualButton.click();
   }
 }
-
-// Initialize as soon as possible
-document.addEventListener('DOMContentLoaded', initializeMusicMenu);
 
 export { initializeMusicMenu };
