@@ -22,7 +22,7 @@
 /* Chat input area styling */
 .chat-input-area {
   position: absolute;
-  bottom: 8px; 
+  bottom: 25px; 
   left: 0;
   width: 100%;
   height: 24px;
