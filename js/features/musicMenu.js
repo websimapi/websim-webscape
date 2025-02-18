@@ -9,6 +9,7 @@ let isPlaying = false;
 let currentTrack = 'No track';
 let autoPlayMode = false;
 let currentTrackIndex = 0;
+let hasUserInteracted = false;
 
 const tracks = [
   {
@@ -28,6 +29,8 @@ function saveMusicSettings(isAuto) {
 }
 
 function playTrack(track, trackElement, trackList) {
+  if (!hasUserInteracted) return;
+
   if (track.unlocked) {
     if (currentAudio) {
       currentAudio.pause();
@@ -66,12 +69,15 @@ function playTrack(track, trackElement, trackList) {
 function initializeMusicMenu() {
   const musicButton = document.querySelector('.bottom-icon.music');
   const musicMenu = document.getElementById('music-menu');
+  const musicContent = musicMenu.querySelector('.music-content');
   const trackDisplay = musicMenu.querySelector('.track');
   const autoButton = musicMenu.querySelector('.music-auto');
   const manualButton = musicMenu.querySelector('.music-manual');
-  
-  // Use the existing container from the HTML instead of creating a new element;
-  const trackList = musicMenu.querySelector('.music-list-container');
+
+  // Initialize track list
+  const trackList = document.createElement('div');
+  trackList.className = 'track-list';
+  musicContent.appendChild(trackList);
 
   // Load saved music mode
   autoPlayMode = loadMusicSettings();
@@ -94,6 +100,7 @@ function initializeMusicMenu() {
     }
 
     trackElement.addEventListener('click', () => {
+      hasUserInteracted = true; // Set user interaction flag
       if (track.unlocked) {
         currentTrackIndex = index;
         playTrack(track, trackElement, trackList);
@@ -107,8 +114,8 @@ function initializeMusicMenu() {
   musicButton.addEventListener('click', () => {
     toggleMenu(musicButton, '#music-menu');
     
-    // Auto-play first track if in auto mode and no track is playing
-    if (autoPlayMode && !currentAudio && tracks.length > 0) {
+    // Auto-play first track if in auto mode and no track is playing, but only after user interaction
+    if (hasUserInteracted && autoPlayMode && !currentAudio && tracks.length > 0) {
       const firstTrack = tracks[0];
       const firstTrackElement = trackList.children[0];
       playTrack(firstTrack, firstTrackElement, trackList);
@@ -117,6 +124,7 @@ function initializeMusicMenu() {
 
   // Auto/Manual button functionality
   autoButton.addEventListener('click', () => {
+    hasUserInteracted = true; // Set user interaction flag
     autoPlayMode = true;
     saveMusicSettings(true);
     autoButton.classList.add('selected');
@@ -131,6 +139,7 @@ function initializeMusicMenu() {
   });
 
   manualButton.addEventListener('click', () => {
+    hasUserInteracted = true; // Set user interaction flag
     autoPlayMode = false;
     saveMusicSettings(false);
     manualButton.classList.add('selected');
@@ -142,12 +151,19 @@ function initializeMusicMenu() {
     }
   });
 
-  // Set initial mode from local storage
+  // Set initial mode from local storage but don't auto-play
   if (autoPlayMode) {
-    autoButton.click();
+    autoButton.classList.add('selected');
+    manualButton.classList.remove('selected');
   } else {
-    manualButton.click();
+    manualButton.classList.add('selected');
+    autoButton.classList.remove('selected');
   }
+
+  // Add click listener to the entire document to track first interaction
+  document.addEventListener('click', () => {
+    hasUserInteracted = true;
+  }, { once: true });
 }
 
 export { initializeMusicMenu };

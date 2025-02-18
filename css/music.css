@@ -20,7 +20,6 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  min-height: 0;
 }
 
 .music-header {
@@ -75,12 +74,10 @@
   padding: 0;
 }
 
-/* New container for the track list, styled similar to our quest journal UI */
-.music-list-container {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
+.track-list {
   padding: 4px 8px;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .track-entry {
