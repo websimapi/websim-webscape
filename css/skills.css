@@ -47,17 +47,6 @@
 .skill-icon {
   font-size: 14px;
   margin-right: 2px;
-  display: flex;
-  align-items: center;
-}
-
-.skill-icon:has(span[data-icon="fletching"]) {
-  position: relative;
-}
-
-.skill-icon span[data-icon="fletching"] {
-  display: inline-block;
-  transform: scale(0.8); /* Make log icon smaller */
 }
 
 .skill-level {
