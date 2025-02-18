@@ -429,7 +429,7 @@ body {
   padding: 4px;
   display: none;
   margin-top: 4px;
-  height: calc(100% - 246px);
+  height: calc(100% - 251px);
 }
 
 #quest-journal.shown {
