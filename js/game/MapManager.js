@@ -1,8 +1,7 @@
 import { MapChunk } from './MapChunk.js';
 
 export class MapManager {
-  constructor(scene) {
-    this.scene = scene;
+  constructor() {
     this.chunks = new Map();
     this.chunkSize = 64;
     
@@ -15,11 +14,6 @@ export class MapManager {
     const testData = this.generateTestChunkData();
     
     const chunk = new MapChunk(chunkX, chunkY, testData);
-    const mesh = chunk.generateMesh();
-    
-    this.scene.add(mesh);
-    chunk.placeObjects(this.scene);
-    
     const key = `${chunkX},${chunkY}`;
     this.chunks.set(key, chunk);
   }
@@ -34,16 +28,24 @@ export class MapManager {
         // Simple height calculation for testing
         const height = Math.sin(x/10) * Math.cos(y/10) * 2;
         
+        // Determine tile type based on height
+        let type = 'grass';
+        if (height < -1) {
+          type = 'water';
+        } else if (height > 1) {
+          type = 'mountain';  
+        }
+        
         tiles.push({
           x,
           y, 
           height,
-          type: 'grass'
+          type
         });
       }
     }
 
-    // Add some test objects
+    // Add some test objects at specific locations
     objects.push(
       { x: 10, y: 10, type: 'tree' },
       { x: 20, y: 15, type: 'rock' },

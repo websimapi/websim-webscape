@@ -10,7 +10,7 @@ export class Game {
     this.renderer = new GameRenderer(this.container);
     
     // Initialize map manager
-    this.mapManager = new MapManager(this.renderer.getScene());
+    this.mapManager = new MapManager();
     
     // Handle window resizing
     window.addEventListener('resize', () => {
