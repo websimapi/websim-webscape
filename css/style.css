@@ -440,7 +440,7 @@ body {
   background: #474745;
   border: 2px solid #5a473a;
   padding: 6px;
-  height: calc(100% - 16px);
+  height: calc(100% - 11px);
   overflow-y: auto;
 }
 
