@@ -39,7 +39,7 @@
   position: relative;
   padding: 0 1px;
   justify-content: center;
-  gap: 1px;
+  gap: 4px;
 }
 
 .skill-slot:hover {
@@ -57,7 +57,7 @@
   padding-right: 1px;
   display: flex;
   align-items: center;
-  margin-left: 0px;
+  margin-left: 1px;
 }
 
 .skill-level-numerator {
