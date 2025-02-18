@@ -31,7 +31,7 @@ function updateOnlineStatus() {
     const username = entry.querySelector('.player-name').textContent;
     const statusElement = entry.querySelector('.world-status');
     if (onlineUsers.has(username)) {
-      statusElement.textContent = 'Online';
+      statusElement.textContent = 'World-1';
       statusElement.classList.remove('offline');
     } else {
       statusElement.textContent = 'Offline';
@@ -301,3 +301,6 @@ room.onmessage = (event) => {
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
   }
 };
+
+// Added interval to update the friends list online/offline status every 3 seconds.
+setInterval(updateOnlineStatus, 3000);

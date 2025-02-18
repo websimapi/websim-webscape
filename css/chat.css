@@ -116,7 +116,7 @@
   text-decoration: none;
 }
 
-/* Reusable context menu styling */
+/* Context Menu Styling */
 .context-menu {
   position: fixed; 
   background: #474745;
@@ -147,64 +147,4 @@
 /* World status styling */
 .world-status:not(.offline) {
   color: #00ff00;
-}
-
-/* Overlay styles for friend and message actions */
-#add-friend-overlay,
-#del-friend-overlay,
-#message-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: calc(100% - 25px);
-  background: #d2b48c;
-  display: none;
-  z-index: 1000;
-}
-
-#add-friend-overlay.shown,
-#del-friend-overlay.shown,
-#message-overlay.shown {
-  display: block;
-}
-
-/* Add Friend / Message overlay container styles */
-.add-friend-container,
-.del-friend-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 20px;
-  background: transparent;
-}
-
-.add-friend-text,
-.del-friend-text {
-  color: #000;
-  font-size: 14px;
-  margin-bottom: 15px;
-  text-align: center;
-  background: #d2b48c;
-  padding: 5px;
-}
-
-.add-friend-input,
-.del-friend-input {
-  width: 80%;
-  padding: 5px;
-  background: #d2b48c;
-  border: none;
-  border-bottom: 2px solid #382418;
-  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
-  font-size: 14px;
-  color: #000;
-  text-align: center;
-}
-
-.add-friend-input:focus,
-.del-friend-input:focus {
-  outline: none;
 }
