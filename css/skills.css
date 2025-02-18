@@ -59,17 +59,20 @@
 }
 
 .skill-level-numerator {
-  transform: translateY(-1px);
+  font-size: 12px;
+  transform: translateY(-3px);
 }
 
 .skill-level-slash {
-  font-size: 14px;
+  font-size: 16px;
   margin: 0 1px;
-  transform: translateY(-1px);
+  transform: rotate(25deg) translateY(-1px);
+  display: inline-block;
 }
 
 .skill-level-denominator {
-  transform: translateY(1px);
+  font-size: 12px;
+  transform: translateY(3px);
 }
 
 .stats-summary {
