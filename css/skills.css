@@ -32,19 +32,21 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 2px;
   padding: 2px;
+  width: calc(100% - 40px);
+  margin: 0 auto;
 }
 
 .skill-slot {
   width: 100%;
-  aspect-ratio: 2 / 1;
+  height: 24px;
   background: #382418;
   border: 1px solid #000;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   cursor: pointer;
   position: relative;
+  padding: 0 4px;
 }
 
 .skill-slot:hover {
@@ -52,8 +54,7 @@
 }
 
 .skill-icon {
-  font-size: 16px;
-  margin-bottom: 2px;
+  font-size: 14px;
 }
 
 .skill-level {
