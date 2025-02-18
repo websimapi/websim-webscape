@@ -31,7 +31,7 @@ function updateOnlineStatus() {
     const username = entry.querySelector('.player-name').textContent;
     const statusElement = entry.querySelector('.world-status');
     if (onlineUsers.has(username)) {
-      statusElement.textContent = 'World-1';
+      statusElement.textContent = 'Online';
       statusElement.classList.remove('offline');
     } else {
       statusElement.textContent = 'Offline';
