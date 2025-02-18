@@ -52,16 +52,15 @@ function initializeSkillsMenu() {
 
   // Calculate total level and combat level
   const totalLevel = skills.reduce((sum, skill) => sum + skill.level, 0);
-  const combatLevel = calculateCombatLevel(skills);
   const questPoints = 0; // This would normally be calculated based on completed quests
 
-  // Update the stats summary
+  // Update the stats summary with new format
   const statsContainer = skillsMenu.querySelector('.stats-summary');
   if (statsContainer) {
     statsContainer.innerHTML = `
       <div class="stats-item">QP: ${questPoints}</div>
-      <div class="stats-item">Combat Lvl: ${combatLevel}</div>
-      <div class="stats-item">Total Lvl: ${totalLevel}</div>
+      <div class="stats-item">Combat: 1</div>
+      <div class="stats-item">Total: ${totalLevel}</div>
     `;
   }
 }
