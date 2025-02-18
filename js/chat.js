@@ -25,6 +25,9 @@ document.body.appendChild(chatUsernameTooltip);
 
 // Function to show chat context menu when clicking on a username
 function showChatContextMenu(e, username) {
+  // Do not show dropdown for your own username
+  if (username === room.party.client.username) return;
+
   e.preventDefault();
   e.stopPropagation();
 
@@ -108,24 +111,18 @@ function hideAllContextMenus() {
   chatContextMenu.style.top = '';
 }
 
-// Global click handler to hide the context menu when clicking outside its bounds
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.context-menu') && !e.target.closest('.username')) {
-    hideAllContextMenus();
-  }
-});
-
-// Function to show tooltip on chat username hover in the top right of the game container
+// Function to show tooltip on chat username hover in the top left of the game container
 function showUsernameHoverTooltip(e, username) {
+  // For your own name, do not show the dropdown tooltip.
+  if (username === room.party.client.username) return;
+  
   // Display the first action choice and count of remaining options.
   chatUsernameTooltip.textContent = `Add Friend / 1 more option`;
   chatUsernameTooltip.style.display = 'block';
   const gameScreen = document.getElementById('game-screen');
   const gameRect = gameScreen.getBoundingClientRect();
-  // Force reflow to measure tooltip width
-  const tooltipWidth = chatUsernameTooltip.offsetWidth;
   chatUsernameTooltip.style.top = `${gameRect.top + 5}px`;
-  chatUsernameTooltip.style.left = `${gameRect.right - tooltipWidth - 5}px`;
+  chatUsernameTooltip.style.left = `${gameRect.left + 5}px`;
 }
 
 function hideUsernameHoverTooltip() {
