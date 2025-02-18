@@ -354,13 +354,11 @@ body {
   position: relative;
   width: calc(100% - 8px);
   background: #382418;
+  border: none;
   padding: 4px;
+  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
   display: none;
   margin-top: 4px;
-}
-
-#game-options.hidden {
-  display: none;
 }
 
 #game-options.shown {
@@ -370,7 +368,7 @@ body {
 .game-options-content {
   background: #474745;
   border: 2px solid #5a473a;
-  padding: 8px;
+  padding: 10px;
 }
 
 .game-options-title {

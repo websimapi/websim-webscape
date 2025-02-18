@@ -39,7 +39,7 @@ function toggleMenu(button, panelSelector) {
     hideAllPanels();
     button.classList.add('selected');
     panel.classList.remove('hidden');
-    if (panelSelector.includes('friends') || panelSelector.includes('ignore')) {
+    if (panelSelector.includes('friends') || panelSelector.includes('ignore') || panelSelector.includes('game-options')) {
       panel.classList.add('shown');
     }
     return;
@@ -51,7 +51,7 @@ function toggleMenu(button, panelSelector) {
   // Show the selected panel and mark button as selected
   button.classList.add('selected');
   panel.classList.remove('hidden');
-  if (panelSelector.includes('friends') || panelSelector.includes('ignore')) {
+  if (panelSelector.includes('friends') || panelSelector.includes('ignore') || panelSelector.includes('game-options')) {
     panel.classList.add('shown');
   }
 
