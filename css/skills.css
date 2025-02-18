@@ -31,7 +31,7 @@
 .skill-slot {
   width: calc(100% - 3px);
   height: 24px;
-  background: #382418;
+  background: #474745;
   border: 1px solid #000;
   display: flex;
   align-items: center;
