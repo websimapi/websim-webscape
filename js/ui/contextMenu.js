@@ -5,12 +5,12 @@ document.body.appendChild(contextMenu);
 
 function showContextMenu(e, username, onMessage, onRemove) {
   e.preventDefault();
-  
-  // Position and show context menu
+
+  // Position and show context menu based on event coordinates
   contextMenu.style.left = `${e.pageX}px`;
   contextMenu.style.top = `${e.pageY}px`;
-  
-  // Set menu options
+
+  // Set menu options HTML
   contextMenu.innerHTML = `
     <div class="context-menu-option message">Message ${username}</div>
     <div class="context-menu-option remove">Remove ${username}</div>
@@ -18,28 +18,31 @@ function showContextMenu(e, username, onMessage, onRemove) {
   `;
   
   contextMenu.classList.add('shown');
-  
-  // Add click handlers for menu options with stopPropagation for Firefox compatibility
+
+  // For Firefox compatibility, use 'mouseup' instead of 'click'
+  const isFirefox = typeof InstallTrigger !== 'undefined';
+  const eventType = isFirefox ? 'mouseup' : 'click';
+
   const messageOption = contextMenu.querySelector('.message');
   const removeOption = contextMenu.querySelector('.remove');
   const cancelOption = contextMenu.querySelector('.cancel');
-  
-  messageOption.addEventListener('click', (ev) => {
+
+  messageOption.addEventListener(eventType, (ev) => {
     ev.stopPropagation();
-    onMessage && onMessage();
+    if (onMessage) onMessage();
     contextMenu.classList.remove('shown');
-  });
-  
-  removeOption.addEventListener('click', (ev) => {
+  }, { once: true });
+
+  removeOption.addEventListener(eventType, (ev) => {
     ev.stopPropagation();
-    onRemove && onRemove();
+    if (onRemove) onRemove();
     contextMenu.classList.remove('shown');
-  });
-  
-  cancelOption.addEventListener('click', (ev) => {
+  }, { once: true });
+
+  cancelOption.addEventListener(eventType, (ev) => {
     ev.stopPropagation();
     contextMenu.classList.remove('shown');
-  });
+  }, { once: true });
 }
 
 function hideContextMenu() {
