@@ -440,7 +440,7 @@ body {
   background: #474745;
   border: 2px solid #5a473a;
   padding: 6px;
-  height: 100%;
+  height: calc(100% - 28px);
   overflow-y: auto;
 }
 
@@ -449,7 +449,7 @@ body {
   color: #ffff00;
   font-size: 12px;
   margin-bottom: 8px;
-  padding-top: 4px;
+  padding: 4px;
 }
 
 .quest-category {
