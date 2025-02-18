@@ -85,22 +85,19 @@ function initializeFriendsList() {
     }
   });
 
-  // Handle friend list clicks
+  // Handle friend list clicks – now the Message option will correctly open the messaging overlay
   friendsListContainer.addEventListener('click', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
       const username = playerNameElement.textContent;
       showContextMenu(e, username, 
         () => {
-          // Find the message overlay and show it
-          const messageOverlay = document.getElementById('message-overlay');
-          const messageUsernameSpan = messageOverlay.querySelector('.message-username');
-          const messageInput = messageOverlay.querySelector('.message-input');
-          
-          messageUsernameSpan.textContent = username;
-          messageOverlay.classList.add('shown');
-          messageInput.value = '';
-          messageInput.focus();
+          // Messaging callback: trigger the message overlay using the globally available function
+          if (typeof showMessageOverlay === 'function') {
+            showMessageOverlay(username);
+          } else {
+            console.warn('Messaging function is not available.');
+          }
         },
         () => {
           playerNameElement.closest('.list-entry').remove();

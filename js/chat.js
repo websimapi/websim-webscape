@@ -55,7 +55,6 @@ document.querySelector('#chat-window').appendChild(messageOverlay);
 const messageInput = messageOverlay.querySelector('.message-input');
 const messageUsernameSpan = messageOverlay.querySelector('.message-username');
 
-// Function to show message overlay
 function showMessageOverlay(username) {
   messageUsernameSpan.textContent = username;
   messageOverlay.classList.add('shown');
@@ -63,9 +62,11 @@ function showMessageOverlay(username) {
   messageInput.focus();
 }
 
-// Setup message overlay
+// Export the showMessageOverlay globally so that it can be used by other modules (such as friends.js)
+window.showMessageOverlay = showMessageOverlay;
+
+// Setup message overlay functionality to hide overlay when clicking outside of it
 function setupOverlay(overlay, input) {
-  // Add event listener for clicking outside the overlay
   document.addEventListener('click', (e) => {
     if (!overlay.contains(e.target) && !input.contains(e.target)) {
       overlay.classList.remove('shown');
@@ -75,7 +76,7 @@ function setupOverlay(overlay, input) {
 
 setupOverlay(messageOverlay, messageInput);
 
-// Handle message submission
+// Handle message submission from the overlay
 messageInput.addEventListener('keypress', async (e) => {
   if (e.key === 'Enter' && messageInput.value.trim()) {
     const message = messageInput.value.trim();
