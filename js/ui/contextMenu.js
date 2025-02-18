@@ -19,24 +19,27 @@ function showContextMenu(e, username, onMessage, onRemove) {
   
   contextMenu.classList.add('shown');
   
-  // Add click handlers for menu options
+  // Add click handlers for menu options with stopPropagation
   const messageOption = contextMenu.querySelector('.message');
   const removeOption = contextMenu.querySelector('.remove');
   const cancelOption = contextMenu.querySelector('.cancel');
   
-  messageOption.addEventListener('click', () => {
+  messageOption.addEventListener('click', (ev) => {
+    ev.stopPropagation();
     onMessage && onMessage();
     contextMenu.classList.remove('shown');
-  });
+  }, { once: true });
   
-  removeOption.addEventListener('click', () => {
+  removeOption.addEventListener('click', (ev) => {
+    ev.stopPropagation();
     onRemove && onRemove();
     contextMenu.classList.remove('shown');
-  });
+  }, { once: true });
   
-  cancelOption.addEventListener('click', () => {
+  cancelOption.addEventListener('click', (ev) => {
+    ev.stopPropagation();
     contextMenu.classList.remove('shown');
-  });
+  }, { once: true });
 }
 
 function hideContextMenu() {
