@@ -26,7 +26,6 @@
   gap: 2px;
   padding: 0;
   margin: 0;
-  margin-bottom: 14px; /* Adjusted from 29px to 14px to move up halfway */
 }
 
 .skill-slot {
@@ -82,14 +81,13 @@
 .stats-summary {
   background: #000;
   padding: 4px;
-  margin-top: auto;
+  margin-top: 12px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 4px;
   font-size: 12px;
   color: #ffff00;
   text-align: center;
-  height: 75px; /* Increased from 45px to 75px */
 }
 
 .stats-item {
