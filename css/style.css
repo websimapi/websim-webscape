@@ -163,6 +163,7 @@ body {
   padding: 4px;
   display: none;
   margin-top: 4px;
+  height: 272px;
 }
 
 .friends-list.shown, .ignore-list.shown {
@@ -172,7 +173,7 @@ body {
 .list-container {
   background: #474745;
   border: 2px solid #5a473a;
-  height: 222px;
+  height: calc(100% - 35px);
   overflow-y: auto;
 }
 
@@ -429,7 +430,7 @@ body {
   padding: 4px;
   display: none;
   margin-top: 4px;
-  height: 222px;
+  height: 272px;
 }
 
 #quest-journal.shown {
@@ -440,7 +441,7 @@ body {
   background: #474745;
   border: 2px solid #5a473a;
   padding: 6px;
-  height: 100%;
+  height: calc(100% - 12px);
   overflow-y: auto;
 }
 
