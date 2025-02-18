@@ -116,42 +116,16 @@
   text-decoration: none;
 }
 
-/* Update context menu styling to ensure visibility and containment */
-.context-menu {
-  position: fixed; 
-  background: #474745;
-  border: 2px solid #5a473a;
-  min-width: 120px;
-  z-index: 1001;
-  display: none;
-  padding: 2px;
-  max-width: calc(100% - 40px); 
-}
-
-.context-menu.shown {
-  display: block;
-}
-
-.context-menu-option {
-  padding: 4px 8px;
-  color: #fff;
-  font-size: 12px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.context-menu-option:hover {
-  background: #5a473a;
-}
-
-/* Message overlay styling */
+/* Updated Message overlay styling */
 .message-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: calc(100% - 49px); 
+  top: calc(50% - 50px);
+  left: calc(50% - 150px);
+  width: 300px;
+  height: 100px;
   background: #d2b48c;
+  border: 2px solid #382418;
+  border-radius: 4px;
   display: none;
   z-index: 1000;
 }
@@ -198,4 +172,32 @@
 /* World status styling */
 .world-status:not(.offline) {
   color: #00ff00;
+}
+
+/* Context Menu Styling */
+.context-menu {
+  position: fixed; 
+  background: #474745;
+  border: 2px solid #5a473a;
+  min-width: 120px;
+  z-index: 1001;
+  display: none;
+  padding: 2px;
+  max-width: calc(100% - 40px); 
+}
+
+.context-menu.shown {
+  display: block;
+}
+
+.context-menu-option {
+  padding: 4px 8px;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.context-menu-option:hover {
+  background: #5a473a;
 }

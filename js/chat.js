@@ -65,9 +65,10 @@ function showMessageOverlay(username) {
 // Export the showMessageOverlay globally so that it can be used by other modules (such as friends.js)
 window.showMessageOverlay = showMessageOverlay;
 
-// Setup message overlay functionality to hide overlay when clicking outside of it
+// Setup message overlay functionality – now we attach the click listener to #chat-window so the overlay is only dismissed when clicking within the chat UI
 function setupOverlay(overlay, input) {
-  document.addEventListener('click', (e) => {
+  const chatWindow = document.getElementById('chat-window');
+  chatWindow.addEventListener('click', (e) => {
     if (!overlay.contains(e.target) && !input.contains(e.target)) {
       overlay.classList.remove('shown');
     }
