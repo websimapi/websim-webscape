@@ -101,8 +101,9 @@
   color: #000;
 }
 
-.chat-message.private {
-  color: #800080; /* Purple color for private messages */
+/* Private message styling */
+.chat-message.private-message {
+  color: #800080;
 }
 
 /* Make usernames clickable */
@@ -113,42 +114,6 @@
 
 .chat-message .username:hover {
   text-decoration: none;
-}
-
-/* Message overlay styling - reusing friend overlay styles */
-#message-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: calc(100% - 25px);
-  background: #d2b48c;
-  display: none;
-  z-index: 1000;
-}
-
-#message-overlay.shown {
-  display: block;
-}
-
-.message-input {
-  width: 80%;
-  padding: 5px;
-  background: #d2b48c;
-  border: none;
-  border-bottom: 2px solid #382418;
-  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
-  font-size: 14px;
-  color: #000;
-  text-align: center;
-}
-
-.message-input:focus {
-  outline: none;
-}
-
-.message-recipient {
-  font-weight: bold;
 }
 
 /* Update context menu styling to ensure visibility and containment */
@@ -177,4 +142,60 @@
 
 .context-menu-option:hover {
   background: #5a473a;
+}
+
+/* Message overlay styling */
+.message-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 49px); 
+  background: #d2b48c;
+  display: none;
+  z-index: 1000;
+}
+
+.message-overlay.shown {
+  display: block;
+}
+
+.message-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+  background: transparent;
+}
+
+.message-text {
+  color: #000;
+  font-size: 14px;
+  margin-bottom: 15px;
+  text-align: center;
+  background: #d2b48c;
+  padding: 5px;
+}
+
+.message-input {
+  width: 80%;
+  padding: 5px;
+  background: #d2b48c;
+  border: none;
+  border-bottom: 2px solid #382418;
+  font-family: 'RuneScape UF', 'RuneScape', sans-serif;
+  font-size: 14px;
+  color: #000;
+  text-align: center;
+}
+
+.message-input:focus {
+  outline: none;
+}
+
+/* World status styling */
+.world-status:not(.offline) {
+  color: #00ff00;
 }
