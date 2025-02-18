@@ -13,7 +13,7 @@
   color: #fff;
   font-size: 13px;
   line-height: 1.3;
-  height: calc(100% - 70px); 
+  height: calc(100% - 58px); 
   overflow-y: auto;
   display: flex;
   flex-direction: column-reverse;
@@ -22,7 +22,7 @@
 /* Chat input area styling */
 .chat-input-area {
   position: absolute;
-  bottom: 25px; 
+  bottom: 8px; 
   left: 0;
   width: 100%;
   height: 24px;
