@@ -37,7 +37,7 @@
   align-items: center;
   cursor: pointer;
   position: relative;
-  padding: 0 2px;
+  padding: 0 1px;
 }
 
 .skill-slot:hover {
@@ -46,14 +46,14 @@
 
 .skill-icon {
   font-size: 14px;
-  margin-right: 2px;
+  margin-right: 1px;
 }
 
 .skill-level {
   font-size: 10px;
   color: #ffff00;
   margin-left: auto;
-  padding-right: 2px;
+  padding-right: 1px;
   display: flex;
   align-items: center;
 }
@@ -65,8 +65,8 @@
 
 .skill-level-slash {
   font-size: 24px;
-  margin: 0 1px;
-  transform: rotate(25deg) translateY(-1px);
+  margin: 0;
+  transform: rotate(25deg) translateY(-1px) scaleY(1.5);
   display: inline-block;
 }
 
