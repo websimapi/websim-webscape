@@ -54,18 +54,17 @@ function initializeSkillsMenu() {
       </div>
     `;
     
-    // Add mouseover event
+    // When hovering over a skill, show its XP details with a carriage return between lines.
     skillSlot.addEventListener('mouseover', () => {
       const statsContainer = skillsMenu.querySelector('.stats-summary');
       if (statsContainer) {
         statsContainer.innerHTML = `
-          <div class="stats-item">XP: ${skill.xp}</div>
-          <div class="stats-item">Next Level: ${skill.nextLevel}</div>
+          <div class="stats-item">XP: ${skill.xp}<br>Next Level: ${skill.nextLevel}</div>
         `;
       }
     });
 
-    // Add mouseout event to restore original stats
+    // Restore the default stats view on mouseout so non-hover state remains unaffected.
     skillSlot.addEventListener('mouseout', () => {
       const statsContainer = skillsMenu.querySelector('.stats-summary');
       if (statsContainer) {
@@ -80,10 +79,10 @@ function initializeSkillsMenu() {
     skillsContainer.appendChild(skillSlot);
   });
 
-  // Calculate total level
+  // Calculate total level for default view.
   const totalLevel = skills.reduce((sum, skill) => sum + skill.level, 0);
 
-  // Update the stats summary
+  // Update the default stats summary.
   const statsContainer = skillsMenu.querySelector('.stats-summary');
   if (statsContainer) {
     statsContainer.innerHTML = `
