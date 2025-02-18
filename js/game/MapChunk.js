@@ -15,6 +15,7 @@ export class MapChunk {
 
   // Generate Three.js mesh for this chunk
   generateMesh() {
+    // Create terrain geometry
     const geometry = new THREE.PlaneGeometry(
       this.size, 
       this.size, 
@@ -33,20 +34,41 @@ export class MapChunk {
 
     geometry.computeVertexNormals();
 
+    // Create wireframe geometry for the grid
+    const wireframeGeometry = new THREE.WireframeGeometry(geometry);
+    const wireframeMaterial = new THREE.LineBasicMaterial({
+      color: 0x000000,
+      linewidth: 1,
+      opacity: 0.25,
+      transparent: true
+    });
+    const wireframe = new THREE.LineSegments(wireframeGeometry, wireframeMaterial);
+
+    // Create the terrain mesh with a basic material
     const material = new THREE.MeshStandardMaterial({ 
       color: 0x3a9d23,
       roughness: 0.8,
-      metalness: 0.2
+      metalness: 0.2,
+      wireframe: false,
+      transparent: true,
+      opacity: 0.9
     });
 
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(
+    const terrainMesh = new THREE.Mesh(geometry, material);
+    
+    // Group the terrain and wireframe together
+    const group = new THREE.Group();
+    group.add(terrainMesh);
+    group.add(wireframe);
+
+    // Position the group
+    group.position.set(
       this.chunkX * this.size,
       this.chunkY * this.size,
       0
     );
-    mesh.rotation.x = -Math.PI / 2; // Rotate to horizontal
+    group.rotation.x = -Math.PI / 2; // Rotate to horizontal
 
-    return mesh;
+    return group;
   }
 }

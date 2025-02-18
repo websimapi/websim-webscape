@@ -6,16 +6,14 @@ export class MapManager {
     this.chunks = new Map();
     this.chunkSize = 64;
     
-    // Load initial chunks in a 3x3 grid
-    for (let x = -1; x <= 1; x++) {
-      for (let y = -1; y <= 1; y++) {
-        this.loadChunk(x, y);
-      }
-    }
+    // Load initial test chunk
+    this.loadChunk(0, 0);
   }
 
   async loadChunk(chunkX, chunkY) {
-    const testData = this.generateTerrainData(chunkX, chunkY);
+    // Generate test chunk data
+    const testData = this.generateTestChunkData();
+    
     const chunk = new MapChunk(chunkX, chunkY, testData);
     const mesh = chunk.generateMesh();
     
@@ -25,42 +23,27 @@ export class MapManager {
     this.chunks.set(key, chunk);
   }
 
-  generateTerrainData(chunkX, chunkY) {
+  generateTestChunkData() {
     const tiles = [];
     
-    // Use multiple noise frequencies for more interesting terrain
+    // Generate height map using simplex noise
     for (let x = 0; x < 64; x++) {
       for (let y = 0; y < 64; y++) {
-        // World coordinates
-        const worldX = chunkX * 64 + x;
-        const worldY = chunkY * 64 + y;
-        
-        // Generate height using multiple frequencies of noise
-        const height = 
-          Math.sin(worldX/20) * Math.cos(worldY/20) * 4 + // Large hills
-          Math.sin(worldX/8) * Math.cos(worldY/8) * 2 +   // Medium features
-          Math.sin(worldX/4) * Math.cos(worldY/4) * 1;    // Small details
-        
-        // Add variation based on distance from chunk center
-        const centerDist = Math.sqrt(
-          Math.pow((x-32), 2) + 
-          Math.pow((y-32), 2)
-        );
-        
-        // Slope terrain down at edges for smoother chunk transitions
-        const edgeFalloff = Math.max(0, 1 - (centerDist / 64));
+        // Simple height calculation for testing
+        const height = Math.sin(x/10) * Math.cos(y/10) * 2;
         
         tiles.push({
           x,
           y, 
-          height: height * edgeFalloff,
+          height,
           type: 'grass'
         });
       }
     }
 
     return {
-      tiles
+      tiles,
+      objects: [] 
     };
   }
 
