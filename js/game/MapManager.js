@@ -53,4 +53,15 @@ export class MapManager {
     const chunkY = Math.floor(worldY / this.chunkSize);
     return this.chunks.get(`${chunkX},${chunkY}`);
   }
+
+  // Get height at specific world coordinates
+  getHeightAt(worldX, worldY) {
+    const chunk = this.getChunkAt(worldX, worldY);
+    if (chunk) {
+      const localX = worldX % this.chunkSize;
+      const localY = worldY % this.chunkSize;
+      return chunk.getHeight(localX, localY);
+    }
+    return 0;
+  }
 }
