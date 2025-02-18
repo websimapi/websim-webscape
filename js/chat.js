@@ -1,3 +1,6 @@
+// Change to ES module format
+import { showContextMenu, hideContextMenu } from './ui/contextMenu.js';
+
 // Initialize WebSocket connection
 const room = new WebsimSocket();
 
@@ -52,9 +55,6 @@ room.onmessage = (event) => {
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
   }
 };
-
-// Import context menu functionality
-import { showContextMenu, hideContextMenu } from './ui/contextMenu.js';
 
 // Add click handler for chat messages
 document.querySelector('.chat-content').addEventListener('click', (e) => {
