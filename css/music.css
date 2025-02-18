@@ -1,5 +1,4 @@
-/* Music Menu styling - similar to Quest Journal UI */
-
+/* Music Menu styling */
 #music-menu {
   position: relative;
   width: calc(100% - 8px);
@@ -9,34 +8,51 @@
   margin-top: 4px;
   height: calc(100% - 276px);
 }
+
 #music-menu.shown {
   display: block;
 }
+
+.music-content {
+  background: #474745;
+  border: 2px solid #5a473a;
+  height: calc(100% - 4px);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
 .music-header {
   position: relative;
-  text-align: center;
-  padding: 4px;
+  background: #474745;
+  padding: 4px 8px;
   border-bottom: 2px solid #5a473a;
 }
+
 .music-header .title {
   font-size: 12px;
   color: cyan;
   margin: 0;
   padding: 0;
+  text-align: left;
 }
+
 .music-header .track {
   font-size: 11px;
   color: #fff;
-  margin: 0;
+  margin: 2px 0 0 0;
   padding: 0;
+  text-align: left;
 }
+
 .music-header .music-buttons {
   position: absolute;
   top: 4px;
   right: 4px;
   display: flex;
-  gap: 4px;
+  gap: 2px;
 }
+
 .music-header .music-buttons button {
   background: #474745;
   border: 1px solid #000;
@@ -44,11 +60,12 @@
   font-size: 10px;
   padding: 2px 4px;
   cursor: pointer;
+  min-width: 36px;
 }
-.music-content {
-  background: #474745;
-  border: 2px solid #5a473a;
-  padding: 6px;
-  height: calc(100% - 40px);
-  overflow-y: auto;
+
+.music-content p {
+  color: #fff;
+  font-size: 11px;
+  margin: 4px 8px;
+  padding: 0;
 }
