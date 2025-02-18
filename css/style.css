@@ -77,7 +77,7 @@ body {
   text-overflow: ellipsis;
 }
 
-/* Adjust the Log Out text specifically to ensure it fits */
+/* Adjust the Log Out text specifically to ensure it fits with line break */
 .bottom-icon:nth-child(4) {
   font-size: 11px;
   display: flex;
@@ -86,7 +86,7 @@ body {
   align-items: center;
   padding: 1px;
   line-height: 0.9;
-  white-space: nowrap;
+  white-space: pre;
 }
 
 /* Unified icon styling for both minimap and bottom icons */
