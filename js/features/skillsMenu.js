@@ -1,10 +1,8 @@
 import { toggleMenu } from './menuManager.js';
 
-// Use the existing global websocket connection if available; otherwise create a new one.
-const room = window.room || new WebsimSocket();
-window.room = room;
-
-// Initialize skills data with 21 skills and their XP info
+// Initialize skills data with 21 skills in the specified order, 
+// applying modifications for Lumberjack (formerly Woodcutting), 
+// Pyro (formerly Firemaking), and Umami (formerly Cooking)
 const skills = [
   { name: 'Duelist', level: 1, maxLevel: 1, icon: '⚔️', xp: 0, nextLevel: 83 },
   { name: 'Spirit', level: 10, maxLevel: 10, icon: '❤️', xp: 1154, nextLevel: 1358, style: 'filter: hue-rotate(190deg) saturate(0.5) brightness(1.5);' },
@@ -38,6 +36,7 @@ function initializeSkillsMenu() {
   });
 
   const skillsContainer = skillsMenu.querySelector('.skills-grid');
+  
   // Clear any existing content
   skillsContainer.innerHTML = '';
   
@@ -79,8 +78,10 @@ function initializeSkillsMenu() {
     skillsContainer.appendChild(skillSlot);
   });
 
-  // Update the default stats summary.
+  // Calculate total level for default view.
   const totalLevel = skills.reduce((sum, skill) => sum + skill.level, 0);
+
+  // Update the default stats summary.
   const statsContainer = skillsMenu.querySelector('.stats-summary');
   if (statsContainer) {
     statsContainer.innerHTML = `

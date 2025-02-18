@@ -300,15 +300,7 @@ Out</div>
       </div>
     </div>
   </div>
-  
-  <!-- Disconnect websocket when the user leaves the page -->
-  <script>
-    window.addEventListener('beforeunload', () => {
-      if (window.room && typeof window.room.close === 'function') {
-        window.room.close();
-      }
-    });
-  </script>
+
   <script src="js/chat.js"></script>
   <script src="js/inventory.js"></script>
   <script src="js/menu.js" type="module"></script>

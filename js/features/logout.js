@@ -13,10 +13,6 @@ function initializeLogout() {
     button.addEventListener('click', () => {
       logoutButton.classList.remove('selected');
       logoutPopup.classList.add('hidden');
-      // When the user logs out, properly close the realtime websocket connection.
-      if (window.room && typeof window.room.close === 'function') {
-        window.room.close();
-      }
     });
   });
 }
