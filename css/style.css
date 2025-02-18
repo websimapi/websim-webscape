@@ -42,52 +42,8 @@ body {
   flex-direction: column;
 }
 
-/* Bottom status icons */
-#bottom-icons {
-  height: 36px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding: 4px;
-  background: #382418;
-  border-top: 2px solid #000;
-  margin-top: auto;
-}
-
-.bottom-icon {
-  width: 28px;
-  height: 28px;
-  background: #474745;
-  border: 1px solid #000;
-  border-radius: 4px;
-  cursor: pointer;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
-  font-size: 14.4px;
-  font-weight: bold;
-  text-shadow: 1px 1px 1px #000;
-  padding: 2px;
-}
-
-/* Adjust the Log Out text specifically to ensure it fits with line break */
-.bottom-icon:nth-child(4) {
-  font-size: 11px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 1px;
-  line-height: 0.9;
-  white-space: pre;
-  width: 28px;
-  height: 28px;
-}
-
 /* Unified icon styling for both minimap and bottom icons */
-.icon {
+.icon, .bottom-icon {
   width: 28px;
   height: 28px;
   background: #474745;
@@ -107,18 +63,54 @@ body {
 /* Ensure buttons in minimap-icons maintain equal spacing */
 .minimap-icons {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   padding: 4px;
   background: #382418;
   border-top: 2px solid #000;
   height: 36px;
 }
 
+/* Adjust spacing between minimap icons */
+.minimap-icons .icon {
+  margin: 0 2px;
+}
+
+/* Bottom icons container */
+#bottom-icons {
+  height: 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px;
+  background: #382418;
+  border-top: 2px solid #000;
+  margin-top: auto;
+}
+
+/* Adjust spacing between bottom icons */
+#bottom-icons .bottom-icon {
+  margin: 0 2px;
+}
+
+/* Adjust the Log Out text specifically */
+.bottom-icon:nth-child(4) {
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  line-height: 1;
+  white-space: pre;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+}
+
 /* Logout popup styling */
 #logout-popup {
   position: relative;
   width: 100%;
-  height: 192px;
+  height: 172px;
   background: #382418;
   display: flex;
   justify-content: center;
