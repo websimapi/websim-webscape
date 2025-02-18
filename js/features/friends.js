@@ -1,5 +1,5 @@
 import { addTooltip, tooltip } from '../ui/tooltips.js';
-import { showContextMenu, hideContextMenu } from '../ui/contextMenu.js';
+import { showContextMenu } from '../ui/contextMenu.js';
 import { setupOverlay } from '../ui/overlays.js';
 import { toggleMenu } from './menuManager.js';
 
@@ -44,8 +44,11 @@ function initializeFriendsList() {
   // Handle overlay submissions
   document.addEventListener('overlay-submit', (e) => {
     const { name, overlay } = e.detail;
-    
     if (overlay === addFriendOverlay) {
+      // Prevent duplicate friend entries (non case sensitive)
+      const duplicate = Array.from(friendsListContainer.querySelectorAll('.list-entry .player-name'))
+        .some(el => el.textContent.trim().toLowerCase() === name.trim().toLowerCase());
+      if (duplicate) return;
       const newFriend = document.createElement('div');
       newFriend.className = 'list-entry';
       newFriend.innerHTML = `
@@ -57,7 +60,7 @@ function initializeFriendsList() {
       const friendEntries = friendsListContainer.querySelectorAll('.list-entry');
       friendEntries.forEach(entry => {
         const playerName = entry.querySelector('.player-name').textContent;
-        if (playerName === name) {
+        if (playerName.trim().toLowerCase() === name.trim().toLowerCase()) {
           entry.remove();
         }
       });

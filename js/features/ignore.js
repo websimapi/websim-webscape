@@ -45,6 +45,10 @@ function initializeIgnoreList() {
     const { name, overlay } = e.detail;
     
     if (overlay === addIgnoreOverlay) {
+      // Prevent duplicate ignore entries (non case sensitive)
+      const duplicate = Array.from(ignoreListContainer.querySelectorAll('.list-entry .player-name'))
+        .some(el => el.textContent.trim().toLowerCase() === name.trim().toLowerCase());
+      if (duplicate) return;
       const newIgnore = document.createElement('div');
       newIgnore.className = 'list-entry';
       newIgnore.innerHTML = `
@@ -56,7 +60,7 @@ function initializeIgnoreList() {
       const ignoreEntries = ignoreListContainer.querySelectorAll('.list-entry');
       ignoreEntries.forEach(entry => {
         const playerName = entry.querySelector('.player-name').textContent;
-        if (playerName === name) {
+        if (playerName.trim().toLowerCase() === name.trim().toLowerCase()) {
           entry.remove();
         }
       });
