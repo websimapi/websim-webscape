@@ -1,3 +1,6 @@
+// Import context menu functionality
+import { showContextMenu, hideContextMenu } from './ui/contextMenu.js';
+
 // Initialize WebSocket connection
 const room = new WebsimSocket();
 
@@ -11,9 +14,6 @@ room.party.subscribe((peers) => {
     usernameElement.textContent = currentUser.username;
   }
 });
-
-// Import context menu functionality
-import { showContextMenu, hideContextMenu } from './ui/contextMenu.js';
 
 // Handle chat input
 const chatInput = document.querySelector('.chat-input');
