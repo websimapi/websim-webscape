@@ -24,7 +24,7 @@ const skills = [
   { name: 'Fletching', level: 1, maxLevel: 1, icon: '🔪', xp: 0, nextLevel: 83 },
   { name: 'Woodcutting', level: 1, maxLevel: 1, icon: '🪓', xp: 0, nextLevel: 83 },
   { name: 'Runecrafting', level: 1, maxLevel: 1, icon: '🔯', xp: 0, nextLevel: 83 },
-  { name: 'Necromancer', level: 1, maxLevel: 1, icon: '💀', xp: 0, nextLevel: 83 },
+  { name: 'Deathbind', level: 1, maxLevel: 1, icon: '💀', xp: 0, nextLevel: 83 },
   { name: 'Farming', level: 1, maxLevel: 1, icon: '🌱', xp: 0, nextLevel: 83 }
 ];
 
