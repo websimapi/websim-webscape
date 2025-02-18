@@ -65,12 +65,14 @@ function initializeSkillsMenu() {
     });
 
     skillSlot.addEventListener('mouseleave', () => {
-      // Reset to default stats view
+      // Reset to default stats view with new layout
       const totalLevel = skills.reduce((sum, skill) => sum + skill.level, 0);
       statsContainer.innerHTML = `
-        <div class="stats-item">QP: 0</div>
-        <div class="stats-item">Combat: 1</div>
-        <div class="stats-item">Total: ${totalLevel}</div>
+        <div class="stats-item qp">QP: 0</div>
+        <div class="stats-item combat-total">
+          Combat: 1
+          Total: ${totalLevel}
+        </div>
       `;
     });
 
@@ -80,9 +82,11 @@ function initializeSkillsMenu() {
   // Calculate and show initial total level
   const totalLevel = skills.reduce((sum, skill) => sum + skill.level, 0);
   statsContainer.innerHTML = `
-    <div class="stats-item">QP: 0</div>
-    <div class="stats-item">Combat: 1</div>
-    <div class="stats-item">Total: ${totalLevel}</div>
+    <div class="stats-item qp">QP: 0</div>
+    <div class="stats-item combat-total">
+      Combat: 1
+      Total: ${totalLevel}
+    </div>
   `;
 }
 
