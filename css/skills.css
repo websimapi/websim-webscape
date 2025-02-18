@@ -15,7 +15,6 @@
 .skills-content {
   background: #474745;
   border: 2px solid #5a473a;
-  padding: 6px;
   height: calc(100% - 4px);
   display: flex;
   flex-direction: column;
@@ -26,7 +25,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 2px;
   padding: 0;
-  margin: 0 auto;
+  margin: 0;
 }
 
 .skill-slot {
