@@ -54,18 +54,19 @@ function initializeSkillsMenu() {
       </div>
     `;
     
-    // Add mouseover event
+    // Update mouseover event
     skillSlot.addEventListener('mouseover', () => {
       const statsContainer = skillsMenu.querySelector('.stats-summary');
       if (statsContainer) {
         statsContainer.innerHTML = `
-          <div class="stats-item">XP: ${skill.xp}</div>
-          <div class="stats-item">Next Level: ${skill.nextLevel}</div>
+          <div class="stats-item skill-stat">${skill.name}</div>
+          <div class="stats-item skill-stat">XP: ${skill.xp}</div>
+          <div class="stats-item skill-stat">Next Level: ${skill.nextLevel}</div>
         `;
       }
     });
 
-    // Add mouseout event to restore original stats
+    // Update mouseout event
     skillSlot.addEventListener('mouseout', () => {
       const statsContainer = skillsMenu.querySelector('.stats-summary');
       if (statsContainer) {
