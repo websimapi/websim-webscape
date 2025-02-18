@@ -59,9 +59,9 @@ function initializeSkillsMenu() {
       const statsContainer = skillsMenu.querySelector('.stats-summary');
       if (statsContainer) {
         statsContainer.innerHTML = `
-          <div class="stats-item skill-stat">${skill.name}</div>
-          <div class="stats-item skill-stat">XP: ${skill.xp}</div>
-          <div class="stats-item skill-stat">Next Level: ${skill.nextLevel}</div>
+          <div class="stats-item">${skill.name}</div>
+          <div class="stats-item">XP: ${skill.xp}</div>
+          <div class="stats-item">Next Level: ${skill.nextLevel}</div>
         `;
       }
     });
@@ -72,8 +72,8 @@ function initializeSkillsMenu() {
       if (statsContainer) {
         statsContainer.innerHTML = `
           <div class="stats-item">QP: 0</div>
-          <div class="stats-item">Combat: 1</div>
-          <div class="stats-item">Total: ${skills.reduce((sum, s) => sum + s.level, 0)}</div>
+          <div class="stats-item skill-stat">Combat: 1</div>
+          <div class="stats-item skill-stat">Total: ${skills.reduce((sum, s) => sum + s.level, 0)}</div>
         `;
       }
     });
@@ -89,8 +89,8 @@ function initializeSkillsMenu() {
   if (statsContainer) {
     statsContainer.innerHTML = `
       <div class="stats-item">QP: 0</div>
-      <div class="stats-item">Combat: 1</div>
-      <div class="stats-item">Total: ${totalLevel}</div>
+      <div class="stats-item skill-stat">Combat: 1</div>
+      <div class="stats-item skill-stat">Total: ${totalLevel}</div>
     `;
   }
 }
