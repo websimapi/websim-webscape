@@ -9,7 +9,6 @@ let isPlaying = false;
 let currentTrack = 'No track';
 let autoPlayMode = false;
 let currentTrackIndex = 0;
-let hasUserInteracted = false;
 
 const tracks = [
   {
@@ -21,93 +20,66 @@ const tracks = [
 
 function loadMusicSettings() {
   const storedMode = localStorage.getItem('musicMode');
-  // Return true (auto mode) if no setting exists or if it's set to 'auto'
-  return storedMode === null ? true : storedMode === 'auto';
+  return storedMode === 'auto';
 }
 
 function saveMusicSettings(isAuto) {
   localStorage.setItem('musicMode', isAuto ? 'auto' : 'manual');
 }
 
-function fadeAudio(audio, start, end, duration) {
-  const steps = 30;
-  const stepTime = duration / steps;
-  const stepChange = (end - start) / steps;
-  
-  let currentStep = 0;
-  
-  audio.volume = start;
-  
-  const fadeInterval = setInterval(() => {
-    currentStep++;
-    if (currentStep >= steps) {
-      audio.volume = end;
-      clearInterval(fadeInterval);
-    } else {
-      audio.volume = start + (stepChange * currentStep);
-    }
-  }, stepTime);
-}
-
 function playTrack(track, trackElement, trackList) {
   if (track.unlocked) {
     if (currentAudio) {
-      // Fade out current track before stopping
-      fadeAudio(currentAudio, currentAudio.volume, 0, 2000);
-      setTimeout(() => {
-        currentAudio.pause();
-        currentAudio = null;
-        startNewTrack();
-      }, 2000);
-    } else {
-      startNewTrack();
+      currentAudio.pause();
+      currentAudio = null;
     }
 
-    function startNewTrack() {
-      currentAudio = new Audio(track.path);
-      currentTrack = track.name;
-      
-      const trackDisplay = document.querySelector('#music-menu .track');
-      trackDisplay.textContent = `Playing: ${currentTrack}`;
-      
-      // Start with volume at 0 and fade in
-      currentAudio.volume = 0;
-      currentAudio.play().then(() => {
-        fadeAudio(currentAudio, 0, 1, 2000);
-      }).catch(e => {
-        console.error('Error playing audio:', e);
+    currentAudio = new Audio(track.path);
+    currentTrack = track.name;
+    
+    const trackDisplay = document.querySelector('#music-menu .track');
+    trackDisplay.textContent = `Playing: ${currentTrack}`;
+    
+    // Detect Firefox and log debug info
+    const isFirefox = typeof InstallTrigger !== 'undefined';
+    if (isFirefox) {
+      console.log("[MusicMenu] Firefox detected in playTrack. Attempting to play track:", track.name, "Audio element:", currentAudio);
+    }
+    
+    currentAudio.play()
+      .then(() => {
+        console.log("[MusicMenu] Playback started for track:", track.name);
+      })
+      .catch(e => {
+        console.error('[MusicMenu] Error playing audio for track:', track.name, e);
         trackDisplay.textContent = 'Playing: No track';
       });
 
-      // Setup fade out before track ends
-      currentAudio.addEventListener('timeupdate', function() {
-        if (this.duration - this.currentTime <= 2.0) {
-          if (this.volume > 0) {
-            fadeAudio(this, this.volume, 0, 2000);
-          }
-        }
-      });
+    // Update all track entries: remove any previously selected style
+    trackList.querySelectorAll('.track-entry').forEach(entry => {
+      entry.classList.remove('selected');
+    });
+    trackElement.classList.add('selected');
 
-      // Update all track entries
-      trackList.querySelectorAll('.track-entry').forEach(entry => {
-        entry.classList.remove('selected');
+    // Setup auto-play for next track if in auto mode
+    if (autoPlayMode) {
+      currentAudio.addEventListener('ended', () => {
+        currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+        const nextTrack = tracks[currentTrackIndex];
+        const nextTrackElement = trackList.children[currentTrackIndex];
+        playTrack(nextTrack, nextTrackElement, trackList);
       });
-      trackElement.classList.add('selected');
-
-      // Setup auto-play for next track
-      if (autoPlayMode) {
-        currentAudio.addEventListener('ended', () => {
-          currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
-          const nextTrack = tracks[currentTrackIndex];
-          const nextTrackElement = trackList.children[currentTrackIndex];
-          playTrack(nextTrack, nextTrackElement, trackList);
-        });
-      }
     }
   }
 }
 
 function initializeMusicMenu() {
+  // Detect Firefox and output debug info
+  const isFirefox = typeof InstallTrigger !== 'undefined';
+  if (isFirefox) {
+    console.log("[MusicMenu] Firefox detected. Initializing music menu with Firefox support.");
+  }
+
   const musicButton = document.querySelector('.bottom-icon.music');
   const musicMenu = document.getElementById('music-menu');
   const musicContent = musicMenu.querySelector('.music-content');
@@ -115,12 +87,13 @@ function initializeMusicMenu() {
   const autoButton = musicMenu.querySelector('.music-auto');
   const manualButton = musicMenu.querySelector('.music-manual');
 
-  // Initialize track list
+  // Initialize track list element and log debug info
   const trackList = document.createElement('div');
   trackList.className = 'track-list';
   musicContent.appendChild(trackList);
+  console.log("[MusicMenu] Track list element created and appended.");
 
-  // Load saved music mode
+  // Load saved music mode from localStorage
   autoPlayMode = loadMusicSettings();
   if (autoPlayMode) {
     autoButton.classList.add('selected');
@@ -130,20 +103,9 @@ function initializeMusicMenu() {
     autoButton.classList.remove('selected');
   }
 
-  // Setup user interaction detection
-  document.addEventListener('click', () => {
-    if (!hasUserInteracted) {
-      hasUserInteracted = true;
-      if (autoPlayMode && !currentAudio && tracks.length > 0) {
-        const firstTrack = tracks[0];
-        const firstTrackElement = trackList.children[0];
-        playTrack(firstTrack, firstTrackElement, trackList);
-      }
-    }
-  }, { once: true });
-
-  // Populate tracks
+  // Populate tracks into the track list with debug logging
   tracks.forEach((track, index) => {
+    console.log("[MusicMenu] Loading track:", track.name, "at index", index);
     const trackElement = document.createElement('div');
     trackElement.className = 'track-entry';
     trackElement.textContent = track.name;
@@ -162,20 +124,27 @@ function initializeMusicMenu() {
     trackList.appendChild(trackElement);
   });
 
-  // Handle music menu toggle
+  // Handle music menu toggle button
   musicButton.addEventListener('click', () => {
     toggleMenu(musicButton, '#music-menu');
+    
+    // If in auto mode and no track is playing, auto-play the first track
+    if (autoPlayMode && !currentAudio && tracks.length > 0) {
+      const firstTrack = tracks[0];
+      const firstTrackElement = trackList.children[0];
+      playTrack(firstTrack, firstTrackElement, trackList);
+    }
   });
 
-  // Auto/Manual button functionality
+  // Auto/Manual button functionality with localStorage updates
   autoButton.addEventListener('click', () => {
     autoPlayMode = true;
     saveMusicSettings(true);
     autoButton.classList.add('selected');
     manualButton.classList.remove('selected');
     
-    // Start playing if nothing is currently playing and user has interacted
-    if (!currentAudio && tracks.length > 0 && hasUserInteracted) {
+    // Start playing if nothing is currently playing
+    if (!currentAudio && tracks.length > 0) {
       const firstTrack = tracks[0];
       const firstTrackElement = trackList.children[0];
       playTrack(firstTrack, firstTrackElement, trackList);
@@ -188,13 +157,13 @@ function initializeMusicMenu() {
     manualButton.classList.add('selected');
     autoButton.classList.remove('selected');
     
-    // Stop auto-play functionality
+    // Stop auto-play functionality if a track is currently playing
     if (currentAudio) {
       currentAudio.onended = null;
     }
   });
 
-  // Set initial mode from local storage
+  // Set initial mode based on the stored settings
   if (autoPlayMode) {
     autoButton.click();
   } else {
