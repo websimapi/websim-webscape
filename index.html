@@ -46,10 +46,11 @@
             <input type="text" class="del-friend-input" maxlength="12">
           </div>
         </div>
-        <div id="private-message-overlay">
-          <div class="private-message-container">
-            <div class="private-message-text">Enter message to send to Username</div>
-            <input type="text" class="private-message-input" maxlength="80">
+        <!-- Private Message Overlay -->
+        <div id="private-message-overlay" class="hidden">
+          <div class="add-friend-container">
+            <div class="add-friend-text">Enter message to send to <span id="pm-target-username"></span></div>
+            <input type="text" class="private-message-input" maxlength="100">
           </div>
         </div>
         <div class="chat-input-area">
@@ -307,9 +308,11 @@ Out</div>
     </div>
   </div>
 
-  <script src="js/chat.js"></script>
+  <!-- Script Loading Order: Private Message module loads first so window.showPrivateMessageOverlay is available -->
+  <script type="module" src="js/features/privateMessage.js"></script>
+  <script type="module" src="js/chat.js"></script>
   <script src="js/inventory.js"></script>
-  <script src="js/menu.js" type="module"></script>
+  <script type="module" src="js/menu.js"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>

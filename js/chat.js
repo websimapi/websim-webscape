@@ -1,5 +1,6 @@
 // Initialize WebSocket connection
 const room = new WebsimSocket();
+window.room = room; // Expose room globally for other modules
 
 // Get the username element
 const usernameElement = document.getElementById('current-username');
@@ -34,7 +35,7 @@ function showChatContextMenu(e, username) {
   // Hide any existing context menus first.
   hideAllContextMenus();
 
-  // Get game container bounds to ensure our menu doesn't go outside.
+  // Get game container bounds to ensure our menu doesn’t go outside.
   const gameContainer = document.getElementById('client-wrapper');
   const containerBounds = gameContainer.getBoundingClientRect();
 
@@ -42,18 +43,16 @@ function showChatContextMenu(e, username) {
   let xPos = e.pageX;
   let yPos = e.pageY;
 
-  const isOnline = Object.values(room.party.peers).some(peer => peer.username === username);
-  
-  // Set menu content.
+  // Set menu content with added Message option.
   chatContextMenu.innerHTML = `
-    <div class="context-menu-option ${isOnline ? '' : 'disabled'} message">Message ${username}</div>
+    <div class="context-menu-option message">Message ${username}</div>
     <div class="context-menu-option add-friend">Add Friend ${username}</div>
     <div class="context-menu-option add-ignore">Add Ignore ${username}</div>
     <div class="context-menu-option cancel">Cancel</div>
   `;
   chatContextMenu.classList.add('shown');
 
-  // Now that the menu is visible via the "shown" class, measure its bounds.
+  // Now that the menu is visible, measure its bounds.
   const menuBounds = chatContextMenu.getBoundingClientRect();
 
   // Adjust horizontal position if the menu would overflow.
@@ -64,16 +63,14 @@ function showChatContextMenu(e, username) {
   if (yPos + menuBounds.height > containerBounds.bottom) {
     yPos = containerBounds.bottom - menuBounds.height - 10;
   }
-
-  // Ensure the menu stays within the left and top boundaries.
   xPos = Math.max(containerBounds.left + 10, xPos);
   yPos = Math.max(containerBounds.top + 10, yPos);
 
-  // Set the final position.
+  // Set final position.
   chatContextMenu.style.left = `${xPos}px`;
   chatContextMenu.style.top = `${yPos}px`;
 
-  // Add click handlers for each menu option.
+  // Add click handlers for menu options.
   const messageOption = chatContextMenu.querySelector('.message');
   const addFriendOption = chatContextMenu.querySelector('.add-friend');
   const addIgnoreOption = chatContextMenu.querySelector('.add-ignore');
@@ -81,18 +78,8 @@ function showChatContextMenu(e, username) {
 
   messageOption.addEventListener('click', (event) => {
     event.stopPropagation();
-    if (isOnline) {
-      // Note: showPrivateMessageOverlay is not defined in the provided plan or code
-      // You might need to define or import this function
-      // showPrivateMessageOverlay(username);
-    } else {
-      const chatContent = document.querySelector('.chat-content');
-      const messageDiv = document.createElement('div');
-      messageDiv.className = 'chat-message system';
-      messageDiv.textContent = `Unable to message ${username} - player is offline.`;
-      chatContent.insertBefore(messageDiv, chatContent.firstChild);
-    }
-    hideAllContextMenus();
+    window.showPrivateMessageOverlay(username);
+    chatContextMenu.classList.remove('shown');
   });
 
   addFriendOption.addEventListener('click', (event) => {
@@ -101,10 +88,10 @@ function showChatContextMenu(e, username) {
     newFriend.className = 'list-entry';
     newFriend.innerHTML = `
       <span class="player-name">${username}</span>
-      <span class="world-status ${isOnline ? 'online' : 'offline'}">${isOnline ? 'World-1' : 'Offline'}</span>
+      <span class="world-status offline">Offline</span>
     `;
     document.querySelector('.friends-list .list-container').appendChild(newFriend);
-    hideAllContextMenus();
+    chatContextMenu.classList.remove('shown');
   });
 
   addIgnoreOption.addEventListener('click', (event) => {
@@ -116,12 +103,12 @@ function showChatContextMenu(e, username) {
       <span class="world-status offline">Offline</span>
     `;
     document.querySelector('.ignore-list .list-container').appendChild(newIgnore);
-    hideAllContextMenus();
+    chatContextMenu.classList.remove('shown');
   });
 
   cancelOption.addEventListener('click', (event) => {
     event.stopPropagation();
-    hideAllContextMenus();
+    chatContextMenu.classList.remove('shown');
   });
 }
 
@@ -131,14 +118,11 @@ function hideAllContextMenus() {
   chatContextMenu.style.top = '';
 }
 
+// Function to show tooltip on chat username hover in the top left of the game container
 function showUsernameHoverTooltip(e, username) {
   if (username === room.party.client.username) return;
   
-  const isOnline = Object.values(room.party.peers).some(peer => peer.username === username);
-  chatUsernameTooltip.textContent = isOnline ? 
-    `Message ${username} / 2 more options` : 
-    `Add Friend / 1 more option`;
-  
+  chatUsernameTooltip.textContent = `Add Friend / 1 more option`;
   chatUsernameTooltip.style.display = 'block';
   const gameScreen = document.getElementById('game-screen');
   const gameRect = gameScreen.getBoundingClientRect();
@@ -149,35 +133,6 @@ function showUsernameHoverTooltip(e, username) {
 function hideUsernameHoverTooltip() {
   chatUsernameTooltip.style.display = 'none';
 }
-
-// Handle incoming private messages
-room.onmessage = (event) => {
-  const chatContent = document.querySelector('.chat-content');
-  const messageDiv = document.createElement('div');
-  
-  if (event.data.type === 'chat' && event.data.clientId !== room.party.client.id) {
-    messageDiv.className = 'chat-message user';
-    messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
-
-    const usernameSpan = messageDiv.querySelector('.username');
-    usernameSpan.addEventListener('click', (e) => {
-      showChatContextMenu(e, event.data.username);
-    });
-    usernameSpan.addEventListener('mouseover', (e) => {
-      showUsernameHoverTooltip(e, event.data.username);
-    });
-    usernameSpan.addEventListener('mouseout', (e) => {
-      hideUsernameHoverTooltip();
-    });
-  } else if (event.data.type === 'private-message') {
-    if (event.data.targetUsername === room.party.client.username) {
-      messageDiv.className = 'chat-message private-in';
-      messageDiv.innerHTML = `From ${event.data.username}: ${event.data.message}`;
-    }
-  }
-
-  chatContent.insertBefore(messageDiv, chatContent.firstChild);
-};
 
 const chatInput = document.querySelector('.chat-input');
 chatInput.addEventListener('keypress', (e) => {
@@ -206,7 +161,33 @@ chatInput.addEventListener('keypress', (e) => {
     });
 
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
-
     chatInput.value = '';
   }
 });
+
+room.onmessage = (event) => {
+  const data = event.data;
+  if (data.type === 'chat' && data.clientId !== room.party.client.id) {
+    const chatContent = document.querySelector('.chat-content');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message user';
+    messageDiv.innerHTML = `<span class="username">${data.username}</span><span class="separator">: </span>${data.message}`;
+    const usernameSpan = messageDiv.querySelector('.username');
+    usernameSpan.addEventListener('click', (e) => {
+      showChatContextMenu(e, data.username);
+    });
+    usernameSpan.addEventListener('mouseover', (e) => {
+      showUsernameHoverTooltip(e, data.username);
+    });
+    usernameSpan.addEventListener('mouseout', (e) => {
+      hideUsernameHoverTooltip();
+    });
+    chatContent.insertBefore(messageDiv, chatContent.firstChild);
+  } else if (data.type === 'private-message' && data.target === room.party.client.username) {
+    const chatContent = document.querySelector('.chat-content');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message user';
+    messageDiv.innerHTML = `<span class="username">${data.username}</span><span class="separator">: </span>${data.message} (private)`;
+    chatContent.insertBefore(messageDiv, chatContent.firstChild);
+  }
+};
