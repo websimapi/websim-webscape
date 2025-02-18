@@ -63,11 +63,9 @@ function showMessageOverlay(username) {
   messageInput.focus();
 }
 
-// Expose the showMessageOverlay globally for use in other modules
-window.showMessageOverlay = showMessageOverlay;
-
-// Setup message overlay click-outside behavior
+// Setup message overlay
 function setupOverlay(overlay, input) {
+  // Add event listener for clicking outside the overlay
   document.addEventListener('click', (e) => {
     if (!overlay.contains(e.target) && !input.contains(e.target)) {
       overlay.classList.remove('shown');

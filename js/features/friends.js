@@ -92,8 +92,15 @@ function initializeFriendsList() {
       const username = playerNameElement.textContent;
       showContextMenu(e, username, 
         () => {
-          // Now correctly invoke the messaging overlay (which is defined in chat.js)
-          window.showMessageOverlay(username);
+          // Find the message overlay and show it
+          const messageOverlay = document.getElementById('message-overlay');
+          const messageUsernameSpan = messageOverlay.querySelector('.message-username');
+          const messageInput = messageOverlay.querySelector('.message-input');
+          
+          messageUsernameSpan.textContent = username;
+          messageOverlay.classList.add('shown');
+          messageInput.value = '';
+          messageInput.focus();
         },
         () => {
           playerNameElement.closest('.list-entry').remove();
