@@ -59,7 +59,6 @@ function initializeSkillsMenu() {
       const statsContainer = skillsMenu.querySelector('.stats-summary');
       if (statsContainer) {
         statsContainer.innerHTML = `
-          <div class="stats-item">${skill.name}</div>
           <div class="stats-item">XP: ${skill.xp}</div>
           <div class="stats-item">Next Level: ${skill.nextLevel}</div>
         `;
