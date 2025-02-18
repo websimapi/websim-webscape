@@ -22,4 +22,4 @@ function initializeGameOptions() {
   });
 }
 
-export { initializeGameOptions };
+export! initializeGameOptions};
