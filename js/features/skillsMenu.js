@@ -1,3 +1,5 @@
+import { toggleMenu } from './menuManager.js';
+
 // Initialize WebSocket connection
 const room = new WebsimSocket();
 

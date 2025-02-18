@@ -1,4 +1,4 @@
-import { toggleMenu } from '../features/menuManager.js';
+import { toggleMenu } from './menuManager.js';
 
 function initializeGameOptions() {
   const gameOptionsButton = document.querySelector('.bottom-icon.game-options-button');
