@@ -84,7 +84,7 @@
 /* Message styling */
 .chat-message {
   margin-top: 2px;
-  padding: 1px 0;
+  padding: 0;
 }
 
 .chat-message.system {
