@@ -47,6 +47,17 @@
 .skill-icon {
   font-size: 14px;
   margin-right: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.skill-icon:has(span[data-icon="fletching"]) {
+  position: relative;
+}
+
+.skill-icon span[data-icon="fletching"] {
+  display: inline-block;
+  transform: scale(0.8); /* Make log icon smaller */
 }
 
 .skill-level {
@@ -54,17 +65,6 @@
   color: #ffff00;
   margin-left: auto;
   padding-right: 2px;
-}
-
-.fletching-icon {
-  font-size: 14px;
-  transform: rotate(-15deg); /* Tilt the combined icon */
-  display: inline-block;
-}
-
-.fletching-icon .log {
-  transform: scale(0.7, 1); /* Make log thinner */
-  display: inline-block;
 }
 
 .stats-summary {
