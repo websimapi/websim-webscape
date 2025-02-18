@@ -54,15 +54,12 @@ function initializeSkillsMenu() {
       </div>
     `;
     
-    // When hovering over a skill, show its XP details on a new line without shifting alignment.
+    // When hovering over a skill, show its XP details with a carriage return between lines.
     skillSlot.addEventListener('mouseover', () => {
       const statsContainer = skillsMenu.querySelector('.stats-summary');
       if (statsContainer) {
         statsContainer.innerHTML = `
-          <div class="stats-item" style="grid-column: 1 / span 2; display: flex; flex-direction: column; align-items: center; text-align: center;">
-            <span>XP: ${skill.xp}</span>
-            <span>Next Level: ${skill.nextLevel}</span>
-          </div>
+          <div class="stats-item hover-state">XP: ${skill.xp}<br>Next Level: ${skill.nextLevel}</div>
         `;
       }
     });
@@ -71,11 +68,10 @@ function initializeSkillsMenu() {
     skillSlot.addEventListener('mouseout', () => {
       const statsContainer = skillsMenu.querySelector('.stats-summary');
       if (statsContainer) {
-        const totalLevel = skills.reduce((sum, s) => sum + s.level, 0);
         statsContainer.innerHTML = `
           <div class="stats-item">QP: 0</div>
           <div class="stats-item">Combat: 1</div>
-          <div class="stats-item">Total: ${totalLevel}</div>
+          <div class="stats-item">Total: ${skills.reduce((sum, s) => sum + s.level, 0)}</div>
         `;
       }
     });

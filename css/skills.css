@@ -68,9 +68,9 @@
 .skill-level-slash {
   font-size: 24px;
   margin: 0;
-  transform: rotate(25deg) translateY(-1px) scaleY(1.0);
+  transform: rotate(25deg) translateY(-1px) scaleY(1.2);
   display: inline-block;
-  color: #333333;
+  color: #666666;
 }
 
 .skill-level-denominator {
@@ -111,4 +111,9 @@
   text-overflow: ellipsis;
   display: flex;
   align-items: center;
+}
+
+.stats-item.hover-state {
+  text-align: left;
+  justify-content: flex-start;
 }
