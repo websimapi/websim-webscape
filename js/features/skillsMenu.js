@@ -9,7 +9,7 @@ const skills = [
   { name: 'Hitpoints', level: 10, maxLevel: 10, icon: '❤️' },
   { name: 'Mining', level: 1, maxLevel: 1, icon: '⛏️' },
   { name: 'Strength', level: 1, maxLevel: 1, icon: '💪' },
-  { name: 'Agility', level: 1, maxLevel: 1, icon: '🏃' },
+  { name: 'Agility', level: 1, maxLevel: 1, icon: '🏃', style: 'filter: grayscale(100%) brightness(0.7); -webkit-text-stroke: 1px black;' },
   { name: 'Smithing', level: 1, maxLevel: 1, icon: '⚒️' },
   { name: 'Defence', level: 1, maxLevel: 1, icon: '🛡️' },
   { name: 'Herblore', level: 1, maxLevel: 1, icon: '🌿' },
