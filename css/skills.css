@@ -90,6 +90,16 @@
   text-align: center;
 }
 
+.stats-item {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  width: 100%; 
+  box-sizing: border-box; 
+}
+
 .stats-item:first-child {
   grid-column: 1;
   grid-row: 1 / span 2;
@@ -105,15 +115,11 @@
   padding-left: 8px;
 }
 
-.stats-item {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: flex;
-  align-items: center;
-}
-
 .stats-item.hover-state {
+  grid-column: 1 / span 2 !important; 
+  padding-left: 8px;
   text-align: left;
   justify-content: flex-start;
+  width: 100%;
+  white-space: pre-line; 
 }
