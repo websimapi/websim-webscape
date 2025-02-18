@@ -12,7 +12,7 @@ const skills = [
   { name: 'Phasewalk', level: 1, maxLevel: 1, icon: '🏃', xp: 0, nextLevel: 83, style: 'filter: grayscale(100%) brightness(0.3); -webkit-text-stroke: 1px black;' },
   { name: 'Smithing', level: 1, maxLevel: 1, icon: '⚒️', xp: 0, nextLevel: 83 },
   { name: 'Aegis', level: 1, maxLevel: 1, icon: '🛡️', xp: 0, nextLevel: 83 },
-  { name: 'Herbalist', level: 1, maxLevel: 1, icon: '🌿', xp: 0, nextLevel: 83 },
+  { name: 'Herbalist', level: 1, maxLevel: 1, icon: '🌿', xp: 0, nextLevel: 83, style: 'filter: sepia(100%) saturate(300%) brightness(1.2) hue-rotate(20deg);' },
   { name: 'Fishing', level: 1, maxLevel: 1, icon: '🎣', xp: 0, nextLevel: 83 },
   { name: 'Swiftshot', level: 1, maxLevel: 1, icon: '🏹', xp: 0, nextLevel: 83 },
   { name: 'Detective', level: 1, maxLevel: 1, icon: '👥', xp: 0, nextLevel: 83, style: 'filter: grayscale(100%) brightness(0.3); -webkit-text-stroke: 1px black;' },
