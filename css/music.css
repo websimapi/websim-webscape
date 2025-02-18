@@ -91,12 +91,10 @@
   color: #00ff00;
 }
 
-/* Removed underline from selected and hover states */
 .track-entry.selected {
   color: #00ff00;
-  text-decoration: none;
 }
 
 .track-entry:hover {
-  text-decoration: none;
+  opacity: 0.8;
 }
