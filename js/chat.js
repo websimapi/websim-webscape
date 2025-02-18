@@ -17,6 +17,13 @@ const chatContextMenu = document.createElement('div');
 chatContextMenu.className = 'context-menu';
 document.body.appendChild(chatContextMenu);
 
+// Create a tooltip for hovering over usernames in chat
+const chatUsernameTooltip = document.createElement('div');
+chatUsernameTooltip.className = 'action-tooltip';
+chatUsernameTooltip.style.display = 'none';
+document.body.appendChild(chatUsernameTooltip);
+
+// Function to show chat context menu when clicking on a username
 function showChatContextMenu(e, username) {
   e.preventDefault();
   e.stopPropagation();
@@ -101,11 +108,29 @@ function hideAllContextMenus() {
   chatContextMenu.style.top = '';
 }
 
+// Global click handler to hide the context menu when clicking outside its bounds
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.context-menu') && !e.target.closest('.username')) {
     hideAllContextMenus();
   }
 });
+
+// Function to show tooltip on chat username hover in the top right of the game container
+function showUsernameHoverTooltip(e, username) {
+  // Display the first action choice and count of remaining options.
+  chatUsernameTooltip.textContent = `Add Friend / 1 more option`;
+  chatUsernameTooltip.style.display = 'block';
+  const gameScreen = document.getElementById('game-screen');
+  const gameRect = gameScreen.getBoundingClientRect();
+  // Force reflow to measure tooltip width
+  const tooltipWidth = chatUsernameTooltip.offsetWidth;
+  chatUsernameTooltip.style.top = `${gameRect.top + 5}px`;
+  chatUsernameTooltip.style.left = `${gameRect.right - tooltipWidth - 5}px`;
+}
+
+function hideUsernameHoverTooltip() {
+  chatUsernameTooltip.style.display = 'none';
+}
 
 const chatInput = document.querySelector('.chat-input');
 chatInput.addEventListener('keypress', (e) => {
@@ -126,6 +151,12 @@ chatInput.addEventListener('keypress', (e) => {
     usernameSpan.addEventListener('click', (e) => {
       showChatContextMenu(e, room.party.client.username);
     });
+    usernameSpan.addEventListener('mouseover', (e) => {
+      showUsernameHoverTooltip(e, room.party.client.username);
+    });
+    usernameSpan.addEventListener('mouseout', (e) => {
+      hideUsernameHoverTooltip();
+    });
 
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
 
@@ -143,6 +174,12 @@ room.onmessage = (event) => {
     const usernameSpan = messageDiv.querySelector('.username');
     usernameSpan.addEventListener('click', (e) => {
       showChatContextMenu(e, event.data.username);
+    });
+    usernameSpan.addEventListener('mouseover', (e) => {
+      showUsernameHoverTooltip(e, event.data.username);
+    });
+    usernameSpan.addEventListener('mouseout', (e) => {
+      hideUsernameHoverTooltip();
     });
 
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
