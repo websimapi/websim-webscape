@@ -2,7 +2,7 @@
 let activeButton = null;
 let activePanel = null;
 
-// List of menu items with their corresponding panels, updated to include game options.
+// List of menu items with their corresponding panels
 const menuItems = {
   'friends-button': '.friends-list',
   'ignore-button': '.ignore-list',
@@ -12,7 +12,7 @@ const menuItems = {
 };
 
 function hideAllPanels() {
-  // Hide all panels defined in the menuItems mapping.
+  // Hide all panels defined in the menuItems mapping
   Object.values(menuItems).forEach(panelSelector => {
     const panel = document.querySelector(panelSelector);
     if (panel) {
@@ -28,8 +28,8 @@ function hideAllPanels() {
   allButtons.forEach(button => {
     button.classList.remove('selected');
   });
-
-  // Clear active tracking
+  
+  // Reset active tracking
   activeButton = null;
   activePanel = null;
 }
@@ -37,13 +37,13 @@ function hideAllPanels() {
 function toggleMenu(button, panelSelector) {
   const panel = document.querySelector(panelSelector);
   
-  // If clicking the same button that's already active, just hide everything
+  // If clicking the same button that's already active, close everything
   if (button === activeButton) {
     hideAllPanels();
     return;
   }
 
-  // Hide all other panels first
+  // Hide all panels first
   hideAllPanels();
 
   // Show the selected panel and mark button as selected
@@ -57,19 +57,5 @@ function toggleMenu(button, panelSelector) {
   activeButton = button;
   activePanel = panel;
 }
-
-// Add click handler to hide menus when clicking outside
-document.addEventListener('click', (e) => {
-  // If clicking outside any menu button or panel
-  if (!e.target.closest('.bottom-icon') && 
-      !e.target.closest('.icon') && 
-      !e.target.closest('.friends-list') &&
-      !e.target.closest('.ignore-list') &&
-      !e.target.closest('#game-options') &&
-      !e.target.closest('#logout-popup') &&
-      !e.target.closest('#inventory')) {
-    hideAllPanels();
-  }
-});
 
 export { hideAllPanels, toggleMenu };
