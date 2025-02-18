@@ -1,5 +1,3 @@
-import { toggleMenu } from './menuManager.js';
-
 // Initialize WebSocket connection
 const room = new WebsimSocket();
 
@@ -9,13 +7,13 @@ const skills = [
   { name: 'Hitpoints', level: 10, maxLevel: 10, icon: '❤️' },
   { name: 'Mining', level: 1, maxLevel: 1, icon: '⛏️' },
   { name: 'Strength', level: 1, maxLevel: 1, icon: '💪' },
-  { name: 'Agility', level: 1, maxLevel: 1, icon: '🏃', style: 'filter: grayscale(100%) brightness(0.7); -webkit-text-stroke: 1px black;' },
+  { name: 'Agility', level: 1, maxLevel: 1, icon: '🏃', style: 'filter: grayscale(100%) brightness(0.3); -webkit-text-stroke: 1px black;' },
   { name: 'Smithing', level: 1, maxLevel: 1, icon: '⚒️' },
   { name: 'Defence', level: 1, maxLevel: 1, icon: '🛡️' },
   { name: 'Herblore', level: 1, maxLevel: 1, icon: '🌿' },
   { name: 'Fishing', level: 1, maxLevel: 1, icon: '🎣' },
   { name: 'Ranged', level: 1, maxLevel: 1, icon: '🏹' },
-  { name: 'Thieving', level: 1, maxLevel: 1, icon: '👥', style: 'filter: grayscale(100%) brightness(0.7); -webkit-text-stroke: 1px black;' },
+  { name: 'Thieving', level: 1, maxLevel: 1, icon: '👥', style: 'filter: grayscale(100%) brightness(0.3); -webkit-text-stroke: 1px black;' },
   { name: 'Cooking', level: 1, maxLevel: 1, icon: '🍳' },
   { name: 'Prayer', level: 1, maxLevel: 1, icon: '✨' },
   { name: 'Crafting', level: 1, maxLevel: 1, icon: '✂️' },
