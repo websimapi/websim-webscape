@@ -103,8 +103,36 @@
 /* Make usernames clickable */
 .chat-message .username {
   cursor: pointer;
+  color: #000;
 }
 
 .chat-message .username:hover {
-  text-decoration: underline;
+  text-decoration: none;
+}
+
+/* Update context menu styling to ensure visibility */
+.context-menu {
+  position: fixed; 
+  background: #474745;
+  border: 2px solid #5a473a;
+  min-width: 120px;
+  z-index: 1001;
+  display: none;
+  padding: 2px;
+}
+
+.context-menu.shown {
+  display: block;
+}
+
+.context-menu-option {
+  padding: 4px 8px;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.context-menu-option:hover {
+  background: #5a473a;
 }

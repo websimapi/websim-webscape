@@ -12,27 +12,33 @@ room.party.subscribe((peers) => {
   }
 });
 
+// Create a reusable context menu element
+const chatContextMenu = document.createElement('div');
+chatContextMenu.className = 'context-menu';
+document.body.appendChild(chatContextMenu);
+
 function showChatContextMenu(e, username) {
   e.preventDefault();
+  e.stopPropagation();
+  
+  // Hide any existing context menus
+  hideAllContextMenus();
   
   // Position and show context menu
-  const contextMenu = document.createElement('div');
-  contextMenu.className = 'context-menu shown';
-  contextMenu.style.left = `${e.pageX}px`;
-  contextMenu.style.top = `${e.pageY}px`;
+  chatContextMenu.style.left = `${e.pageX}px`;
+  chatContextMenu.style.top = `${e.pageY}px`;
   
   // Set menu options
-  contextMenu.innerHTML = `
+  chatContextMenu.innerHTML = `
     <div class="context-menu-option add-friend">Add Friend ${username}</div>
     <div class="context-menu-option add-ignore">Add Ignore ${username}</div>
     <div class="context-menu-option cancel">Cancel</div>
   `;
   
-  document.body.appendChild(contextMenu);
+  chatContextMenu.classList.add('shown');
   
   // Add click handlers for menu options
-  contextMenu.querySelector('.add-friend').addEventListener('click', () => {
-    // Add friend logic here
+  chatContextMenu.querySelector('.add-friend').addEventListener('click', () => {
     const newFriend = document.createElement('div');
     newFriend.className = 'list-entry';
     newFriend.innerHTML = `
@@ -40,11 +46,10 @@ function showChatContextMenu(e, username) {
       <span class="world-status offline">Offline</span>
     `;
     document.querySelector('.friends-list .list-container').appendChild(newFriend);
-    contextMenu.remove();
+    hideAllContextMenus();
   });
   
-  contextMenu.querySelector('.add-ignore').addEventListener('click', () => {
-    // Add ignore logic here
+  chatContextMenu.querySelector('.add-ignore').addEventListener('click', () => {
     const newIgnore = document.createElement('div');
     newIgnore.className = 'list-entry';
     newIgnore.innerHTML = `
@@ -52,21 +57,24 @@ function showChatContextMenu(e, username) {
       <span class="world-status offline">Offline</span>
     `;
     document.querySelector('.ignore-list .list-container').appendChild(newIgnore);
-    contextMenu.remove();
+    hideAllContextMenus();
   });
   
-  contextMenu.querySelector('.cancel').addEventListener('click', () => {
-    contextMenu.remove();
-  });
-
-  // Close menu when clicking outside
-  document.addEventListener('click', function closeMenu(e) {
-    if (!e.target.closest('.context-menu')) {
-      contextMenu.remove();
-      document.removeEventListener('click', closeMenu);
-    }
+  chatContextMenu.querySelector('.cancel').addEventListener('click', () => {
+    hideAllContextMenus();
   });
 }
+
+function hideAllContextMenus() {
+  chatContextMenu.classList.remove('shown');
+}
+
+// Handle click outside to close context menu
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.context-menu') && !e.target.closest('.username')) {
+    hideAllContextMenus();
+  }
+});
 
 // Handle chat input
 const chatInput = document.querySelector('.chat-input');
@@ -86,8 +94,9 @@ chatInput.addEventListener('keypress', (e) => {
     messageDiv.className = 'chat-message user';
     messageDiv.innerHTML = `<span class="username">${room.party.client.username}</span><span class="separator">: </span>${message}`;
     
-    // Add click handler to username
-    messageDiv.querySelector('.username').addEventListener('click', (e) => {
+    // Add click handler to username and message
+    const usernameSpan = messageDiv.querySelector('.username');
+    usernameSpan.addEventListener('click', (e) => {
       showChatContextMenu(e, room.party.client.username);
     });
     
@@ -106,8 +115,9 @@ room.onmessage = (event) => {
     messageDiv.className = 'chat-message user';
     messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
     
-    // Add click handler to username
-    messageDiv.querySelector('.username').addEventListener('click', (e) => {
+    // Add click handler to username and message
+    const usernameSpan = messageDiv.querySelector('.username');
+    usernameSpan.addEventListener('click', (e) => {
       showChatContextMenu(e, event.data.username);
     });
     
