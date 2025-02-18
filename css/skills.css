@@ -12,30 +12,29 @@
   display: block;
 }
 
-.skills-content {
-  background: #474745;
-  border: 2px solid #5a473a;
-  padding: 6px;
-  height: calc(100% - 11px);
-  display: flex;
-  flex-direction: column;
-}
-
 .skills-title {
   text-align: center;
   color: #ffff00;
   font-size: 12px;
   margin-top: -4px;
-  margin-bottom: 0px;
+  margin-bottom: 2px;
+}
+
+.skills-content {
+  background: #474745;
+  border: 2px solid #5a473a;
+  padding: 0 6px 6px 6px;
+  height: calc(100% - 11px);
+  display: flex;
+  flex-direction: column;
 }
 
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2px;
-  padding: 2px;
-  width: calc(100% - 4px);
-  margin: 0;
+  padding: 0;
+  margin: 0 auto;
 }
 
 .skill-slot {
@@ -69,7 +68,7 @@
 .stats-summary {
   background: #000;
   padding: 4px;
-  margin-top: 0px;
+  margin-top: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 4px;
