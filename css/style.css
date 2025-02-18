@@ -228,12 +228,12 @@ body {
 
 /* Update icon selected state */
 .icon.selected {
-  background: red !important;
+  background: #800040 !important;
 }
 
 /* Add selected state for friends/ignore buttons */
 .bottom-icon.selected {
-  background: red;
+  background: #800040;
 }
 
 /* Add Friend and Del Friend Input UI */
