@@ -172,7 +172,7 @@ body {
 .list-container {
   background: #474745;
   border: 2px solid #5a473a;
-  height: 172px;
+  height: 162px;
   overflow-y: auto;
 }
 
@@ -204,8 +204,9 @@ body {
 .list-buttons {
   display: flex;
   justify-content: space-between;
-  margin-top: 4px;
+  margin-top: 14px;
   gap: 4px;
+  padding-bottom: 4px;
 }
 
 .list-button {
