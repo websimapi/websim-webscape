@@ -20,7 +20,7 @@ function initializeSkillsMenu() {
     { name: 'Herblore', level: 1, maxLevel: 1, icon: '🌿' },
     { name: 'Fishing', level: 1, maxLevel: 1, icon: '🎣' },
     { name: 'Ranged', level: 1, maxLevel: 1, icon: '🏹' },
-    { name: 'Thieving', level: 1, maxLevel: 1, icon: '👥' },
+    { name: 'Thieving', level: 1, maxLevel: 1, icon: '👥', style: 'filter: brightness(0);' },
     { name: 'Cooking', level: 1, maxLevel: 1, icon: '🍳' },
     { name: 'Prayer', level: 1, maxLevel: 1, icon: '✨' },
     { name: 'Crafting', level: 1, maxLevel: 1, icon: '✂️' },
@@ -43,7 +43,7 @@ function initializeSkillsMenu() {
     const skillSlot = document.createElement('div');
     skillSlot.className = 'skill-slot';
     skillSlot.innerHTML = `
-      <div class="skill-icon">${skill.icon}</div>
+      <div class="skill-icon" ${skill.style ? `style="${skill.style}"` : ''}>${skill.icon}</div>
       <div class="skill-level">${skill.level}/${skill.maxLevel}</div>
     `;
     skillSlot.title = skill.name; // Add tooltip showing skill name
