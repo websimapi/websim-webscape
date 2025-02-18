@@ -19,10 +19,10 @@ const skills = [
   { name: 'Cooking', level: 1, maxLevel: 1, icon: '🍳', xp: 0, nextLevel: 83 },
   { name: 'Sentience', level: 1, maxLevel: 1, icon: '✨', xp: 0, nextLevel: 83 },
   { name: 'Artisan', level: 1, maxLevel: 1, icon: '💎', xp: 0, nextLevel: 83 },
-  { name: 'Firemaking', level: 1, maxLevel: 1, icon: '🔥', xp: 0, nextLevel: 83 },
+  { name: 'Pyro', level: 1, maxLevel: 1, icon: '🔥', xp: 0, nextLevel: 83 },
   { name: 'Eldritch', level: 1, maxLevel: 1, icon: '🔮', xp: 0, nextLevel: 83 },
   { name: 'Fletching', level: 1, maxLevel: 1, icon: '🔪', xp: 0, nextLevel: 83 },
-  { name: 'Woodcutting', level: 1, maxLevel: 1, icon: '🪓', xp: 0, nextLevel: 83 },
+  { name: 'Lumberjack', level: 1, maxLevel: 1, icon: '🪓', xp: 0, nextLevel: 83 },
   { name: 'Sacrament', level: 1, maxLevel: 1, icon: '🔯', xp: 0, nextLevel: 83 },
   { name: 'Deathbind', level: 1, maxLevel: 1, icon: '💀', xp: 0, nextLevel: 83 },
   { name: 'Farming', level: 1, maxLevel: 1, icon: '🌱', xp: 0, nextLevel: 83 }
