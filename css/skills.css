@@ -39,7 +39,7 @@
   position: relative;
   padding: 0 1px;
   justify-content: center;
-  gap: 4px;
+  gap: 8px;
 }
 
 .skill-slot:hover {
