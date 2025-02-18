@@ -17,39 +17,43 @@
   border: 1px solid #5a473a;
   border-radius: 50%;
   z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #compass-n, #compass-s, #compass-e, #compass-w {
   position: absolute;
   color: white;
   font-size: 12px;
-}
-
-/* Move compass letters 1px to the right */
-#compass-n, #compass-s {
-  left: calc(51% + 1px);
-  transform: translateX(-50%);
-}
-
-#compass-e, #compass-w {
-  top: 50%;
-  transform: translateY(-50%);
+  line-height: 1;
+  text-align: center;
+  width: 12px;
+  height: 12px;
 }
 
 #compass-n {
   top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 #compass-s {
   bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 #compass-e {
-  right: 3px;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 #compass-w {
-  left: 4px;
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 /* Minimap styling */
