@@ -59,7 +59,7 @@ function initializeSkillsMenu() {
       const statsContainer = skillsMenu.querySelector('.stats-summary');
       if (statsContainer) {
         statsContainer.innerHTML = `
-          <div class="stats-item hover-state">XP: ${skill.xp}<br>Next Level: ${skill.nextLevel}</div>
+          <div class="stats-item hover-state">${skill.name} XP: ${skill.xp}<br>Next Level: ${skill.nextLevel}</div>
         `;
       }
     });
