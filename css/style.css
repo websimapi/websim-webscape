@@ -421,8 +421,8 @@ body {
   flex: 1;
 }
 
-/* Quest Journal styling */
-.quest-journal {
+/* Add Quest Journal styles */
+#quest-journal {
   position: relative;
   width: calc(100% - 8px);
   background: #382418;
@@ -431,39 +431,39 @@ body {
   margin-top: 4px;
 }
 
-.quest-journal.shown {
+#quest-journal.shown {
   display: block;
 }
 
-.quest-journal-header {
-  color: #ffff00;
-  font-size: 14px;
-  text-align: center;
-  margin-bottom: 4px;
-  text-shadow: 2px 2px 0 #000;
-}
-
-.quest-journal-container {
+.quest-journal-content {
   background: #474745;
   border: 2px solid #5a473a;
+  padding: 6px;
   height: 172px;
   overflow-y: auto;
 }
 
+.quest-journal-title {
+  text-align: left;
+  color: #ffff00;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
 .quest-category {
   color: #ffa500;
-  font-size: 12px;
-  padding: 4px 8px;
-  text-shadow: 1px 1px 0 #000;
+  font-size: 11px;
+  margin-top: 8px;
+  margin-bottom: 4px;
 }
 
 .quest-entry {
   color: #ff0000;
-  font-size: 12px;
-  padding: 2px 8px;
+  font-size: 11px;
+  padding: 2px 0;
   cursor: pointer;
 }
 
 .quest-entry:hover {
-  background: #5a473a;
+  text-decoration: underline;
 }

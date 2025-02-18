@@ -2,13 +2,14 @@
 let activeButton = null;
 let activePanel = null;
 
-// List of menu items with their corresponding panels, updated to include game options.
+// List of menu items with their corresponding panels, updated to include game options and quest journal.
 const menuItems = {
   'friends-button': '.friends-list',
   'ignore-button': '.ignore-list',
   'inventory-button': '#inventory',
   'logout-button': '#logout-popup',
-  'game-options-button': '#game-options'
+  'game-options-button': '#game-options',
+  'quest': '#quest-journal'
 };
 
 function hideAllPanels() {
@@ -39,7 +40,7 @@ function toggleMenu(button, panelSelector) {
     hideAllPanels();
     button.classList.add('selected');
     panel.classList.remove('hidden');
-    if (panelSelector.includes('friends') || panelSelector.includes('ignore') || panelSelector.includes('game-options')) {
+    if (panelSelector.includes('friends') || panelSelector.includes('ignore') || panelSelector.includes('game-options') || panelSelector.includes('quest')) {
       panel.classList.add('shown');
     }
     return;
@@ -51,7 +52,7 @@ function toggleMenu(button, panelSelector) {
   // Show the selected panel and mark button as selected
   button.classList.add('selected');
   panel.classList.remove('hidden');
-  if (panelSelector.includes('friends') || panelSelector.includes('ignore') || panelSelector.includes('game-options')) {
+  if (panelSelector.includes('friends') || panelSelector.includes('ignore') || panelSelector.includes('game-options') || panelSelector.includes('quest')) {
     panel.classList.add('shown');
   }
 
