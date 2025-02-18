@@ -28,12 +28,14 @@ function showChatContextMenu(e, username) {
   const gameContainer = document.getElementById('client-wrapper');
   const containerBounds = gameContainer.getBoundingClientRect();
   
-  // Calculate initial position
-  let xPos = e.pageX;
-  let yPos = e.pageY;
-  
   // Position and show menu first to get its dimensions
   chatContextMenu.style.display = 'block';
+  
+  // Clear previous event listeners
+  const oldMenu = chatContextMenu.cloneNode(false);
+  chatContextMenu.parentNode.replaceChild(oldMenu, chatContextMenu);
+  chatContextMenu = oldMenu;
+  
   chatContextMenu.innerHTML = `
     <div class="context-menu-option add-friend">Add Friend ${username}</div>
     <div class="context-menu-option add-ignore">Add Ignore ${username}</div>
@@ -42,6 +44,10 @@ function showChatContextMenu(e, username) {
   
   // Get menu dimensions
   const menuBounds = chatContextMenu.getBoundingClientRect();
+  
+  // Calculate initial position
+  let xPos = e.pageX;
+  let yPos = e.pageY;
   
   // Adjust position if menu would go outside container
   if (xPos + menuBounds.width > containerBounds.right) {
@@ -61,7 +67,7 @@ function showChatContextMenu(e, username) {
   chatContextMenu.classList.add('shown');
   
   // Add click handlers for menu options
-  chatContextMenu.querySelector('.add-friend').addEventListener('click', () => {
+  chatContextMenu.querySelector('.add-friend').onclick = () => {
     const newFriend = document.createElement('div');
     newFriend.className = 'list-entry';
     newFriend.innerHTML = `
@@ -70,9 +76,9 @@ function showChatContextMenu(e, username) {
     `;
     document.querySelector('.friends-list .list-container').appendChild(newFriend);
     hideAllContextMenus();
-  });
+  };
   
-  chatContextMenu.querySelector('.add-ignore').addEventListener('click', () => {
+  chatContextMenu.querySelector('.add-ignore').onclick = () => {
     const newIgnore = document.createElement('div');
     newIgnore.className = 'list-entry';
     newIgnore.innerHTML = `
@@ -81,15 +87,16 @@ function showChatContextMenu(e, username) {
     `;
     document.querySelector('.ignore-list .list-container').appendChild(newIgnore);
     hideAllContextMenus();
-  });
+  };
   
-  chatContextMenu.querySelector('.cancel').addEventListener('click', () => {
+  chatContextMenu.querySelector('.cancel').onclick = () => {
     hideAllContextMenus();
-  });
+  };
 }
 
 function hideAllContextMenus() {
   chatContextMenu.classList.remove('shown');
+  chatContextMenu.style.display = 'none';
 }
 
 // Handle click outside to close context menu
@@ -117,7 +124,7 @@ chatInput.addEventListener('keypress', (e) => {
     messageDiv.className = 'chat-message user';
     messageDiv.innerHTML = `<span class="username">${room.party.client.username}</span><span class="separator">: </span>${message}`;
     
-    // Add click handler to username and message
+    // Add click handler to username
     const usernameSpan = messageDiv.querySelector('.username');
     usernameSpan.addEventListener('click', (e) => {
       showChatContextMenu(e, room.party.client.username);
@@ -138,7 +145,7 @@ room.onmessage = (event) => {
     messageDiv.className = 'chat-message user';
     messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
     
-    // Add click handler to username and message
+    // Add click handler to username
     const usernameSpan = messageDiv.querySelector('.username');
     usernameSpan.addEventListener('click', (e) => {
       showChatContextMenu(e, event.data.username);
