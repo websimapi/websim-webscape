@@ -107,6 +107,16 @@ body {
   text-shadow: 1px 1px 1px #000;
 }
 
+/* Ensure buttons in minimap-icons maintain equal spacing */
+.minimap-icons {
+  display: flex;
+  justify-content: space-around;
+  padding: 4px;
+  background: #382418;
+  border-top: 2px solid #000;
+  height: 32px;
+}
+
 /* Logout popup styling */
 #logout-popup {
   position: relative;
