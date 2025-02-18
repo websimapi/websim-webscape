@@ -3,6 +3,14 @@ import { showContextMenu, hideContextMenu } from '../ui/contextMenu.js';
 import { setupOverlay } from '../ui/overlays.js';
 import { toggleMenu } from './menuManager.js';
 
+// Get reference to existing message overlay and function from chat.js
+let showMessageOverlay;
+
+// Function to initialize showMessageOverlay reference
+function setMessageHandler(handler) {
+  showMessageOverlay = handler;
+}
+
 function initializeFriendsList() {
   const friendsButton = document.querySelector('.bottom-icon:nth-child(2)');
   const friendsList = document.querySelector('.friends-list');
@@ -92,15 +100,9 @@ function initializeFriendsList() {
       const username = playerNameElement.textContent;
       showContextMenu(e, username, 
         () => {
-          // Show message overlay when Message option is clicked
-          const messageOverlay = document.getElementById('message-overlay');
-          const messageInput = messageOverlay.querySelector('.message-input');
-          const messageUsernameSpan = messageOverlay.querySelector('.message-username');
-          
-          messageUsernameSpan.textContent = username;
-          messageOverlay.classList.add('shown');
-          messageInput.value = '';
-          messageInput.focus();
+          if (showMessageOverlay) {
+            showMessageOverlay(username);
+          }
         },
         () => {
           playerNameElement.closest('.list-entry').remove();
@@ -110,4 +112,4 @@ function initializeFriendsList() {
   });
 }
 
-export { initializeFriendsList };
+export { initializeFriendsList, setMessageHandler };

@@ -63,6 +63,10 @@ function showMessageOverlay(username) {
   messageInput.focus();
 }
 
+// Import the setMessageHandler from friends.js and set it up
+import { setMessageHandler } from './features/friends.js';
+setMessageHandler(showMessageOverlay);
+
 // Setup message overlay
 function setupOverlay(overlay, input) {
   // Add event listener for clicking outside the overlay
@@ -81,21 +85,29 @@ messageInput.addEventListener('keypress', async (e) => {
     const message = messageInput.value.trim();
     const recipient = messageUsernameSpan.textContent;
     
-    room.send({
-      type: 'private-message',
-      message: message,
-      recipient: recipient
-    });
-    
-    // Add message to chat
-    const chatContent = document.querySelector('.chat-content');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'chat-message private-message';
-    messageDiv.innerHTML = `To ${recipient}: ${message}`;
-    chatContent.insertBefore(messageDiv, chatContent.firstChild);
+    if (onlineUsers.has(recipient)) {
+      room.send({
+        type: 'private-message',
+        message: message,
+        recipient: recipient
+      });
+      
+      // Add message to chat
+      const chatContent = document.querySelector('.chat-content');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'chat-message private-message';
+      messageDiv.innerHTML = `To ${recipient}: ${message}`;
+      chatContent.insertBefore(messageDiv, chatContent.firstChild);
+    } else {
+      // Add error message to chat
+      const chatContent = document.querySelector('.chat-content');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'chat-message system';
+      messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
+      chatContent.insertBefore(messageDiv, chatContent.firstChild);
+    }
     
     messageOverlay.classList.remove('shown');
-    messageInput.value = '';
   }
 });
 
