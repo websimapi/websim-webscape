@@ -421,7 +421,7 @@ body {
   flex: 1;
 }
 
-/* Add Quest Journal styles */
+/* Update Quest Journal styles */
 #quest-journal {
   position: relative;
   width: calc(100% - 8px);
@@ -429,7 +429,7 @@ body {
   padding: 4px;
   display: none;
   margin-top: 4px;
-  height: calc(100% - 256px);
+  height: 172px;
 }
 
 #quest-journal.shown {
