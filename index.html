@@ -73,7 +73,17 @@
         </div>
         <div class="minimap-icons">
           <div class="icon compass">1</div>
-          <div class="icon prayer">2</div>
+          <div class="icon prayer">
+            <!-- Bar Graph Icon -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <!-- Red Bar (Medium) -->
+              <rect x="4" y="10" width="4" height="10" fill="#ff0000"/>
+              <!-- Green Bar (Tallest) -->
+              <rect x="10" y="4" width="4" height="16" fill="#00ff00"/>
+              <!-- Dark Blue Bar (Shortest) -->
+              <rect x="16" y="14" width="4" height="6" fill="#00008b"/>
+            </svg>
+          </div>
           <div class="icon quest">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <circle cx="12" cy="12" r="11" fill="#add8e6" />
@@ -214,14 +224,12 @@
       <div id="bottom-icons">
         <div class="bottom-icon">8</div>
         <div class="bottom-icon">
-          <!-- Bar Graph -->
+          <!-- Yellow Smiley Face -->
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
-            <!-- Medium Red Bar -->
-            <rect x="4" y="8" width="4" height="12" fill="#ff0000"/>
-            <!-- Tall Green Bar -->
-            <rect x="10" y="4" width="4" height="16" fill="#00ff00"/>
-            <!-- Short Blue Bar -->
-            <rect x="16" y="12" width="4" height="8" fill="#000080"/>
+            <circle cx="12" cy="12" r="10" fill="#ffff00" stroke="#000" stroke-width="1"/>
+            <circle cx="8" cy="9" r="2" fill="#000"/>
+            <circle cx="16" cy="9" r="2" fill="#000"/>
+            <path d="M7 14 Q12 18 17 14" fill="none" stroke="#000" stroke-width="2"/>
           </svg>
         </div>
         <div class="bottom-icon">
