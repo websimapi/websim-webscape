@@ -1,11 +1,11 @@
 import { toggleMenu } from './menuManager.js';
 
 function initializeSkillsMenu() {
-  const skillsButton = document.querySelector('.icon.stats');
-  const skillsContainer = document.getElementById('skills-menu');
+  const statsButton = document.querySelector('.icon.stats');
+  const skillsMenu = document.getElementById('skills-menu');
 
-  skillsButton.addEventListener('click', () => {
-    toggleMenu(skillsButton, '#skills-menu');
+  statsButton.addEventListener('click', () => {
+    toggleMenu(statsButton, '#skills-menu');
   });
 }
 

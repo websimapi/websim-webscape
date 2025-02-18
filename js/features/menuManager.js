@@ -14,7 +14,7 @@ const menuItems = {
 };
 
 function hideAllPanels() {
-  // Hide all panels defined in the menuItems mapping.
+  // Hide all panels defined in the menuItems mapping
   Object.values(menuItems).forEach(panelSelector => {
     const panel = document.querySelector(panelSelector);
     if (panel) {
@@ -41,7 +41,11 @@ function toggleMenu(button, panelSelector) {
     hideAllPanels();
     button.classList.add('selected');
     panel.classList.remove('hidden');
-    if (panelSelector.includes('friends') || panelSelector.includes('ignore') || panelSelector.includes('game-options') || panelSelector.includes('quest')) {
+    if (panelSelector.includes('friends') || 
+        panelSelector.includes('ignore') || 
+        panelSelector.includes('game-options') || 
+        panelSelector.includes('quest') ||
+        panelSelector.includes('skills')) {
       panel.classList.add('shown');
     }
     return;
@@ -53,7 +57,11 @@ function toggleMenu(button, panelSelector) {
   // Show the selected panel and mark button as selected
   button.classList.add('selected');
   panel.classList.remove('hidden');
-  if (panelSelector.includes('friends') || panelSelector.includes('ignore') || panelSelector.includes('game-options') || panelSelector.includes('quest')) {
+  if (panelSelector.includes('friends') || 
+      panelSelector.includes('ignore') || 
+      panelSelector.includes('game-options') || 
+      panelSelector.includes('quest') ||
+      panelSelector.includes('skills')) {
     panel.classList.add('shown');
   }
 
