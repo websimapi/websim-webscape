@@ -69,6 +69,9 @@ export class MapChunk {
     );
     group.rotation.x = -Math.PI / 2; // Rotate to horizontal
 
+    // Set a name to easily identify the terrain for raycasting
+    group.name = "terrain";
+
     return group;
   }
 }

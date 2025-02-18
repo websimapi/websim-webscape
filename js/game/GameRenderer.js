@@ -23,8 +23,8 @@ export class GameRenderer {
     this.camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
     
     // Initial camera position will be updated when player spawns
-    this.camera.position.set(50, -50, 40);
-    this.camera.lookAt(32, 32, 0);
+    this.camera.position.set(50, 50, 40);
+    this.camera.lookAt(32, 0, 32);
     
     // Add orbit controls with constraints
     this.controls = new THREE.OrbitControls(
@@ -39,8 +39,8 @@ export class GameRenderer {
     this.controls.maxDistance = 100;
     
     // Limit rotation
-    this.controls.minPolarAngle = Math.PI / 8; // Limit how high you can orbit
-    this.controls.maxPolarAngle = Math.PI / 2.5; // Limit how low you can orbit
+    this.controls.minPolarAngle = Math.PI / 8;
+    this.controls.maxPolarAngle = Math.PI / 2.5;
   }
 
   setupLights() {
@@ -53,7 +53,6 @@ export class GameRenderer {
     sunlight.position.set(50, 50, 100);
     sunlight.castShadow = true;
     
-    // Adjust shadow properties
     sunlight.shadow.mapSize.width = 2048;
     sunlight.shadow.mapSize.height = 2048;
     sunlight.shadow.camera.near = 0.5;
@@ -63,9 +62,7 @@ export class GameRenderer {
   }
 
   setupRenderer() {
-    this.renderer = new THREE.WebGLRenderer({ 
-      antialias: true 
-    });
+    this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setSize(this.width, this.height);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -75,12 +72,10 @@ export class GameRenderer {
 
   animate() {
     requestAnimationFrame(this.animate);
-    
     this.controls.update();
     this.renderer.render(this.scene, this.camera);
   }
 
-  // Handle window resize
   onResize() {
     this.width = this.container.clientWidth;
     this.height = this.container.clientHeight;
@@ -95,20 +90,11 @@ export class GameRenderer {
     return this.scene;
   }
 
-  // New method to focus camera on player
   focusOnPlayer(playerDot) {
-    // Get player position
     const pos = playerDot.position;
-    
-    // Position camera relative to player
-    this.camera.position.set(
-      pos.x - 20, 
-      pos.y - 20, 
-      pos.z + 30
-    );
-    
-    // Look at player
-    this.controls.target.set(pos.x, pos.y, pos.z);
+    // Position camera relative to the player's new position
+    this.camera.position.set(pos.x + 20, pos.y + 30, pos.z + 20);
+    this.controls.target.copy(pos);
     this.controls.update();
   }
 }
