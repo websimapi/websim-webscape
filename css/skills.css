@@ -56,6 +56,17 @@
   padding-right: 2px;
 }
 
+.fletching-icon {
+  font-size: 14px;
+  transform: rotate(-15deg); /* Tilt the combined icon */
+  display: inline-block;
+}
+
+.fletching-icon .log {
+  transform: scale(0.7, 1); /* Make log thinner */
+  display: inline-block;
+}
+
 .stats-summary {
   background: #000;
   padding: 4px;

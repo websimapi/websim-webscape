@@ -26,7 +26,7 @@ function initializeSkillsMenu() {
     { name: 'Crafting', level: 1, maxLevel: 1, icon: '✂️' },
     { name: 'Firemaking', level: 1, maxLevel: 1, icon: '🔥' },
     { name: 'Magic', level: 1, maxLevel: 1, icon: '🔮' },
-    { name: 'Fletching', level: 1, maxLevel: 1, icon: '🔪\n🪵' }, 
+    { name: 'Fletching', level: 1, maxLevel: 1, icon: '🔪\u200D🪵' }, 
     { name: 'Woodcutting', level: 1, maxLevel: 1, icon: '🪓' },
     { name: 'Runecrafting', level: 1, maxLevel: 1, icon: '🔯' },
     { name: 'Slayer', level: 1, maxLevel: 1, icon: '💀' },
@@ -43,7 +43,7 @@ function initializeSkillsMenu() {
     const skillSlot = document.createElement('div');
     skillSlot.className = 'skill-slot';
     skillSlot.innerHTML = `
-      <div class="skill-icon">${skill.icon}</div>
+      <div class="skill-icon ${skill.name === 'Fletching' ? 'fletching-icon' : ''}">${skill.icon}</div>
       <div class="skill-level">${skill.level}/${skill.maxLevel}</div>
     `;
     skillSlot.title = skill.name; 
@@ -52,13 +52,12 @@ function initializeSkillsMenu() {
 
   // Calculate total level
   const totalLevel = skills.reduce((sum, skill) => sum + skill.level, 0);
-  const questPoints = 0; 
 
   // Update the stats summary with new format
   const statsContainer = skillsMenu.querySelector('.stats-summary');
   if (statsContainer) {
     statsContainer.innerHTML = `
-      <div class="stats-item">QP: ${questPoints}</div>
+      <div class="stats-item">QP: 0</div>
       <div class="stats-item">Combat: 1</div>
       <div class="stats-item">Total: ${totalLevel}</div>
     `;
