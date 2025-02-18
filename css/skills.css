@@ -94,16 +94,25 @@
   grid-column: 1;
   grid-row: 1 / span 2;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: flex-start;
   padding-left: 8px;
+  padding-top: 4px;
 }
 
 .stats-item:not(:first-child) {
   grid-column: 2;
   text-align: left;
   padding-left: 8px;
-  display: block;
+}
+
+.stats-summary.hover-state .stats-item {
+  grid-column: 1;
+  grid-row: auto;
+  padding-left: 8px;
+  justify-content: flex-start;
+  height: 20px;
+  align-items: center;
 }
 
 .stats-item {
@@ -112,11 +121,4 @@
   text-overflow: ellipsis;
   display: flex;
   align-items: center;
-}
-
-.stats-summary .stats-item:first-child,
-.stats-summary .stats-item:nth-child(2) {
-  display: block;
-  text-align: left;
-  padding-top: 4px;
 }

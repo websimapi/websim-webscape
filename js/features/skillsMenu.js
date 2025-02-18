@@ -60,7 +60,7 @@ function initializeSkillsMenu() {
       if (statsContainer) {
         statsContainer.innerHTML = `
           <div class="stats-item">XP: ${skill.xp}</div>
-          <div class="stats-item" style="margin-top: 4px;">Next Level: ${skill.nextLevel}</div>
+          <div class="stats-item">Next Level: ${skill.nextLevel}</div>
         `;
       }
     });
