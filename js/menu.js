@@ -33,4 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Close context menu on scroll
   document.addEventListener('scroll', hideContextMenu);
+
+  // FIX: In Two mouse mode, prevent the browser’s default context menu
+  document.addEventListener('contextmenu', (e) => {
+    if (window.mouseMode === "Two") {
+      e.preventDefault();
+    }
+  });
 });

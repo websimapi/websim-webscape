@@ -127,7 +127,6 @@ function initializeFriendsList() {
       const username = playerNameElement.textContent;
       showContextMenu(e, username, 
         () => {
-          // Messaging callback: trigger the message overlay using the globally available function
           if (typeof showMessageOverlay === 'function') {
             showMessageOverlay(username);
           } else {
@@ -139,6 +138,35 @@ function initializeFriendsList() {
           saveFriendsList();
         }
       );
+    }
+  });
+
+  // NEW: Add contextmenu event handler so that in Two mouse mode a right click 
+  // immediately triggers messaging instead of opening the menu.
+  friendsListContainer.addEventListener('contextmenu', (e) => {
+    const playerNameElement = e.target.closest('.player-name');
+    if (playerNameElement) {
+      e.preventDefault();
+      const username = playerNameElement.textContent;
+      if (window.mouseMode === "Two") {
+        if (typeof showMessageOverlay === 'function') {
+          showMessageOverlay(username);
+        }
+      } else {
+        showContextMenu(e, username, 
+          () => {
+            if (typeof showMessageOverlay === 'function') {
+              showMessageOverlay(username);
+            } else {
+              console.warn('Messaging function is not available.');
+            }
+          },
+          () => {
+            playerNameElement.closest('.list-entry').remove();
+            saveFriendsList();
+          }
+        );
+      }
     }
   });
 }

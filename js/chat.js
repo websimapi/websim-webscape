@@ -62,10 +62,9 @@ function showMessageOverlay(username) {
   messageInput.focus();
 }
 
-// Export the showMessageOverlay globally so that it can be used by other modules
+// Export the showMessageOverlay globally so it can be used elsewhere
 window.showMessageOverlay = showMessageOverlay;
 
-// Setup message overlay functionality – attach the click listener to #chat-window so the overlay is dismissed when clicking outside the input.
 function setupOverlay(overlay, input) {
   const chatWindow = document.getElementById('chat-window');
   chatWindow.addEventListener('click', (e) => {
@@ -77,7 +76,6 @@ function setupOverlay(overlay, input) {
 
 setupOverlay(messageOverlay, messageInput);
 
-// Handle message submission from the overlay
 messageInput.addEventListener('keypress', async (e) => {
   if (e.key === 'Enter' && messageInput.value.trim()) {
     const message = messageInput.value.trim();
@@ -90,7 +88,7 @@ messageInput.addEventListener('keypress', async (e) => {
         recipient: recipient
       });
       
-      // Add message to chat (for sent private messages, we will leave them in chat)
+      // Add message to chat (for sent private messages, we leave them in chat)
       const chatContent = document.querySelector('.chat-content');
       const messageDiv = document.createElement('div');
       messageDiv.className = 'chat-message private-message';
@@ -120,12 +118,11 @@ chatUsernameTooltip.className = 'action-tooltip';
 chatUsernameTooltip.style.display = 'none';
 document.body.appendChild(chatUsernameTooltip);
 
-// Function to show chat context menu when clicking on a username
 function showChatContextMenu(e, username) {
   // Do not show dropdown for your own username.
   if (username === room.party.client.username) return;
   
-  // In Two-mouse mode, any mouse click immediately performs the primary action (message).
+  // In Two-mouse mode, any mouse click immediately triggers messaging.
   if (window.mouseMode === "Two") {
     showMessageOverlay(username);
     return;
@@ -251,7 +248,7 @@ chatInput.addEventListener('keypress', (e) => {
     usernameSpan.addEventListener('mouseout', (e) => {
       hideUsernameHoverTooltip();
     });
-
+    // (For your own username we do not add a contextmenu listener)
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
 
     chatInput.value = '';
@@ -265,17 +262,25 @@ room.onmessage = (event) => {
   switch (event.data.type) {
     case 'chat':
       if (event.data.clientId !== room.party.client.id) {
+        const username = event.data.username;
         messageDiv.className = 'chat-message user';
-        messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
+        messageDiv.innerHTML = `<span class="username">${username}</span><span class="separator">: </span>${event.data.message}`;
         const usernameSpan = messageDiv.querySelector('.username');
         usernameSpan.addEventListener('click', (e) => {
-          showChatContextMenu(e, event.data.username);
+          showChatContextMenu(e, username);
         });
         usernameSpan.addEventListener('mouseover', (e) => {
-          showUsernameHoverTooltip(e, event.data.username);
+          showUsernameHoverTooltip(e, username);
         });
         usernameSpan.addEventListener('mouseout', (e) => {
           hideUsernameHoverTooltip();
+        });
+        // NEW: In Two Mouse Mode, right-click should immediately initiate messaging.
+        usernameSpan.addEventListener('contextmenu', (e) => {
+          if (window.mouseMode === "Two") {
+            e.preventDefault();
+            showMessageOverlay(username);
+          }
         });
       }
       break;
