@@ -80,34 +80,33 @@ async function playTrack(track, trackElement, trackList) {
       const duration = await getDuration(track.path);
       await currentAudio.play();
       
-      // Fade in over 15 seconds for a smoother transition
-      const fadeInDuration = 15;
+      // Fade in over 20 seconds for a smoother transition
+      const fadeInDuration = 20;
       const fadeInInterval = 50;
-      const steps = (fadeInDuration * 1000) / fadeInInterval;
-      const volumeStep = 1 / steps;
+      const fadeInSteps = (fadeInDuration * 1000) / fadeInInterval;
+      const fadeInStep = 1 / fadeInSteps;
       
       const fadeInTimer = setInterval(() => {
-        if (currentAudio.volume < 1 - volumeStep) {
-          currentAudio.volume += volumeStep;
+        if (currentAudio.volume < 1 - fadeInStep) {
+          currentAudio.volume += fadeInStep;
         } else {
           currentAudio.volume = 1;
           clearInterval(fadeInTimer);
         }
       }, fadeInInterval);
       
-      // Define an easing function for a smoother fade-out effect
-      function easeOutQuad(t) {
-        return t * (2 - t);
-      }
-      
-      // Setup fade out using timeupdate event for the last 15 seconds of the track
-      const fadeOutDuration = 15;
+      // Setup fade out using timeupdate event for the last 20 seconds of the track
+      const fadeOutDuration = 20;
       if (duration > fadeOutDuration) {
         const fadeOutFunction = () => {
           const remaining = currentAudio.duration - currentAudio.currentTime;
           if (remaining <= fadeOutDuration) {
-            let factor = remaining / fadeOutDuration;
-            let easedVolume = easeOutQuad(factor);
+            let t = remaining / fadeOutDuration;
+            // Use easeOutCubic for a smoother fade-out transition
+            function easeOutCubic(x) {
+              return 1 - Math.pow(1 - x, 3);
+            }
+            let easedVolume = easeOutCubic(t);
             currentAudio.volume = Math.max(easedVolume, 0);
           }
         };
