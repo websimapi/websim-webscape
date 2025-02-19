@@ -86,7 +86,7 @@
   padding: 2px 0;
   cursor: pointer;
   color: #808080;
-  text-decoration: none;
+  text-decoration: none !important;
 }
 
 .track-entry.unlocked {

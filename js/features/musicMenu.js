@@ -26,6 +26,7 @@ const tracks = [
   }
 ];
 
+// Load (and later save) the music mode preference.
 function loadMusicSettings() {
   const storedMode = localStorage.getItem('musicMode');
   return storedMode === 'auto';
@@ -50,7 +51,7 @@ async function getDuration(audioPath) {
 // Helper: Smoothly fade out the given audio to 0 volume over fadeDuration seconds.
 function fadeOutAudio(audio, fadeDuration = 10) {
   return new Promise((resolve) => {
-    const fadeOutInterval = 100; // interval in ms for smoother fade out
+    const fadeOutInterval = 100; // ms interval for smoother fade out
     const steps = (fadeDuration * 1000) / fadeOutInterval;
     const volumeStep = audio.volume / steps;
     const fadeOutTimer = setInterval(() => {
@@ -69,7 +70,7 @@ function fadeOutAudio(audio, fadeDuration = 10) {
 // Helper: Smoothly fade in the given audio from volume 0 to 1 over fadeDuration seconds.
 function fadeInAudio(audio, fadeDuration = 10) {
   return new Promise((resolve) => {
-    const fadeInInterval = 50; // interval in ms for fade in
+    const fadeInInterval = 50; // ms interval for fade in
     const steps = (fadeDuration * 1000) / fadeInInterval;
     const volumeStep = 1 / steps;
     const fadeInTimer = setInterval(() => {
@@ -129,8 +130,8 @@ async function playTrack(track, trackElement, trackList) {
         fadeOutListener = () => {
           const remaining = currentAudio.duration - currentAudio.currentTime;
           if (remaining <= 10) {
-            // Use quadratic easing for a smoother fade: volume scales as (remaining/10)^2.
-            currentAudio.volume = Math.pow(remaining / 10, 2);
+            // Use linear easing for a smoother, slower fade out over the last 10 seconds.
+            currentAudio.volume = remaining / 10;
           }
         };
         currentAudio.addEventListener('timeupdate', fadeOutListener);
@@ -155,7 +156,7 @@ async function playTrack(track, trackElement, trackList) {
     trackElement.classList.add('selected');
     trackElement.style.color = '#00ff00';
     
-    // If autopay mode is enabled, set up the auto transition when the track ends.
+    // If AUTO mode is enabled, set up the auto transition when the track ends.
     if (autoPlayMode) {
       currentAudio.addEventListener('ended', () => {
         if (token !== musicPlayToken) return;
@@ -208,6 +209,12 @@ function initializeMusicMenu() {
         clearTimeout(autoPlayTimeout);
         autoPlayTimeout = null;
       }
+      // When a user manually clicks a track, switch to MAN (manual) mode.
+      autoPlayMode = false;
+      saveMusicSettings(false);
+      manualButton.classList.add('selected');
+      autoButton.classList.remove('selected');
+      
       if (track.unlocked) {
         currentTrackIndex = index;
         playTrack(track, trackElement, trackList);
@@ -219,7 +226,6 @@ function initializeMusicMenu() {
   
   musicButton.addEventListener('click', () => {
     toggleMenu(musicButton, '#music-menu');
-    
     if (hasUserInteracted && autoPlayMode && !currentAudio && tracks.length > 0) {
       const firstTrack = tracks[0];
       const firstTrackElement = trackList.children[0];
@@ -233,7 +239,6 @@ function initializeMusicMenu() {
     saveMusicSettings(true);
     autoButton.classList.add('selected');
     manualButton.classList.remove('selected');
-    
     if (!currentAudio && tracks.length > 0) {
       const firstTrack = tracks[0];
       const firstTrackElement = trackList.children[0];
@@ -247,16 +252,22 @@ function initializeMusicMenu() {
     saveMusicSettings(false);
     manualButton.classList.add('selected');
     autoButton.classList.remove('selected');
-    
     if (autoPlayTimeout) {
       clearTimeout(autoPlayTimeout);
       autoPlayTimeout = null;
     }
-    
     if (currentAudio) {
       currentAudio.onended = null;
     }
   });
+  
+  // Periodically check if a song is not playing (in AUTO mode) and start one if needed.
+  setInterval(() => {
+    if (autoPlayMode && (!currentAudio || currentAudio.paused) && tracks.length > 0) {
+      const trackElt = trackList.children[currentTrackIndex] || trackList.children[0];
+      playTrack(tracks[currentTrackIndex] || tracks[0], trackElt, trackList);
+    }
+  }, 3000);
   
   // The very first user interaction anywhere on the page will enable audio.
   document.addEventListener('click', () => {
