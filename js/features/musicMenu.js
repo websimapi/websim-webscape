@@ -5,11 +5,11 @@ const room = new WebsimSocket();
 
 // Track audio state
 let currentAudio = null;
-let isPlaying = false;
 let currentTrack = 'No track';
 let autoPlayMode = false;
 let currentTrackIndex = 0;
 let hasUserInteracted = false;
+let fadeOutListener = null;
 
 const tracks = [
   {
@@ -45,73 +45,86 @@ async function getDuration(audioPath) {
   });
 }
 
+// Helper: Smoothly fade out the given audio to 0 volume over fadeDuration seconds.
+function fadeOutAudio(audio, fadeDuration = 10) {
+  return new Promise((resolve) => {
+    const fadeOutInterval = 100; // interval in ms for smoother fade out
+    const steps = (fadeDuration * 1000) / fadeOutInterval;
+    const volumeStep = audio.volume / steps;
+    const fadeOutTimer = setInterval(() => {
+      if (audio.volume > volumeStep) {
+        audio.volume = Math.max(audio.volume - volumeStep, 0);
+      } else {
+        audio.volume = 0;
+        clearInterval(fadeOutTimer);
+        audio.pause();
+        resolve();
+      }
+    }, fadeOutInterval);
+  });
+}
+
+// Helper: Smoothly fade in the given audio from volume 0 to 1 over fadeDuration seconds.
+function fadeInAudio(audio, fadeDuration = 10) {
+  return new Promise((resolve) => {
+    const fadeInInterval = 50; // interval in ms for fade in
+    const steps = (fadeDuration * 1000) / fadeInInterval;
+    const volumeStep = 1 / steps;
+    const fadeInTimer = setInterval(() => {
+      if (audio.volume < 1 - volumeStep) {
+        audio.volume += volumeStep;
+      } else {
+        audio.volume = 1;
+        clearInterval(fadeInTimer);
+        resolve();
+      }
+    }, fadeInInterval);
+  });
+}
+
 async function playTrack(track, trackElement, trackList) {
   if (!hasUserInteracted) return;
 
   if (track.unlocked) {
+    // If a song is already playing, fade it out smoothly and wait a short delay
     if (currentAudio) {
-      if (!currentAudio.paused) {
-        const fadeOutDuration = 10;
-        const fadeOutInterval = 50;
-        const steps = (fadeOutDuration * 1000) / fadeOutInterval;
-        const volumeStep = currentAudio.volume / steps;
-        
-        const fadeOutTimer = setInterval(() => {
-          if (currentAudio.volume > volumeStep) {
-            currentAudio.volume -= volumeStep;
-          } else {
-            currentAudio.volume = 0;
-            clearInterval(fadeOutTimer);
-            currentAudio.pause();
-            currentAudio = null;
-          }
-        }, fadeOutInterval);
-        
-        await new Promise(resolve => setTimeout(resolve, fadeOutDuration * 1000));
-      } else {
-        currentAudio.pause();
-        currentAudio = null;
-      }
+      await fadeOutAudio(currentAudio, 10); // Fade out current song over 10 seconds
+      // Add an additional 3 second delay between tracks as desired
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      currentAudio = null;
     }
 
+    // Start the selected track
     currentAudio = new Audio(track.path);
     currentTrack = track.name;
     currentAudio.volume = 0;
-    
+
+    // Update the UI to display the currently playing track
     const trackDisplay = document.querySelector('#music-menu .track');
     trackDisplay.textContent = `Playing: ${currentTrack}`;
-    
+
     try {
       const duration = await getDuration(track.path);
-      
       await currentAudio.play();
-      
-      // Fade in over 10 seconds
-      const fadeInDuration = 10;
-      const fadeInInterval = 50;
-      const steps = (fadeInDuration * 1000) / fadeInInterval;
-      const volumeStep = 1 / steps;
-      
-      const fadeInTimer = setInterval(() => {
-        if (currentAudio.volume < 1 - volumeStep) {
-          currentAudio.volume += volumeStep;
-        } else {
-          currentAudio.volume = 1;
-          clearInterval(fadeInTimer);
-        }
-      }, fadeInInterval);
-      
-      // Setup fade out over the last 10 seconds using a smooth quadratic easing function
+      // Fade in the song over 10 seconds
+      await fadeInAudio(currentAudio, 10);
+
+      // For the natural end of the song, setup a smoother fade-out during its last 10 seconds:
       if (duration > 10) {
-        const fadeOutFunction = () => {
+        // Remove any previous fadeOutListener before setting a new one
+        if (fadeOutListener) {
+          currentAudio.removeEventListener('timeupdate', fadeOutListener);
+        }
+        fadeOutListener = () => {
           const remaining = currentAudio.duration - currentAudio.currentTime;
           if (remaining <= 10) {
+            // Apply quadratic easing: as the remaining time decreases, volume drops more smoothly
             currentAudio.volume = Math.pow(remaining / 10, 2);
           }
         };
-        currentAudio.addEventListener('timeupdate', fadeOutFunction);
+        currentAudio.addEventListener('timeupdate', fadeOutListener);
         currentAudio.addEventListener('ended', () => {
-          currentAudio.removeEventListener('timeupdate', fadeOutFunction);
+          currentAudio.removeEventListener('timeupdate', fadeOutListener);
         });
       }
     } catch (e) {
@@ -120,17 +133,24 @@ async function playTrack(track, trackElement, trackList) {
       return;
     }
 
+    // Update the UI: ensure that all track entries are not selected and their text shows unlocked color (green)
     trackList.querySelectorAll('.track-entry').forEach(entry => {
       entry.classList.remove('selected');
+      if (entry.classList.contains('unlocked')) {
+        entry.style.color = '#00ff00';
+      }
     });
+    // Mark the clicked track as selected and enforce green text color
     trackElement.classList.add('selected');
+    trackElement.style.color = '#00ff00';
 
+    // If auto-play mode is enabled, set the current track to advance automatically when this track ends.
     if (autoPlayMode) {
       currentAudio.addEventListener('ended', () => {
         currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
         const nextTrack = tracks[currentTrackIndex];
         const nextTrackElement = trackList.children[currentTrackIndex];
-        // Add a 3 second delay before starting next track
+        // A 3 second delay before the next track starts automatically
         setTimeout(() => {
           playTrack(nextTrack, nextTrackElement, trackList);
         }, 3000);
@@ -167,6 +187,8 @@ function initializeMusicMenu() {
     
     if (track.unlocked) {
       trackElement.classList.add('unlocked');
+      // Set unlocked songs to display in green
+      trackElement.style.color = '#00ff00';
     }
 
     trackElement.addEventListener('click', () => {
@@ -216,14 +238,7 @@ function initializeMusicMenu() {
     }
   });
 
-  if (autoPlayMode) {
-    autoButton.classList.add('selected');
-    manualButton.classList.remove('selected');
-  } else {
-    manualButton.classList.add('selected');
-    autoButton.classList.remove('selected');
-  }
-
+  // Ensure that the very first user interaction anywhere on the page is recorded
   document.addEventListener('click', () => {
     hasUserInteracted = true;
   }, { once: true });
