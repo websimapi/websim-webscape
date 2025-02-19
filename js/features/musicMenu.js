@@ -50,20 +50,21 @@ async function playTrack(track, trackElement, trackList) {
       if (!currentAudio.paused) {
         const fadeOutDuration = 10;
         const fadeOutInterval = 50; // 50ms intervals for smooth transition
-        const steps = fadeOutDuration * 1000 / fadeOutInterval;
+        const steps = (fadeOutDuration * 1000) / fadeOutInterval;
         const volumeStep = currentAudio.volume / steps;
         
-        let fadeOutTimer = setInterval(() => {
+        const fadeOutTimer = setInterval(() => {
           if (currentAudio.volume > volumeStep) {
             currentAudio.volume -= volumeStep;
           } else {
+            currentAudio.volume = 0;
             clearInterval(fadeOutTimer);
             currentAudio.pause();
             currentAudio = null;
           }
         }, fadeOutInterval);
         
-        // Wait for fade out to complete
+        // Wait for fade out to complete before starting new track
         await new Promise(resolve => setTimeout(resolve, fadeOutDuration * 1000));
       } else {
         currentAudio.pause();
@@ -90,7 +91,7 @@ async function playTrack(track, trackElement, trackList) {
       // Fade in over 10 seconds
       const fadeInDuration = 10;
       const fadeInInterval = 50; // 50ms intervals for smooth transition
-      const steps = fadeInDuration * 1000 / fadeInInterval;
+      const steps = (fadeInDuration * 1000) / fadeInInterval;
       const volumeStep = 1 / steps;
       
       const fadeInTimer = setInterval(() => {
@@ -102,41 +103,34 @@ async function playTrack(track, trackElement, trackList) {
         }
       }, fadeInInterval);
       
-      // Setup fade out for end of track
-      if (duration > 0) {
-        // Schedule the fade out to start 10 seconds before the end
-        const fadeOutStart = (duration - 10) * 1000;
-        setTimeout(() => {
-          if (currentAudio) {
-            const fadeOutInterval = 50;
-            const fadeOutSteps = 10 * 1000 / fadeOutInterval;
-            const fadeOutStep = currentAudio.volume / fadeOutSteps;
-            
-            const fadeOutTimer = setInterval(() => {
-              if (currentAudio && currentAudio.volume > fadeOutStep) {
-                currentAudio.volume -= fadeOutStep;
-              } else if (currentAudio) {
-                currentAudio.volume = 0;
-                clearInterval(fadeOutTimer);
-              }
-            }, fadeOutInterval);
+      // Setup fade out using timeupdate event for the last 10 seconds of the track
+      if (duration > 10) {
+        const fadeOutFunction = () => {
+          const remaining = currentAudio.duration - currentAudio.currentTime;
+          if (remaining <= 10) {
+            // Linearly reduce volume based on the remaining time (last 10 seconds)
+            currentAudio.volume = Math.max(remaining / 10, 0);
           }
-        }, fadeOutStart);
+        };
+        currentAudio.addEventListener('timeupdate', fadeOutFunction);
+        // Remove the listener when the track ends
+        currentAudio.addEventListener('ended', () => {
+          currentAudio.removeEventListener('timeupdate', fadeOutFunction);
+        });
       }
-
     } catch (e) {
       console.error('Error playing audio:', e);
       trackDisplay.textContent = 'Playing: No track';
       return;
     }
 
-    // Update all track entries
+    // Update all track entries so that the selected one appears in green (via CSS)
     trackList.querySelectorAll('.track-entry').forEach(entry => {
       entry.classList.remove('selected');
     });
     trackElement.classList.add('selected');
 
-    // Setup auto-play for next track
+    // Setup auto-play for the next track if auto mode is enabled
     if (autoPlayMode) {
       currentAudio.addEventListener('ended', () => {
         currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
@@ -156,12 +150,12 @@ function initializeMusicMenu() {
   const autoButton = musicMenu.querySelector('.music-auto');
   const manualButton = musicMenu.querySelector('.music-manual');
 
-  // Initialize track list
+  // Initialize track list UI container
   const trackList = document.createElement('div');
   trackList.className = 'track-list';
   musicContent.appendChild(trackList);
 
-  // Load saved music mode
+  // Load saved music mode from local storage
   autoPlayMode = loadMusicSettings();
   if (autoPlayMode) {
     autoButton.classList.add('selected');
@@ -171,7 +165,7 @@ function initializeMusicMenu() {
     autoButton.classList.remove('selected');
   }
 
-  // Populate tracks
+  // Populate track list with available songs
   tracks.forEach((track, index) => {
     const trackElement = document.createElement('div');
     trackElement.className = 'track-entry';
@@ -182,7 +176,7 @@ function initializeMusicMenu() {
     }
 
     trackElement.addEventListener('click', () => {
-      hasUserInteracted = true; // Set user interaction flag
+      hasUserInteracted = true; // Ensure user interaction before playing audio
       if (track.unlocked) {
         currentTrackIndex = index;
         playTrack(track, trackElement, trackList);
@@ -196,7 +190,7 @@ function initializeMusicMenu() {
   musicButton.addEventListener('click', () => {
     toggleMenu(musicButton, '#music-menu');
     
-    // Auto-play first track if in auto mode and no track is playing, but only after user interaction
+    // Auto-play first track if in auto mode, user has interacted, and no track is currently playing
     if (hasUserInteracted && autoPlayMode && !currentAudio && tracks.length > 0) {
       const firstTrack = tracks[0];
       const firstTrackElement = trackList.children[0];
@@ -204,9 +198,9 @@ function initializeMusicMenu() {
     }
   });
 
-  // Auto/Manual button functionality
+  // Auto/Manual button functionality with persistence
   autoButton.addEventListener('click', () => {
-    hasUserInteracted = true; // Set user interaction flag
+    hasUserInteracted = true; // User has now interacted
     autoPlayMode = true;
     saveMusicSettings(true);
     autoButton.classList.add('selected');
@@ -221,19 +215,19 @@ function initializeMusicMenu() {
   });
 
   manualButton.addEventListener('click', () => {
-    hasUserInteracted = true; // Set user interaction flag
+    hasUserInteracted = true; // User interaction flag
     autoPlayMode = false;
     saveMusicSettings(false);
     manualButton.classList.add('selected');
     autoButton.classList.remove('selected');
     
-    // Stop auto-play functionality
+    // Stop auto-play functionality by clearing the ended event handler
     if (currentAudio) {
       currentAudio.onended = null;
     }
   });
 
-  // Set initial mode from local storage but don't auto-play
+  // Set initial button states from stored settings
   if (autoPlayMode) {
     autoButton.classList.add('selected');
     manualButton.classList.remove('selected');
@@ -242,7 +236,7 @@ function initializeMusicMenu() {
     autoButton.classList.remove('selected');
   }
 
-  // Add click listener to the entire document to track first interaction
+  // Ensure no audio auto-start until the first user click on the page
   document.addEventListener('click', () => {
     hasUserInteracted = true;
   }, { once: true });
