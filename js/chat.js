@@ -14,11 +14,13 @@ room.party.subscribe((peers) => {
     usernameElement.textContent = currentUser.username;
   }
   
+  // Update online users
   onlineUsers.clear();
   for (const clientId in peers) {
     onlineUsers.add(peers[clientId].username);
   }
   
+  // Update online status in friends list
   updateOnlineStatus();
 });
 
@@ -60,8 +62,10 @@ function showMessageOverlay(username) {
   messageInput.focus();
 }
 
+// Export the showMessageOverlay globally so that it can be used by other modules
 window.showMessageOverlay = showMessageOverlay;
 
+// Setup message overlay functionality – attach the click listener to #chat-window so the overlay is dismissed when clicking outside the input.
 function setupOverlay(overlay, input) {
   const chatWindow = document.getElementById('chat-window');
   chatWindow.addEventListener('click', (e) => {
@@ -73,32 +77,72 @@ function setupOverlay(overlay, input) {
 
 setupOverlay(messageOverlay, messageInput);
 
-// Modified chat context menu: if in Two mouse mode and left click occurs, trigger first action (Message) directly.
-function showChatContextMenu(e, username) {
-  if (username === room.party.client.username) return;
+// Handle message submission from the overlay
+messageInput.addEventListener('keypress', async (e) => {
+  if (e.key === 'Enter' && messageInput.value.trim()) {
+    const message = messageInput.value.trim();
+    const recipient = messageUsernameSpan.textContent;
+    
+    if (onlineUsers.has(recipient)) {
+      room.send({
+        type: 'private-message',
+        message: message,
+        recipient: recipient
+      });
+      
+      // Add message to chat (for sent private messages, we will leave them in chat)
+      const chatContent = document.querySelector('.chat-content');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'chat-message private-message';
+      messageDiv.innerHTML = `To ${recipient}: ${message}`;
+      chatContent.insertBefore(messageDiv, chatContent.firstChild);
+    } else {
+      // Add error message to chat
+      const chatContent = document.querySelector('.chat-content');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'chat-message system';
+      messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
+      chatContent.insertBefore(messageDiv, chatContent.firstChild);
+    }
+    
+    messageOverlay.classList.remove('shown');
+  }
+});
 
-  const mouseMode = localStorage.getItem('mouseMode') || 'two';
-  if (mouseMode === 'two' && e.button === 0) {
-    e.preventDefault();
+// Create a reusable chat context menu element.
+const chatContextMenu = document.createElement('div');
+chatContextMenu.className = 'context-menu';
+document.body.appendChild(chatContextMenu);
+
+// Create a tooltip for hovering over usernames in chat
+const chatUsernameTooltip = document.createElement('div');
+chatUsernameTooltip.className = 'action-tooltip';
+chatUsernameTooltip.style.display = 'none';
+document.body.appendChild(chatUsernameTooltip);
+
+// Function to show chat context menu when clicking on a username
+function showChatContextMenu(e, username) {
+  // Do not show dropdown for your own username.
+  if (username === room.party.client.username) return;
+  
+  // NEW: In Two-mouse mode, left-click will immediately perform the primary action (message).
+  if (window.mouseMode === "Two" && e.button === 0) {
     showMessageOverlay(username);
     return;
   }
-
+  
   e.preventDefault();
   e.stopPropagation();
 
-  hideAllContextMenus();
-
+  // Get game container bounds to ensure our menu doesn’t go outside.
   const gameContainer = document.getElementById('client-wrapper');
   const containerBounds = gameContainer.getBoundingClientRect();
 
+  // Calculate initial position using event coordinates.
   let xPos = e.pageX;
   let yPos = e.pageY;
 
-  const chatContextMenu = document.createElement('div');
-  chatContextMenu.className = 'context-menu';
-  document.body.appendChild(chatContextMenu);
-
+  // Set menu content.
   chatContextMenu.innerHTML = `
     <div class="context-menu-option message">Message ${username}</div>
     <div class="context-menu-option add-friend">Add Friend ${username}</div>
@@ -107,18 +151,20 @@ function showChatContextMenu(e, username) {
   `;
   chatContextMenu.classList.add('shown');
 
+  // Now that the menu is visible, measure its bounds.
   const menuBounds = chatContextMenu.getBoundingClientRect();
 
+  // Adjust position to prevent overflow.
   if (xPos + menuBounds.width > containerBounds.right) {
     xPos = containerBounds.right - menuBounds.width - 10;
   }
   if (yPos + menuBounds.height > containerBounds.bottom) {
     yPos = containerBounds.bottom - menuBounds.height - 10;
   }
-
   xPos = Math.max(containerBounds.left + 10, xPos);
   yPos = Math.max(containerBounds.top + 10, yPos);
 
+  // Set the final position.
   chatContextMenu.style.left = `${xPos}px`;
   chatContextMenu.style.top = `${yPos}px`;
 
@@ -164,18 +210,29 @@ function showChatContextMenu(e, username) {
 }
 
 function hideAllContextMenus() {
-  const chatContextMenus = document.querySelectorAll('.context-menu');
-  chatContextMenus.forEach(menu => {
-    menu.classList.remove('shown');
-    menu.style.left = '';
-    menu.style.top = '';
-  });
+  chatContextMenu.classList.remove('shown');
+  chatContextMenu.style.left = '';
+  chatContextMenu.style.top = '';
+}
+
+// Function to show tooltip on chat username hover in the top left of the game container
+function showUsernameHoverTooltip(e, username) {
+  if (username === room.party.client.username) return;
+  chatUsernameTooltip.textContent = `Add Friend / 1 more option`;
+  chatUsernameTooltip.style.display = 'block';
+  const gameScreen = document.getElementById('game-screen');
+  const gameRect = gameScreen.getBoundingClientRect();
+  chatUsernameTooltip.style.top = `${gameRect.top + 5}px`;
+  chatUsernameTooltip.style.left = `${gameRect.left + 5}px`;
+}
+
+function hideUsernameHoverTooltip() {
+  chatUsernameTooltip.style.display = 'none';
 }
 
 const chatInput = document.querySelector('.chat-input');
-chatInput.addEventListener('keydown', (e) => {
+chatInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter' && chatInput.value.trim()) {
-    e.preventDefault();
     const message = chatInput.value.trim();
 
     room.send({
@@ -214,7 +271,6 @@ room.onmessage = (event) => {
       if (event.data.clientId !== room.party.client.id) {
         messageDiv.className = 'chat-message user';
         messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
-
         const usernameSpan = messageDiv.querySelector('.username');
         usernameSpan.addEventListener('click', (e) => {
           showChatContextMenu(e, event.data.username);
@@ -255,29 +311,5 @@ room.onmessage = (event) => {
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
   }
 };
-
-function showUsernameHoverTooltip(e, username) {
-  // For your own name, do not show the dropdown tooltip.
-  if (username === room.party.client.username) return;
-  
-  // Display the first action choice and count of remaining options.
-  const chatUsernameTooltip = document.createElement('div');
-  chatUsernameTooltip.className = 'action-tooltip';
-  chatUsernameTooltip.style.display = 'block';
-  chatUsernameTooltip.textContent = `Add Friend / 1 more option`;
-  document.body.appendChild(chatUsernameTooltip);
-  
-  const gameScreen = document.getElementById('game-screen');
-  const gameRect = gameScreen.getBoundingClientRect();
-  chatUsernameTooltip.style.top = `${gameRect.top + 5}px`;
-  chatUsernameTooltip.style.left = `${gameRect.left + 5}px`;
-}
-
-function hideUsernameHoverTooltip() {
-  const tooltips = document.querySelectorAll('.action-tooltip');
-  tooltips.forEach(tooltip => {
-    tooltip.style.display = 'none';
-  });
-}
 
 setInterval(updateOnlineStatus, 3000);

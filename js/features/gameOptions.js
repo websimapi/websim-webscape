@@ -12,8 +12,14 @@ function initializeGameOptions() {
   }
 
   // Global event listener for all game options buttons to update the selected state.
+  // EXCEPT for those in the Mouse Buttons section – they will be handled separately.
   const buttons = gameOptionsPanel.querySelectorAll('.game-options-buttons button');
   buttons.forEach(button => {
+    const header = button.closest('.game-options-column')?.querySelector('.game-options-header');
+    if (header && header.textContent.includes('Mouse Buttons')) {
+      // Skip global handler for mouse mode buttons.
+      return;
+    }
     button.addEventListener('click', () => {
       const parent = button.parentElement;
       parent.querySelectorAll('button').forEach(btn => btn.classList.remove('selected'));
@@ -21,7 +27,7 @@ function initializeGameOptions() {
     });
   });
 
-  // Setup Music Volume control buttons within Game Options with persistence and maroon indicator.
+  // Setup Music Volume control buttons within Game Options with persistence.
   const musicVolumeSection = gameOptionsPanel.querySelector('#music-volume-section');
   if (musicVolumeSection) {
     const volumeMapping = {
@@ -53,7 +59,7 @@ function initializeGameOptions() {
     });
   }
 
-  // Setup Split Private-chat control
+  // Setup Split Private-chat control with persistence.
   const splitChatSection = document.getElementById('split-private-chat-section');
   if (splitChatSection) {
     const splitButtons = splitChatSection.querySelectorAll('.game-options-buttons button');
@@ -79,37 +85,36 @@ function initializeGameOptions() {
       });
     });
   }
-  
-  // Setup Mouse Button Mode control
-  // The Mouse Buttons section is identified by its header text "Mouse Buttons"
-  const gameOptionsColumns = gameOptionsPanel.querySelectorAll('.game-options-column');
-  gameOptionsColumns.forEach(column => {
-    if (column.textContent.includes('Mouse Buttons')) {
-      const mouseButtonsContainer = column.querySelector('.game-options-buttons');
-      const mouseButtons = mouseButtonsContainer.querySelectorAll('button');
-      // Load stored mouse mode from localStorage, default to 'two'
-      let storedMouseMode = localStorage.getItem('mouseMode') || 'two';
+
+  // --- NEW: Setup Mouse Button Mode selection ---
+  // This is for the "Mouse Buttons" section – the first column in the two‑column layout.
+  const mouseModeColumn = gameOptionsPanel.querySelector('.game-options-two-column .game-options-column:first-child');
+  if (mouseModeColumn) {
+    const mouseModeButtonsContainer = mouseModeColumn.querySelector('.game-options-buttons');
+    if (mouseModeButtonsContainer) {
+      const mouseButtons = mouseModeButtonsContainer.querySelectorAll('button');
+      let storedMouseMode = localStorage.getItem('mouseMode');
+      if (!storedMouseMode) {
+        storedMouseMode = "Two"; // Default to Two mouse mode.
+        localStorage.setItem('mouseMode', storedMouseMode);
+      }
+      window.mouseMode = storedMouseMode;
       mouseButtons.forEach(button => {
-        const btnText = button.textContent.trim().toLowerCase();
-        if (btnText === storedMouseMode) {
+        if (button.textContent.trim() === storedMouseMode) {
           button.classList.add('selected');
         } else {
           button.classList.remove('selected');
         }
         button.addEventListener('click', () => {
-          const selectedMode = button.textContent.trim().toLowerCase();
-          localStorage.setItem('mouseMode', selectedMode);
-          mouseButtons.forEach(btn => {
-            if (btn.textContent.trim().toLowerCase() === selectedMode) {
-              btn.classList.add('selected');
-            } else {
-              btn.classList.remove('selected');
-            }
-          });
+          const mode = button.textContent.trim();
+          localStorage.setItem('mouseMode', mode);
+          window.mouseMode = mode;
+          mouseButtons.forEach(btn => btn.classList.remove('selected'));
+          button.classList.add('selected');
         });
       });
     }
-  });
+  }
 }
 
 export { initializeGameOptions };

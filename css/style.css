@@ -442,6 +442,10 @@ body {
   flex: 1;
 }
 
+.game-options-two-column .game-options-column:first-child .game-options-buttons button.selected {
+  background: #800000;
+}
+
 /* Maroon background for selected Music Volume buttons */
 #music-volume-section .game-options-buttons button.selected {
   background: #800000;
