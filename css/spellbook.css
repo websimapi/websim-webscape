@@ -34,10 +34,12 @@
 .spellbook-grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 2px;
+  gap: 1px;
   padding: 2px;
   background: #382418;
   border: 1px solid #000;
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
 }
 
 .spell-slot {
@@ -49,9 +51,32 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  /* Make slots smaller */
+  max-width: 20px;
+  max-height: 20px;
+  margin: 1px;
 }
 
 .spell-slot:hover {
   background: #3a2f2a;
   border-color: #4a3f3a;
+}
+
+/* Add scrollbar styling specific to spellbook */
+.spellbook-grid::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.spellbook-grid::-webkit-scrollbar-track {
+  background: #382418;
+}
+
+.spellbook-grid::-webkit-scrollbar-thumb {
+  background: #5a473a;
+  border-radius: 3px;
+}
+
+.spellbook-grid::-webkit-scrollbar-thumb:hover {
+  background: #6a574a;
 }
