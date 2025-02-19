@@ -1,3 +1,4 @@
+/* Eldritch Spellbook Menu styling */
 #spellbook-menu {
   position: relative;
   width: calc(100% - 8px);
@@ -13,8 +14,8 @@
 }
 
 .spellbook-content {
-  background: #474745;
-  border: 2px solid #5a473a;
+  background: #1a1a1a;
+  border: 2px solid #4B0082;
   height: calc(100% - 4px);
   display: flex;
   flex-direction: column;
@@ -25,35 +26,29 @@
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   gap: 2px;
-  padding: 4px;
-  margin: 0;
+  padding: 2px;
 }
 
 .spell-slot {
-  width: 22px;
-  height: 22px;
-  background: #1a1a1a;
-  border: 1px solid #000;
+  width: 100%;
+  aspect-ratio: 1;
+  background: #2a1a2a;
+  border: 1px solid #4B0082;
+  border-radius: 2px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   position: relative;
+  transition: background-color 0.2s;
 }
 
 .spell-slot:hover {
-  background: #2a2a2a;
+  background: #3a2a3a;
+  border-color: #800080;
 }
 
-.spell-info {
-  background: #000;
-  margin: 4px;
-  margin-top: auto;
-  height: 40px;
-  padding: 4px;
-  color: #fff;
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.spell-slot.empty {
+  background: #1a1a1a;
+  border-color: #2a1a2a;
 }

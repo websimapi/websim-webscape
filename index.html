@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="css/inventory.css" />
     <link rel="stylesheet" href="css/skills.css" />
     <link rel="stylesheet" href="css/music.css" />
-    <link rel="stylesheet" href="css/spellbook.css" />
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -153,7 +152,7 @@
             </div>
             <div class="icon stats">5</div>
             <div class="icon quests">6</div>
-            <div class="icon inventory">
+            <div class="icon spellbook">
               <!-- Eldritch Spellbook Icon -->
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
                 <defs>
@@ -254,17 +253,6 @@
           </div>
         </div>
 
-        <div id="spellbook-menu" class="hidden">
-          <div class="spellbook-content">
-            <div class="spellbook-grid">
-              <!-- Spell slots will be generated dynamically -->
-            </div>
-            <div class="spell-info">
-              <!-- Spell information will be displayed here -->
-            </div>
-          </div>
-        </div>
-
         <!-- Music Menu -->
         <div id="music-menu" class="hidden">
           <div class="music-content">
@@ -284,6 +272,12 @@
           <div class="quest-journal-title">Quest Journal</div>
           <div class="quest-journal-content">
             <!-- Quest entries will be populated dynamically -->
+          </div>
+        </div>
+
+        <div id="spellbook-menu" class="hidden">
+          <div class="spellbook-content">
+            <!-- Spell slots will be populated dynamically -->
           </div>
         </div>
 
