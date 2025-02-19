@@ -268,14 +268,58 @@ chatInput.addEventListener('keypress', (e) => {
 
 room.onmessage = (event) => {
   const chatContent = document.querySelector('.chat-content');
+  // Create a message container only for non-split insertion.
   const messageDiv = document.createElement('div');
-  
+
   switch (event.data.type) {
+    case 'connected':
+      if (event.data.clientId !== room.party.client.id) {
+        const msg = `${event.data.username} has logged in.`;
+        const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+        if (splitPrivate) {
+          const splitContainer = document.getElementById('split-private-chat');
+          if (splitContainer) {
+            const splitMessage = document.createElement('div');
+            splitMessage.className = 'split-private-message';
+            splitMessage.textContent = msg;
+            splitContainer.appendChild(splitMessage);
+            if (splitContainer.childElementCount > 5) {
+              splitContainer.removeChild(splitContainer.firstElementChild);
+            }
+            splitContainer.style.display = 'flex';
+          }
+        } else {
+          messageDiv.className = 'chat-message private-message';
+          messageDiv.textContent = msg;
+        }
+      }
+      break;
+    case 'disconnected':
+      if (event.data.clientId !== room.party.client.id) {
+        const msg = `${event.data.username} has logged out.`;
+        const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+        if (splitPrivate) {
+          const splitContainer = document.getElementById('split-private-chat');
+          if (splitContainer) {
+            const splitMessage = document.createElement('div');
+            splitMessage.className = 'split-private-message';
+            splitMessage.textContent = msg;
+            splitContainer.appendChild(splitMessage);
+            if (splitContainer.childElementCount > 5) {
+              splitContainer.removeChild(splitContainer.firstElementChild);
+            }
+            splitContainer.style.display = 'flex';
+          }
+        } else {
+          messageDiv.className = 'chat-message private-message';
+          messageDiv.textContent = msg;
+        }
+      }
+      break;
     case 'chat':
       if (event.data.clientId !== room.party.client.id) {
         messageDiv.className = 'chat-message user';
         messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
-
         const usernameSpan = messageDiv.querySelector('.username');
         usernameSpan.addEventListener('click', (e) => {
           showChatContextMenu(e, event.data.username);
@@ -288,7 +332,6 @@ room.onmessage = (event) => {
         });
       }
       break;
-      
     case 'private-message':
       if (event.data.recipient === room.party.client.username) {
         const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
@@ -299,7 +342,6 @@ room.onmessage = (event) => {
             splitMessage.className = 'split-private-message';
             splitMessage.textContent = `From ${event.data.username}: ${event.data.message}`;
             splitContainer.appendChild(splitMessage);
-            // Limit to 5 messages: remove the oldest if more than 5 exist.
             if (splitContainer.childElementCount > 5) {
               splitContainer.removeChild(splitContainer.firstElementChild);
             }
@@ -312,9 +354,12 @@ room.onmessage = (event) => {
       }
       break;
   }
-  
-  if (messageDiv.innerHTML) {
-    chatContent.insertBefore(messageDiv, chatContent.firstChild);
+  if (messageDiv.innerHTML || messageDiv.textContent) {
+    const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+    // Only insert into main chat if not using split private chat.
+    if (!splitPrivate) {
+      chatContent.insertBefore(messageDiv, chatContent.firstChild);
+    }
   }
 };
 
