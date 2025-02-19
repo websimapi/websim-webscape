@@ -27,6 +27,27 @@ function initializeGameOptions() {
   const musicVolumeSection = gameOptionsPanel.querySelector('#music-volume-section');
   if (musicVolumeSection) {
     const volumeButtons = musicVolumeSection.querySelectorAll('.game-options-buttons button');
+
+    // Retrieve stored volume setting from localStorage, if any, and update the UI accordingly.
+    let storedVolume = localStorage.getItem('musicVolumeSetting');
+    if (storedVolume !== null) {
+      let volumeValue = parseFloat(storedVolume);
+      setMusicVolume(volumeValue);
+      volumeButtons.forEach(button => {
+        const text = button.textContent.trim();
+        let buttonVolume = text === 'Off' ? 0 :
+                           text === '1' ? 0.25 :
+                           text === '2' ? 0.50 :
+                           text === '3' ? 0.75 :
+                           text === '4' ? 1.0 : null;
+        if (buttonVolume === volumeValue) {
+          button.classList.add('selected');
+        } else {
+          button.classList.remove('selected');
+        }
+      });
+    }
+
     volumeButtons.forEach(button => {
       button.addEventListener('click', () => {
         const text = button.textContent.trim();
@@ -43,6 +64,11 @@ function initializeGameOptions() {
           volume = 1.0;
         }
         setMusicVolume(volume);
+        // Update UI: mark selected button.
+        volumeButtons.forEach(btn => btn.classList.remove('selected'));
+        button.classList.add('selected');
+        // Save the selected volume to localStorage for persistence.
+        localStorage.setItem('musicVolumeSetting', volume.toString());
       });
     });
   }
