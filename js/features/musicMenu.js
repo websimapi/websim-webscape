@@ -46,10 +46,9 @@ async function playTrack(track, trackElement, trackList) {
   if (track.unlocked) {
     if (currentAudio) {
       if (!currentAudio.paused) {
-        // Fade out existing track over 10 seconds before starting the new one
-        const fadeOutDurationPre = 10;
+        const fadeOutDuration = 10;
         const fadeOutInterval = 50;
-        const steps = (fadeOutDurationPre * 1000) / fadeOutInterval;
+        const steps = (fadeOutDuration * 1000) / fadeOutInterval;
         const volumeStep = currentAudio.volume / steps;
         
         const fadeOutTimer = setInterval(() => {
@@ -63,7 +62,7 @@ async function playTrack(track, trackElement, trackList) {
           }
         }, fadeOutInterval);
         
-        await new Promise(resolve => setTimeout(resolve, fadeOutDurationPre * 1000));
+        await new Promise(resolve => setTimeout(resolve, fadeOutDuration * 1000));
       } else {
         currentAudio.pause();
         currentAudio = null;
@@ -97,15 +96,12 @@ async function playTrack(track, trackElement, trackList) {
         }
       }, fadeInInterval);
       
-      // Setup smoother fade out over the last 15 seconds of the track
-      const fadeOutDuration = 15;
-      if (duration > fadeOutDuration) {
-        const fadeOutStartTime = currentAudio.duration - fadeOutDuration;
+      // Setup fade out over the last 10 seconds using a linear easing function
+      if (duration > 10) {
         const fadeOutFunction = () => {
-          if (currentAudio.currentTime >= fadeOutStartTime) {
-            const progress = (currentAudio.currentTime - fadeOutStartTime) / fadeOutDuration;
-            // Use a linear fade for smoother, slower volume decrease
-            currentAudio.volume = Math.max(1 - progress, 0);
+          const remaining = currentAudio.duration - currentAudio.currentTime;
+          if (remaining <= 10) {
+            currentAudio.volume = remaining / 10;
           }
         };
         currentAudio.addEventListener('timeupdate', fadeOutFunction);
@@ -119,7 +115,6 @@ async function playTrack(track, trackElement, trackList) {
       return;
     }
 
-    // Mark the selected track in the list as active
     trackList.querySelectorAll('.track-entry').forEach(entry => {
       entry.classList.remove('selected');
     });
@@ -130,7 +125,10 @@ async function playTrack(track, trackElement, trackList) {
         currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
         const nextTrack = tracks[currentTrackIndex];
         const nextTrackElement = trackList.children[currentTrackIndex];
-        playTrack(nextTrack, nextTrackElement, trackList);
+        // Add a 3 second delay before starting next track
+        setTimeout(() => {
+          playTrack(nextTrack, nextTrackElement, trackList);
+        }, 3000);
       });
     }
   }
