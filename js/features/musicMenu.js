@@ -80,6 +80,7 @@ function fadeOutAudio(audio, fadeDuration = 10) {
 }
 
 // Fade in the audio from volume 0 to the targetVolume over fadeDuration seconds.
+// Uses an ease-out quadratic for smoothness and supports cancellation via token.
 function fadeInAudio(audio, fadeDuration = 10, token) {
   return new Promise((resolve) => {
     const startTime = performance.now();
@@ -128,8 +129,7 @@ async function playTrack(track, trackElement, trackList) {
     // If a song is already playing, fade it out and wait before starting a new one.
     if (currentAudio) {
       await fadeOutAudio(currentAudio, 10);
-      // Changed delay from 3000ms to 5000ms for a 5-second gap between tracks
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay between tracks
       if (token !== musicPlayToken) return;
       currentAudio = null;
     }
@@ -186,14 +186,13 @@ async function playTrack(track, trackElement, trackList) {
     if (autoPlayMode) {
       currentAudio.addEventListener('ended', () => {
         if (token !== musicPlayToken) return;
-        // Changed delay from 3000ms to 5000ms so the next song starts after about 5 seconds
         autoPlayTimeout = setTimeout(() => {
           const randomIndex = Math.floor(Math.random() * tracks.length);
           currentTrackIndex = randomIndex;
           const nextTrack = tracks[randomIndex];
           const nextTrackElement = trackList.children[randomIndex];
           playTrack(nextTrack, nextTrackElement, trackList);
-        }, 5000);
+        }, 3000);
       });
     }
   }
@@ -291,7 +290,6 @@ function initializeMusicMenu() {
     }
   });
   
-  // Changed fallback interval from 30000ms to 5000ms to check more frequently and start the next song after about 5 seconds if needed.
   setInterval(() => {
     if (autoPlayMode && (!currentAudio || currentAudio.paused) && tracks.length > 0) {
       const randomIndex = Math.floor(Math.random() * tracks.length);
@@ -299,7 +297,7 @@ function initializeMusicMenu() {
       const trackElt = trackList.children[randomIndex];
       playTrack(tracks[randomIndex], trackElt, trackList);
     }
-  }, 5000);
+  }, 7000);  // Changed from 30000ms to 7000ms (7 seconds)
   
   document.addEventListener('click', () => {
     hasUserInteracted = true;
