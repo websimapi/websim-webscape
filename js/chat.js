@@ -1,6 +1,9 @@
 // Initialize WebSocket connection
 const room = new WebsimSocket();
 
+// Global array to store private message history
+const privateMessageHistory = [];
+
 // Track online users
 let onlineUsers = new Set();
 
@@ -88,30 +91,16 @@ messageInput.addEventListener('keypress', async (e) => {
         recipient: recipient
       });
       
-      // If Split Private-Chat mode is enabled, add the sent "To" message to the split chat container.
-      const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-      if (splitPrivate) {
-        const splitContainer = document.getElementById('split-private-chat');
-        if (splitContainer) {
-          const splitMessage = document.createElement('div');
-          splitMessage.className = 'split-private-message';
-          splitMessage.textContent = `To ${recipient}: ${message}`;
-          splitContainer.appendChild(splitMessage);
-          if (splitContainer.childElementCount > 5) {
-            splitContainer.removeChild(splitContainer.firstElementChild);
-          }
-          // Removed inline style forcing display; visibility is now controlled via CSS and toggle.
-        }
-      } else {
-        // For standard chat, add the message as before.
-        const chatContent = document.querySelector('.chat-content');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'chat-message private-message';
-        messageDiv.innerHTML = `To ${recipient}: ${message}`;
-        chatContent.insertBefore(messageDiv, chatContent.firstChild);
-      }
+      // Save outgoing private message to history and re-render
+      const msgObj = {
+        direction: 'to',
+        recipient: recipient,
+        message: message,
+        timestamp: Date.now()
+      };
+      privateMessageHistory.push(msgObj);
+      renderPrivateMessages();
     } else {
-      // Add error message to chat
       const chatContent = document.querySelector('.chat-content');
       const messageDiv = document.createElement('div');
       messageDiv.className = 'chat-message system';
@@ -135,18 +124,13 @@ chatUsernameTooltip.style.display = 'none';
 document.body.appendChild(chatUsernameTooltip);
 
 function showChatContextMenu(e, username) {
-  // Do not show dropdown for your own username.
   if (username === room.party.client.username) return;
   
-  // Get game container bounds to ensure our menu doesn’t go outside.
   const gameContainer = document.getElementById('client-wrapper');
   const containerBounds = gameContainer.getBoundingClientRect();
-
-  // Calculate initial position using event coordinates.
   let xPos = e.pageX;
   let yPos = e.pageY;
-
-  // Set menu content.
+  
   chatContextMenu.innerHTML = `
     <div class="context-menu-option message">Message ${username}</div>
     <div class="context-menu-option add-friend">Add Friend ${username}</div>
@@ -154,11 +138,8 @@ function showChatContextMenu(e, username) {
     <div class="context-menu-option cancel">Cancel</div>
   `;
   chatContextMenu.classList.add('shown');
-
-  // Now that the menu is visible, measure its bounds.
+  
   const menuBounds = chatContextMenu.getBoundingClientRect();
-
-  // Adjust position to prevent overflow.
   if (xPos + menuBounds.width > containerBounds.right) {
     xPos = containerBounds.right - menuBounds.width - 10;
   }
@@ -167,22 +148,20 @@ function showChatContextMenu(e, username) {
   }
   xPos = Math.max(containerBounds.left + 10, xPos);
   yPos = Math.max(containerBounds.top + 10, yPos);
-
-  // Set the final position.
   chatContextMenu.style.left = `${xPos}px`;
   chatContextMenu.style.top = `${yPos}px`;
-
+  
   const messageOption = chatContextMenu.querySelector('.message');
   const addFriendOption = chatContextMenu.querySelector('.add-friend');
   const addIgnoreOption = chatContextMenu.querySelector('.add-ignore');
   const cancelOption = chatContextMenu.querySelector('.cancel');
-
+  
   messageOption.addEventListener('click', (event) => {
     event.stopPropagation();
     showMessageOverlay(username);
     hideAllContextMenus();
   });
-
+  
   addFriendOption.addEventListener('click', (event) => {
     event.stopPropagation();
     const newFriend = document.createElement('div');
@@ -194,7 +173,7 @@ function showChatContextMenu(e, username) {
     document.querySelector('.friends-list .list-container').appendChild(newFriend);
     hideAllContextMenus();
   });
-
+  
   addIgnoreOption.addEventListener('click', (event) => {
     event.stopPropagation();
     const newIgnore = document.createElement('div');
@@ -206,7 +185,7 @@ function showChatContextMenu(e, username) {
     document.querySelector('.ignore-list .list-container').appendChild(newIgnore);
     hideAllContextMenus();
   });
-
+  
   cancelOption.addEventListener('click', (event) => {
     event.stopPropagation();
     hideAllContextMenus();
@@ -237,17 +216,14 @@ const chatInput = document.querySelector('.chat-input');
 chatInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter' && chatInput.value.trim()) {
     const message = chatInput.value.trim();
-
     room.send({
       type: 'chat',
       message: message
     });
-
     const chatContent = document.querySelector('.chat-content');
     const messageDiv = document.createElement('div');
     messageDiv.className = 'chat-message user';
     messageDiv.innerHTML = `<span class="username">${room.party.client.username}</span><span class="separator">: </span>${message}`;
-
     const usernameSpan = messageDiv.querySelector('.username');
     usernameSpan.addEventListener('click', (e) => {
       showChatContextMenu(e, room.party.client.username);
@@ -258,9 +234,7 @@ chatInput.addEventListener('keypress', (e) => {
     usernameSpan.addEventListener('mouseout', (e) => {
       hideUsernameHoverTooltip();
     });
-    // (For your own username we do not add a contextmenu listener)
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
-
     chatInput.value = '';
   }
 });
@@ -294,32 +268,74 @@ room.onmessage = (event) => {
       
     case 'private-message':
       if (event.data.recipient === room.party.client.username) {
-        const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-        if (splitPrivate) {
-          const splitContainer = document.getElementById('split-private-chat');
-          if (splitContainer) {
-            const splitMessage = document.createElement('div');
-            splitMessage.className = 'split-private-message';
-            splitMessage.textContent = `From ${event.data.username}: ${event.data.message}`;
-            splitContainer.appendChild(splitMessage);
-            if (splitContainer.childElementCount > 5) {
-              splitContainer.removeChild(splitContainer.firstElementChild);
-            }
-            // Removed inline style forcing display; visibility is now managed via CSS based on toggle.
-          }
-        } else {
-          messageDiv.className = 'chat-message private-message';
-          messageDiv.innerHTML = `From ${event.data.username}: ${event.data.message}`;
-        }
+        const msgObj = {
+          direction: 'from',
+          sender: event.data.username,
+          message: event.data.message,
+          timestamp: Date.now()
+        };
+        privateMessageHistory.push(msgObj);
+        renderPrivateMessages();
       }
       break;
+      
     default:
       console.log("Received event:", event.data);
   }
   
-  if (messageDiv.innerHTML) {
+  if (messageDiv.innerHTML && event.data.type === 'chat') {
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
   }
 };
 
 setInterval(updateOnlineStatus, 3000);
+
+function renderPrivateMessages() {
+  const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+  const splitContainer = document.getElementById('split-private-chat');
+  const chatContent = document.querySelector('.chat-content');
+  
+  // Remove existing private messages from main chat content
+  const existingPrivateMessages = chatContent.querySelectorAll('.chat-message.private-message');
+  existingPrivateMessages.forEach(msg => msg.remove());
+  
+  // Clear split chat container
+  if (splitContainer) {
+    splitContainer.innerHTML = '';
+  }
+  
+  if (splitPrivate) {
+    if (splitContainer) {
+      privateMessageHistory.forEach(msg => {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'split-private-message';
+        if (msg.direction === 'to') {
+          msgDiv.textContent = `To ${msg.recipient}: ${msg.message}`;
+        } else {
+          msgDiv.textContent = `From ${msg.sender}: ${msg.message}`;
+        }
+        splitContainer.appendChild(msgDiv);
+      });
+      // Limit history to last 5 messages
+      while (splitContainer.childElementCount > 5) {
+        splitContainer.removeChild(splitContainer.firstElementChild);
+      }
+    }
+  } else {
+    // Render private messages in main chat content in reverse order (most recent at top)
+    const messages = privateMessageHistory.slice().reverse();
+    messages.forEach(msg => {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-message private-message';
+      if (msg.direction === 'to') {
+         msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
+      } else {
+         msgDiv.innerHTML = `From ${msg.sender}: ${msg.message}`;
+      }
+      chatContent.insertBefore(msgDiv, chatContent.firstChild);
+    });
+  }
+}
+
+// Expose renderPrivateMessages for external modules
+window.renderPrivateMessages = renderPrivateMessages;

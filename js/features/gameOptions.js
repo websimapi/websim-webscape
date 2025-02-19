@@ -82,7 +82,6 @@ function initializeGameOptions() {
             btn.classList.remove('selected');
           }
         });
-        // Update the visibility of the split chat container via CSS class toggle.
         const splitContainer = document.getElementById('split-private-chat');
         if (splitContainer) {
           if (value) {
@@ -90,6 +89,9 @@ function initializeGameOptions() {
           } else {
             splitContainer.classList.add('hidden');
           }
+        }
+        if (window.renderPrivateMessages) {
+          window.renderPrivateMessages();
         }
       });
     });
