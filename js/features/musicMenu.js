@@ -122,7 +122,7 @@ async function playTrack(track, trackElement, trackList) {
       await currentAudio.play();
       await fadeInAudio(currentAudio, 10); // Fade in over 10 seconds
       
-      // Setup a smooth fade out during the last 10 seconds of the track.
+      // Setup smooth fade out during the last 10 seconds of the track.
       if (duration > 10) {
         if (fadeOutListener) {
           currentAudio.removeEventListener('timeupdate', fadeOutListener);
@@ -130,7 +130,7 @@ async function playTrack(track, trackElement, trackList) {
         fadeOutListener = () => {
           const remaining = currentAudio.duration - currentAudio.currentTime;
           if (remaining <= 10) {
-            // Use linear easing for a smoother, slower fade out over the last 10 seconds.
+            // Linear easing for a smoother, slower fade out over the last 10 seconds.
             currentAudio.volume = remaining / 10;
           }
         };
@@ -156,14 +156,15 @@ async function playTrack(track, trackElement, trackList) {
     trackElement.classList.add('selected');
     trackElement.style.color = '#00ff00';
     
-    // If AUTO mode is enabled, set up the auto transition when the track ends.
+    // If AUTO mode is enabled, schedule a random track after song ends.
     if (autoPlayMode) {
       currentAudio.addEventListener('ended', () => {
         if (token !== musicPlayToken) return;
         autoPlayTimeout = setTimeout(() => {
-          currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
-          const nextTrack = tracks[currentTrackIndex];
-          const nextTrackElement = trackList.children[currentTrackIndex];
+          const randomIndex = Math.floor(Math.random() * tracks.length);
+          currentTrackIndex = randomIndex;
+          const nextTrack = tracks[randomIndex];
+          const nextTrackElement = trackList.children[randomIndex];
           playTrack(nextTrack, nextTrackElement, trackList);
         }, 3000); // 3 second delay before the next track starts automatically.
       });
@@ -226,10 +227,12 @@ function initializeMusicMenu() {
   
   musicButton.addEventListener('click', () => {
     toggleMenu(musicButton, '#music-menu');
-    if (hasUserInteracted && autoPlayMode && !currentAudio && tracks.length > 0) {
-      const firstTrack = tracks[0];
-      const firstTrackElement = trackList.children[0];
-      playTrack(firstTrack, firstTrackElement, trackList);
+    if (hasUserInteracted && autoPlayMode && (!currentAudio || currentAudio.paused) && tracks.length > 0) {
+      const randomIndex = Math.floor(Math.random() * tracks.length);
+      currentTrackIndex = randomIndex;
+      const randomTrack = tracks[randomIndex];
+      const randomTrackElement = trackList.children[randomIndex];
+      playTrack(randomTrack, randomTrackElement, trackList);
     }
   });
   
@@ -240,9 +243,11 @@ function initializeMusicMenu() {
     autoButton.classList.add('selected');
     manualButton.classList.remove('selected');
     if (!currentAudio && tracks.length > 0) {
-      const firstTrack = tracks[0];
-      const firstTrackElement = trackList.children[0];
-      playTrack(firstTrack, firstTrackElement, trackList);
+      const randomIndex = Math.floor(Math.random() * tracks.length);
+      currentTrackIndex = randomIndex;
+      const randomTrack = tracks[randomIndex];
+      const randomTrackElement = trackList.children[randomIndex];
+      playTrack(randomTrack, randomTrackElement, trackList);
     }
   });
   
@@ -264,8 +269,10 @@ function initializeMusicMenu() {
   // Periodically check if a song is not playing (in AUTO mode) and start one if needed.
   setInterval(() => {
     if (autoPlayMode && (!currentAudio || currentAudio.paused) && tracks.length > 0) {
-      const trackElt = trackList.children[currentTrackIndex] || trackList.children[0];
-      playTrack(tracks[currentTrackIndex] || tracks[0], trackElt, trackList);
+      const randomIndex = Math.floor(Math.random() * tracks.length);
+      currentTrackIndex = randomIndex;
+      const trackElt = trackList.children[randomIndex];
+      playTrack(tracks[randomIndex], trackElt, trackList);
     }
   }, 3000);
   
