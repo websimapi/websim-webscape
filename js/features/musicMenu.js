@@ -9,11 +9,11 @@ let currentTrack = 'No track';
 let autoPlayMode = false;
 let currentTrackIndex = 0;
 let hasUserInteracted = false;
-let fadeOutListener = null;
 let autoPlayTimeout = null;
 let musicPlayToken = 0; // Incremented every time a new track is requested
 let targetVolume = 1; // Default target volume (100%)
 
+// Music tracks list including "No Thing" as requested.
 const tracks = [
   {
     name: 'Ambient Venture',
@@ -75,7 +75,6 @@ function fadeOutAudio(audio, fadeDuration = 10) {
 }
 
 // Fade in the audio from volume 0 to the targetVolume over fadeDuration seconds.
-// Uses an ease-out quadratic for smoothness and supports cancellation via token.
 function fadeInAudio(audio, fadeDuration = 10, token) {
   return new Promise((resolve) => {
     const startTime = performance.now();
@@ -136,7 +135,9 @@ async function playTrack(track, trackElement, trackList) {
     
     // Update UI to display the currently playing track.
     const trackDisplay = document.querySelector('#music-menu .track');
-    trackDisplay.textContent = `Playing: ${currentTrack}`;
+    if (trackDisplay) {
+      trackDisplay.textContent = `Playing: ${currentTrack}`;
+    }
     
     try {
       const duration = await getDuration(track.path);
@@ -144,26 +145,30 @@ async function playTrack(track, trackElement, trackList) {
       await currentAudio.play();
       await fadeInAudio(currentAudio, 10, token);
       
-      // Setup a smooth fade out during the last 10 seconds of the track.
-      if (duration > 10) {
-        if (fadeOutListener) {
-          currentAudio.removeEventListener('timeupdate', fadeOutListener);
-        }
-        fadeOutListener = () => {
-          const remaining = currentAudio.duration - currentAudio.currentTime;
-          if (remaining <= 10) {
-            currentAudio.volume = remaining / 10;
+      // In AUTO mode, schedule an auto fade out that mirrors manual fade out.
+      if (autoPlayMode) {
+        const fadeDuration = 10; // seconds for fade out
+        const fadeOutDelay = Math.max(0, (duration - fadeDuration) * 1000);
+        autoPlayTimeout = setTimeout(async () => {
+          if (token !== musicPlayToken) return;
+          if (currentAudio) {
+            await fadeOutAudio(currentAudio, fadeDuration);
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            if (token !== musicPlayToken) return;
+            const randomIndex = Math.floor(Math.random() * tracks.length);
+            currentTrackIndex = randomIndex;
+            const nextTrack = tracks[randomIndex];
+            const nextTrackElement = trackList.children[randomIndex];
+            playTrack(nextTrack, nextTrackElement, trackList);
           }
-        };
-        currentAudio.addEventListener('timeupdate', fadeOutListener);
-        currentAudio.addEventListener('ended', () => {
-          currentAudio.removeEventListener('timeupdate', fadeOutListener);
-        });
+        }, fadeOutDelay);
       }
     } catch (e) {
       console.error('Error playing audio:', e);
       const trackDisplay = document.querySelector('#music-menu .track');
-      trackDisplay.textContent = 'Playing: No track';
+      if (trackDisplay) {
+        trackDisplay.textContent = 'Playing: No track';
+      }
       return;
     }
     
@@ -176,20 +181,6 @@ async function playTrack(track, trackElement, trackList) {
     });
     trackElement.classList.add('selected');
     trackElement.style.color = '#00ff00';
-    
-    // If AUTO mode is enabled, schedule a random track after the current one ends.
-    if (autoPlayMode) {
-      currentAudio.addEventListener('ended', () => {
-        if (token !== musicPlayToken) return;
-        autoPlayTimeout = setTimeout(() => {
-          const randomIndex = Math.floor(Math.random() * tracks.length);
-          currentTrackIndex = randomIndex;
-          const nextTrack = tracks[randomIndex];
-          const nextTrackElement = trackList.children[randomIndex];
-          playTrack(nextTrack, nextTrackElement, trackList);
-        }, 3000);
-      });
-    }
   }
 }
 
@@ -225,11 +216,11 @@ function initializeMusicMenu() {
     
     trackElement.addEventListener('click', () => {
       hasUserInteracted = true;
-      if (autoPlayTimeout) {
+      if (autoPlayMode && autoPlayTimeout) {
         clearTimeout(autoPlayTimeout);
         autoPlayTimeout = null;
       }
-      // Switch to MAN (manual) mode when a track is clicked.
+      // Switch to Manual mode when a track is clicked.
       autoPlayMode = false;
       saveMusicSettings(false);
       manualButton.classList.add('selected');
@@ -276,7 +267,7 @@ function initializeMusicMenu() {
     saveMusicSettings(false);
     manualButton.classList.add('selected');
     autoButton.classList.remove('selected');
-    if (autoPlayTimeout) {
+    if (autoPlayMode && autoPlayTimeout) {
       clearTimeout(autoPlayTimeout);
       autoPlayTimeout = null;
     }
