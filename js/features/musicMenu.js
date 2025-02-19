@@ -9,8 +9,10 @@ let currentTrack = 'No track';
 let autoPlayMode = false;
 let currentTrackIndex = 0;
 let hasUserInteracted = false;
+let fadeOutListener = null;
 let autoPlayTimeout = null;
 let musicPlayToken = 0; // Incremented every time a new track is requested
+let targetVolume = 1; // Default target volume (100%)
 
 const tracks = [
   {
@@ -25,7 +27,6 @@ const tracks = [
   }
 ];
 
-// Load (and later save) the music mode preference.
 function loadMusicSettings() {
   const storedMode = localStorage.getItem('musicMode');
   return storedMode === 'auto';
@@ -47,7 +48,7 @@ async function getDuration(audioPath) {
   });
 }
 
-// Helper: Smoothly fade out the given audio to 0 volume over fadeDuration seconds using requestAnimationFrame.
+// Fade out the given audio to 0 volume smoothly over fadeDuration seconds.
 function fadeOutAudio(audio, fadeDuration = 10) {
   return new Promise((resolve) => {
     const startVolume = audio.volume;
@@ -68,7 +69,8 @@ function fadeOutAudio(audio, fadeDuration = 10) {
   });
 }
 
-// Helper: Smoothly fade in the given audio from volume 0 to 1 over fadeDuration seconds using requestAnimationFrame.
+// Fade in the audio from volume 0 to the targetVolume over fadeDuration seconds.
+// Uses an ease-out quadratic for smoothness and supports cancellation via token.
 function fadeInAudio(audio, fadeDuration = 10, token) {
   return new Promise((resolve) => {
     const startTime = performance.now();
@@ -81,15 +83,23 @@ function fadeInAudio(audio, fadeDuration = 10, token) {
       const fraction = elapsed / (fadeDuration * 1000);
       if (fraction < 1) {
         const eased = 1 - Math.pow(1 - fraction, 2);
-        audio.volume = Math.min(eased, 1);
+        audio.volume = Math.min(eased, targetVolume);
         requestAnimationFrame(step);
       } else {
-        audio.volume = 1;
+        audio.volume = targetVolume;
         resolve();
       }
     }
     requestAnimationFrame(step);
   });
+}
+
+// Allow external modules (like game options) to set the music volume.
+function setMusicVolume(newVolume) {
+  targetVolume = newVolume;
+  if (currentAudio) {
+    currentAudio.volume = newVolume;
+  }
 }
 
 async function playTrack(track, trackElement, trackList) {
@@ -106,11 +116,11 @@ async function playTrack(track, trackElement, trackList) {
   }
   
   if (track.unlocked) {
-    // For manual switches, if a song is already playing, fade it out using our smooth fade function.
+    // If a song is already playing, fade it out and wait before starting a new one.
     if (currentAudio) {
       await fadeOutAudio(currentAudio, 10);
-      await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay
-      if (token !== musicPlayToken) return; // Abort if a new track was requested meanwhile
+      await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay between tracks
+      if (token !== musicPlayToken) return;
       currentAudio = null;
     }
     
@@ -125,44 +135,24 @@ async function playTrack(track, trackElement, trackList) {
     
     try {
       const duration = await getDuration(track.path);
-      if (token !== musicPlayToken) return; // Abort if another track was selected meanwhile
+      if (token !== musicPlayToken) return;
       await currentAudio.play();
-      // Fade in smoothly.
       await fadeInAudio(currentAudio, 10, token);
       
-      // When in AUTO mode, apply the same smooth fade out as in manual switching.
-      if (autoPlayMode && duration > 10) {
-        let autoFadingTriggered = false;
-        const autoFadeListener = async () => {
+      // Setup a smooth fade out during the last 10 seconds of the track.
+      if (duration > 10) {
+        if (fadeOutListener) {
+          currentAudio.removeEventListener('timeupdate', fadeOutListener);
+        }
+        fadeOutListener = () => {
           const remaining = currentAudio.duration - currentAudio.currentTime;
-          if (!autoFadingTriggered && remaining <= 10) {
-            autoFadingTriggered = true;
-            currentAudio.removeEventListener('timeupdate', autoFadeListener);
-            await fadeOutAudio(currentAudio, 10);
-            if (token !== musicPlayToken) return;
-            autoPlayTimeout = setTimeout(() => {
-              const randomIndex = Math.floor(Math.random() * tracks.length);
-              currentTrackIndex = randomIndex;
-              const nextTrack = tracks[randomIndex];
-              const nextTrackElement = trackList.children[randomIndex];
-              playTrack(nextTrack, nextTrackElement, trackList);
-            }, 3000); // 3 second delay before the next track starts automatically.
+          if (remaining <= 10) {
+            currentAudio.volume = remaining / 10;
           }
         };
-        currentAudio.addEventListener('timeupdate', autoFadeListener);
-        currentAudio.addEventListener('ended', async () => {
-          if (!autoFadingTriggered) {
-            autoFadingTriggered = true;
-            await fadeOutAudio(currentAudio, 10);
-            if (token !== musicPlayToken) return;
-            autoPlayTimeout = setTimeout(() => {
-              const randomIndex = Math.floor(Math.random() * tracks.length);
-              currentTrackIndex = randomIndex;
-              const nextTrack = tracks[randomIndex];
-              const nextTrackElement = trackList.children[randomIndex];
-              playTrack(nextTrack, nextTrackElement, trackList);
-            }, 3000);
-          }
+        currentAudio.addEventListener('timeupdate', fadeOutListener);
+        currentAudio.addEventListener('ended', () => {
+          currentAudio.removeEventListener('timeupdate', fadeOutListener);
         });
       }
     } catch (e) {
@@ -172,7 +162,7 @@ async function playTrack(track, trackElement, trackList) {
       return;
     }
     
-    // Update the UI: highlight the selected track entry.
+    // Update UI: unselect all track entries, then select the clicked one.
     trackList.querySelectorAll('.track-entry').forEach(entry => {
       entry.classList.remove('selected');
       if (entry.classList.contains('unlocked')) {
@@ -182,7 +172,19 @@ async function playTrack(track, trackElement, trackList) {
     trackElement.classList.add('selected');
     trackElement.style.color = '#00ff00';
     
-    // In AUTO mode, auto-play is handled through the autoFadeListener attached above.
+    // If AUTO mode is enabled, schedule a random track after the current one ends.
+    if (autoPlayMode) {
+      currentAudio.addEventListener('ended', () => {
+        if (token !== musicPlayToken) return;
+        autoPlayTimeout = setTimeout(() => {
+          const randomIndex = Math.floor(Math.random() * tracks.length);
+          currentTrackIndex = randomIndex;
+          const nextTrack = tracks[randomIndex];
+          const nextTrackElement = trackList.children[randomIndex];
+          playTrack(nextTrack, nextTrackElement, trackList);
+        }, 3000);
+      });
+    }
   }
 }
 
@@ -213,7 +215,6 @@ function initializeMusicMenu() {
     
     if (track.unlocked) {
       trackElement.classList.add('unlocked');
-      // Ensure unlocked songs appear in green.
       trackElement.style.color = '#00ff00';
     }
     
@@ -223,7 +224,7 @@ function initializeMusicMenu() {
         clearTimeout(autoPlayTimeout);
         autoPlayTimeout = null;
       }
-      // When a user manually clicks a track, switch to MANUAL mode.
+      // Switch to MAN (manual) mode when a track is clicked.
       autoPlayMode = false;
       saveMusicSettings(false);
       manualButton.classList.add('selected');
@@ -279,7 +280,6 @@ function initializeMusicMenu() {
     }
   });
   
-  // Periodically check if a song is not playing in AUTO mode and start one if needed.
   setInterval(() => {
     if (autoPlayMode && (!currentAudio || currentAudio.paused) && tracks.length > 0) {
       const randomIndex = Math.floor(Math.random() * tracks.length);
@@ -287,12 +287,11 @@ function initializeMusicMenu() {
       const trackElt = trackList.children[randomIndex];
       playTrack(tracks[randomIndex], trackElt, trackList);
     }
-  }, 30000); // 30 seconds check interval
+  }, 30000);
   
-  // The very first user interaction anywhere on the page will enable audio.
   document.addEventListener('click', () => {
     hasUserInteracted = true;
   }, { once: true });
 }
 
-export { initializeMusicMenu };
+export { initializeMusicMenu, setMusicVolume };
