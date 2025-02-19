@@ -10,6 +10,8 @@ let autoPlayMode = false;
 let currentTrackIndex = 0;
 let hasUserInteracted = false;
 let fadeOutListener = null;
+let autoPlayTimeout = null;
+let musicPlayToken = 0; // Incremented every time a new track is requested
 
 const tracks = [
   {
@@ -84,41 +86,50 @@ function fadeInAudio(audio, fadeDuration = 10) {
 
 async function playTrack(track, trackElement, trackList) {
   if (!hasUserInteracted) return;
-
+  
+  // Increment token to cancel any previous pending transitions.
+  musicPlayToken++;
+  const token = musicPlayToken;
+  
+  // Clear any scheduled auto-play timeout.
+  if (autoPlayTimeout) {
+    clearTimeout(autoPlayTimeout);
+    autoPlayTimeout = null;
+  }
+  
   if (track.unlocked) {
-    // If a song is already playing, fade it out smoothly and wait a short delay
+    // If a song is already playing, fade it out and wait before starting fresh.
     if (currentAudio) {
-      await fadeOutAudio(currentAudio, 10); // Fade out current song over 10 seconds
-      // Add an additional 3 second delay between tracks as desired
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await fadeOutAudio(currentAudio, 10); // Fade out over 10 seconds
+      await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay
+      if (token !== musicPlayToken) return; // Abort if a new track was requested meanwhile
       currentAudio = null;
     }
-
-    // Start the selected track
+    
+    // Start the selected track.
     currentAudio = new Audio(track.path);
     currentTrack = track.name;
     currentAudio.volume = 0;
-
-    // Update the UI to display the currently playing track
+    
+    // Update UI to display the currently playing track.
     const trackDisplay = document.querySelector('#music-menu .track');
     trackDisplay.textContent = `Playing: ${currentTrack}`;
-
+    
     try {
       const duration = await getDuration(track.path);
+      if (token !== musicPlayToken) return; // Abort if another track was selected meanwhile
       await currentAudio.play();
-      // Fade in the song over 10 seconds
-      await fadeInAudio(currentAudio, 10);
-
-      // For the natural end of the song, setup a smoother fade-out during its last 10 seconds:
+      await fadeInAudio(currentAudio, 10); // Fade in over 10 seconds
+      
+      // Setup a smooth fade out during the last 10 seconds of the track.
       if (duration > 10) {
-        // Remove any previous fadeOutListener before setting a new one
         if (fadeOutListener) {
           currentAudio.removeEventListener('timeupdate', fadeOutListener);
         }
         fadeOutListener = () => {
           const remaining = currentAudio.duration - currentAudio.currentTime;
           if (remaining <= 10) {
-            // Apply quadratic easing: as the remaining time decreases, volume drops more smoothly
+            // Use quadratic easing for a smoother fade: volume scales as (remaining/10)^2.
             currentAudio.volume = Math.pow(remaining / 10, 2);
           }
         };
@@ -129,31 +140,31 @@ async function playTrack(track, trackElement, trackList) {
       }
     } catch (e) {
       console.error('Error playing audio:', e);
+      const trackDisplay = document.querySelector('#music-menu .track');
       trackDisplay.textContent = 'Playing: No track';
       return;
     }
-
-    // Update the UI: ensure that all track entries are not selected and their text shows unlocked color (green)
+    
+    // Update the UI: unselect all track entries and then select the clicked one.
     trackList.querySelectorAll('.track-entry').forEach(entry => {
       entry.classList.remove('selected');
       if (entry.classList.contains('unlocked')) {
         entry.style.color = '#00ff00';
       }
     });
-    // Mark the clicked track as selected and enforce green text color
     trackElement.classList.add('selected');
     trackElement.style.color = '#00ff00';
-
-    // If auto-play mode is enabled, set the current track to advance automatically when this track ends.
+    
+    // If autopay mode is enabled, set up the auto transition when the track ends.
     if (autoPlayMode) {
       currentAudio.addEventListener('ended', () => {
-        currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
-        const nextTrack = tracks[currentTrackIndex];
-        const nextTrackElement = trackList.children[currentTrackIndex];
-        // A 3 second delay before the next track starts automatically
-        setTimeout(() => {
+        if (token !== musicPlayToken) return;
+        autoPlayTimeout = setTimeout(() => {
+          currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+          const nextTrack = tracks[currentTrackIndex];
+          const nextTrackElement = trackList.children[currentTrackIndex];
           playTrack(nextTrack, nextTrackElement, trackList);
-        }, 3000);
+        }, 3000); // 3 second delay before the next track starts automatically.
       });
     }
   }
@@ -166,11 +177,11 @@ function initializeMusicMenu() {
   const trackDisplay = musicMenu.querySelector('.track');
   const autoButton = musicMenu.querySelector('.music-auto');
   const manualButton = musicMenu.querySelector('.music-manual');
-
+  
   const trackList = document.createElement('div');
   trackList.className = 'track-list';
   musicContent.appendChild(trackList);
-
+  
   autoPlayMode = loadMusicSettings();
   if (autoPlayMode) {
     autoButton.classList.add('selected');
@@ -179,7 +190,7 @@ function initializeMusicMenu() {
     manualButton.classList.add('selected');
     autoButton.classList.remove('selected');
   }
-
+  
   tracks.forEach((track, index) => {
     const trackElement = document.createElement('div');
     trackElement.className = 'track-entry';
@@ -187,21 +198,25 @@ function initializeMusicMenu() {
     
     if (track.unlocked) {
       trackElement.classList.add('unlocked');
-      // Set unlocked songs to display in green
+      // Ensure unlocked songs appear in green.
       trackElement.style.color = '#00ff00';
     }
-
+    
     trackElement.addEventListener('click', () => {
       hasUserInteracted = true;
+      if (autoPlayTimeout) {
+        clearTimeout(autoPlayTimeout);
+        autoPlayTimeout = null;
+      }
       if (track.unlocked) {
         currentTrackIndex = index;
         playTrack(track, trackElement, trackList);
       }
     });
-
+    
     trackList.appendChild(trackElement);
   });
-
+  
   musicButton.addEventListener('click', () => {
     toggleMenu(musicButton, '#music-menu');
     
@@ -211,7 +226,7 @@ function initializeMusicMenu() {
       playTrack(firstTrack, firstTrackElement, trackList);
     }
   });
-
+  
   autoButton.addEventListener('click', () => {
     hasUserInteracted = true;
     autoPlayMode = true;
@@ -225,7 +240,7 @@ function initializeMusicMenu() {
       playTrack(firstTrack, firstTrackElement, trackList);
     }
   });
-
+  
   manualButton.addEventListener('click', () => {
     hasUserInteracted = true;
     autoPlayMode = false;
@@ -233,12 +248,17 @@ function initializeMusicMenu() {
     manualButton.classList.add('selected');
     autoButton.classList.remove('selected');
     
+    if (autoPlayTimeout) {
+      clearTimeout(autoPlayTimeout);
+      autoPlayTimeout = null;
+    }
+    
     if (currentAudio) {
       currentAudio.onended = null;
     }
   });
-
-  // Ensure that the very first user interaction anywhere on the page is recorded
+  
+  // The very first user interaction anywhere on the page will enable audio.
   document.addEventListener('click', () => {
     hasUserInteracted = true;
   }, { once: true });
