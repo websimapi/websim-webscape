@@ -1,7 +1,8 @@
 import { toggleMenu } from './menuManager.js';
 
 function initializeSpellbook() {
-  const spellbookButton = document.querySelector('.icon.inventory');
+  // Changed selector to match button 7 position
+  const spellbookButton = document.querySelector('.icon:nth-child(7)');
   const spellbook = document.getElementById('spellbook');
 
   // Setup spellbook toggle with menu management

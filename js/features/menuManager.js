@@ -2,7 +2,7 @@
 let activeButton = null;
 let activePanel = null;
 
-// Updated list of menu items with their corresponding panels, including the new Music panel.
+// Updated list of menu items with their corresponding panels
 const menuItems = {
   'friends-button': '.friends-list',
   'ignore-button': '.ignore-list', 
@@ -12,11 +12,11 @@ const menuItems = {
   'skills': '#skills-menu',
   'quest': '#quest-journal',
   'music': '#music-menu',
-  'spellbook': '#spellbook'
+  'spellbook': '#spellbook' // Ensure spellbook is included
 };
 
 function hideAllPanels() {
-  // Hide all panels defined in the menuItems mapping.
+  // Hide all panels defined in the menuItems mapping
   Object.values(menuItems).forEach(panelSelector => {
     const panel = document.querySelector(panelSelector);
     if (panel) {
@@ -49,7 +49,8 @@ function toggleMenu(button, panelSelector) {
       panelSelector.includes('game-options') ||
       panelSelector.includes('quest') ||
       panelSelector.includes('skills') ||
-      panelSelector.includes('music')
+      panelSelector.includes('music') ||
+      panelSelector.includes('spellbook') // Add spellbook to the shown class check
     ) {
       panel.classList.add('shown');
     }
@@ -70,7 +71,8 @@ function toggleMenu(button, panelSelector) {
     panelSelector.includes('game-options') ||
     panelSelector.includes('quest') ||
     panelSelector.includes('skills') ||
-    panelSelector.includes('music')
+    panelSelector.includes('music') ||
+    panelSelector.includes('spellbook') // Add spellbook to the shown class check
   ) {
     panel.classList.add('shown');
   }
