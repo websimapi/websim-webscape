@@ -1,9 +1,8 @@
 // Initialize WebSocket connection
 const room = new WebsimSocket();
 
-// Global arrays to store public and private message history with timestamps
+// Global array to store private message history
 const privateMessageHistory = [];
-const publicMessageHistory = [];
 
 // Track online users
 let onlineUsers = new Set();
@@ -80,7 +79,88 @@ function setupOverlay(overlay, input) {
 
 setupOverlay(messageOverlay, messageInput);
 
-// Handle private message overlay submissions
+/* --- Helper functions for sorted message insertion --- */
+function insertIntoChatContent(msgDiv) {
+  const chatContent = document.querySelector('.chat-content');
+  const newTimestamp = parseFloat(msgDiv.getAttribute('data-timestamp'));
+  let inserted = false;
+  // The chat container uses flex-direction: column-reverse so the DOM order should be descending (newest first)
+  for (let i = 0; i < chatContent.children.length; i++) {
+    const child = chatContent.children[i];
+    const childTimestamp = parseFloat(child.getAttribute('data-timestamp') || "0");
+    if (childTimestamp <= newTimestamp) {
+      chatContent.insertBefore(msgDiv, child);
+      inserted = true;
+      break;
+    }
+  }
+  if (!inserted) {
+    chatContent.appendChild(msgDiv);
+  }
+}
+
+function insertIntoSplitChat(msgDiv) {
+  const splitContainer = document.getElementById('split-private-chat');
+  if (splitContainer) {
+    splitContainer.appendChild(msgDiv);
+    // Limit history to last 5 messages
+    while (splitContainer.childElementCount > 5) {
+      splitContainer.removeChild(splitContainer.firstElementChild);
+    }
+  }
+}
+
+// Re-render all private messages based on current split-chat mode.
+// When split chat is off, private messages are merged into main chat; when on, they go into the split chat container.
+function renderAllPrivateMessages() {
+  const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+  const chatContent = document.querySelector('.chat-content');
+  // Remove any existing private messages from main chat
+  const existingPrivate = chatContent.querySelectorAll('.chat-message.private-message');
+  existingPrivate.forEach(elem => elem.remove());
+  const splitContainer = document.getElementById('split-private-chat');
+  if (splitContainer) {
+    splitContainer.innerHTML = '';
+  }
+  // Re-insert all private messages from history in the order they were received
+  privateMessageHistory.forEach(msg => {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'chat-message private-message';
+    msgDiv.setAttribute('data-timestamp', msg.timestamp);
+    if (msg.direction === 'to') {
+      msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
+    } else {
+      msgDiv.innerHTML = `From ${msg.sender}: ${msg.message}`;
+    }
+    if (splitPrivate) {
+      insertIntoSplitChat(msgDiv);
+    } else {
+      insertIntoChatContent(msgDiv);
+    }
+  });
+}
+window.renderPrivateMessages = renderAllPrivateMessages;
+
+/* --- Chat input for Public messages --- */
+const chatInput = document.querySelector('.chat-input');
+chatInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter' && chatInput.value.trim()) {
+    const message = chatInput.value.trim();
+    room.send({
+      type: 'chat',
+      message: message
+    });
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message user';
+    const timestamp = Date.now();
+    messageDiv.setAttribute('data-timestamp', timestamp);
+    messageDiv.innerHTML = `<span class="username">${room.party.client.username}</span><span class="separator">: </span>${message}`;
+    insertIntoChatContent(messageDiv);
+    chatInput.value = '';
+  }
+});
+
+/* --- Chat input for Private messages via overlay --- */
 messageInput.addEventListener('keypress', async (e) => {
   if (e.key === 'Enter' && messageInput.value.trim()) {
     const message = messageInput.value.trim();
@@ -93,7 +173,7 @@ messageInput.addEventListener('keypress', async (e) => {
         recipient: recipient
       });
       
-      // Save outgoing private message to history with timestamp and re-render chat history
+      // Save outgoing private message to history and insert into chat/split container
       const msgObj = {
         direction: 'to',
         recipient: recipient,
@@ -101,139 +181,27 @@ messageInput.addEventListener('keypress', async (e) => {
         timestamp: Date.now()
       };
       privateMessageHistory.push(msgObj);
-      renderChatHistory();
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-message private-message';
+      msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
+      msgDiv.innerHTML = `To ${recipient}: ${message}`;
+      const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+      if (splitPrivate) {
+        insertIntoSplitChat(msgDiv);
+      } else {
+        insertIntoChatContent(msgDiv);
+      }
     } else {
       const chatContent = document.querySelector('.chat-content');
       const messageDiv = document.createElement('div');
       messageDiv.className = 'chat-message system';
       messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
-      chatContent.insertBefore(messageDiv, chatContent.firstChild);
+      insertIntoChatContent(messageDiv);
     }
     
     messageOverlay.classList.remove('shown');
   }
 });
-
-// Global array to store chat messages is now split into publicMessageHistory and privateMessageHistory.
-// Handle public chat input – push message into history with timestamp and then re-render
-const chatInput = document.querySelector('.chat-input');
-chatInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter' && chatInput.value.trim()) {
-    const message = chatInput.value.trim();
-    room.send({
-      type: 'chat',
-      message: message
-    });
-    publicMessageHistory.push({
-      type: 'public',
-      username: room.party.client.username,
-      message: message,
-      timestamp: Date.now()
-    });
-    renderChatHistory();
-    chatInput.value = '';
-  }
-});
-
-// Handle incoming messages via WebSocket
-room.onmessage = (event) => {
-  const data = event.data;
-  switch (data.type) {
-    case 'chat':
-      if (data.clientId !== room.party.client.id) {
-        publicMessageHistory.push({
-          type: 'public',
-          username: data.username,
-          message: data.message,
-          timestamp: Date.now()
-        });
-        renderChatHistory();
-      }
-      break;
-    case 'private-message':
-      if (data.recipient === room.party.client.username) {
-        const msgObj = {
-          direction: 'from',
-          sender: data.username,
-          message: data.message,
-          timestamp: Date.now()
-        };
-        privateMessageHistory.push(msgObj);
-        renderChatHistory();
-      }
-      break;
-    default:
-      console.log("Received event:", data);
-  }
-};
-
-// New function to render chat history based on split chat mode and timestamps
-function renderChatHistory() {
-  const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-  const chatContent = document.querySelector('.chat-content');
-  // Clear the main chat content container
-  chatContent.innerHTML = "";
-  
-  if (splitPrivate) {
-    // Render public messages (sorted newest first) in main chat content
-    let sortedPublic = publicMessageHistory.slice().sort((a, b) => b.timestamp - a.timestamp);
-    sortedPublic.forEach(msg => {
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'chat-message';
-      msgDiv.innerHTML = `<span class="username">${msg.username}</span><span class="separator">: </span>${msg.message} <span class="timestamp">${new Date(msg.timestamp).toLocaleTimeString()}</span>`;
-      chatContent.appendChild(msgDiv);
-    });
-    
-    // Render private messages in the split chat container
-    const splitContainer = document.getElementById('split-private-chat');
-    if (splitContainer) {
-      splitContainer.innerHTML = "";
-      let sortedPrivate = privateMessageHistory.slice().sort((a, b) => b.timestamp - a.timestamp);
-      sortedPrivate.forEach(msg => {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'split-private-message';
-        if (msg.direction === 'to') {
-          msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message} <span class="timestamp">${new Date(msg.timestamp).toLocaleTimeString()}</span>`;
-        } else {
-          msgDiv.innerHTML = `From ${msg.sender}: ${msg.message} <span class="timestamp">${new Date(msg.timestamp).toLocaleTimeString()}</span>`;
-        }
-        splitContainer.appendChild(msgDiv);
-      });
-      // Limit split chat history to last 5 messages
-      while (splitContainer.childElementCount > 5) {
-        splitContainer.removeChild(splitContainer.firstElementChild);
-      }
-    }
-  } else {
-    // When split chat is off, merge public and private messages and sort all by timestamp
-    let allMessages = [];
-    allMessages = allMessages.concat(publicMessageHistory, privateMessageHistory.map(msg => {
-      return { ...msg, type: 'private' };
-    }));
-    allMessages.sort((a, b) => b.timestamp - a.timestamp);
-    allMessages.forEach(msg => {
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'chat-message';
-      if (msg.type === 'private') {
-        if (msg.direction === 'to') {
-          msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message} <span class="timestamp">${new Date(msg.timestamp).toLocaleTimeString()}</span>`;
-        } else {
-          msgDiv.innerHTML = `From ${msg.sender}: ${msg.message} <span class="timestamp">${new Date(msg.timestamp).toLocaleTimeString()}</span>`;
-        }
-      } else {
-        msgDiv.innerHTML = `<span class="username">${msg.username}</span><span class="separator">: </span>${msg.message} <span class="timestamp">${new Date(msg.timestamp).toLocaleTimeString()}</span>`;
-      }
-      chatContent.appendChild(msgDiv);
-    });
-    // Clear the split chat container when split chat mode is off
-    const splitContainer = document.getElementById('split-private-chat');
-    if (splitContainer) {
-      splitContainer.innerHTML = "";
-    }
-  }
-}
-
-setInterval(updateOnlineStatus, 3000);
 
 // Create a reusable chat context menu element.
 const chatContextMenu = document.createElement('div');
@@ -335,18 +303,66 @@ function hideUsernameHoverTooltip() {
   chatUsernameTooltip.style.display = 'none';
 }
 
-const usernameSpanElements = document.querySelectorAll('.username');
-usernameSpanElements.forEach(span => {
-  span.addEventListener('click', (e) => {
-    showChatContextMenu(e, room.party.client.username);
-  });
-  span.addEventListener('mouseover', (e) => {
-    showUsernameHoverTooltip(e, room.party.client.username);
-  });
-  span.addEventListener('mouseout', (e) => {
-    hideUsernameHoverTooltip();
-  });
-});
+const chatUsernameElements = document.querySelectorAll('.chat-message .username');
+// (Event listeners for username hover and context menu in public messages are added when messages are created)
 
-// Expose renderChatHistory globally so external modules can re-render chat as needed
-window.renderChatHistory = renderChatHistory;
+room.onmessage = (event) => {
+  const chatContent = document.querySelector('.chat-content');
+  switch (event.data.type) {
+    case 'chat': {
+      // For public chat messages from others
+      if (event.data.clientId !== room.party.client.id) {
+        const username = event.data.username;
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message user';
+        const timestamp = Date.now();
+        messageDiv.setAttribute('data-timestamp', timestamp);
+        messageDiv.innerHTML = `<span class="username">${username}</span><span class="separator">: </span>${event.data.message}`;
+        // Add event listeners for username interactions
+        const usernameSpan = messageDiv.querySelector('.username');
+        usernameSpan.addEventListener('click', (e) => {
+          showChatContextMenu(e, username);
+        });
+        usernameSpan.addEventListener('mouseover', (e) => {
+          showUsernameHoverTooltip(e, username);
+        });
+        usernameSpan.addEventListener('mouseout', (e) => {
+          hideUsernameHoverTooltip();
+        });
+        usernameSpan.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          showChatContextMenu(e, username);
+        });
+        insertIntoChatContent(messageDiv);
+      }
+      break;
+    }
+    case 'private-message': {
+      // For incoming private messages
+      if (event.data.recipient === room.party.client.username) {
+        const msgObj = {
+          direction: 'from',
+          sender: event.data.username,
+          message: event.data.message,
+          timestamp: Date.now()
+        };
+        privateMessageHistory.push(msgObj);
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'chat-message private-message';
+        msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
+        msgDiv.innerHTML = `From ${msgObj.sender}: ${msgObj.message}`;
+        const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+        if (splitPrivate) {
+          insertIntoSplitChat(msgDiv);
+        } else {
+          insertIntoChatContent(msgDiv);
+        }
+      }
+      break;
+    }
+    default:
+      console.log("Received event:", event.data);
+  }
+};
+
+setInterval(updateOnlineStatus, 3000);
