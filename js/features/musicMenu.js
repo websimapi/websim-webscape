@@ -24,6 +24,11 @@ const tracks = [
     name: 'Shadow Warden',
     path: '/shadow_warden.ogg',
     unlocked: true
+  },
+  {
+    name: 'No Thing',
+    path: '/no_thing.ogg',
+    unlocked: true
   }
 ];
 
