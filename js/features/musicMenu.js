@@ -117,21 +117,37 @@ function setMusicVolume(newVolume) {
   }
 }
 
-async function playTrack(track, trackElement, trackList) {
+async function playNextTrack(trackList, isAutoMode = false) {
   if (!hasUserInteracted) return;
   
-  // Increment token to cancel any previous pending transitions.
+  // Increment token to cancel any previous pending transitions
   musicPlayToken++;
   const token = musicPlayToken;
+
+  let nextIndex;
+  if (isAutoMode) {
+    nextIndex = Math.floor(Math.random() * tracks.length);
+  } else {
+    nextIndex = (currentTrackIndex + 1) % tracks.length;
+  }
+  currentTrackIndex = nextIndex;
+  const nextTrack = tracks[nextIndex];
+  const nextTrackElement = trackList.children[nextIndex];
   
-  // Clear any scheduled auto-play timeout.
+  await playTrack(nextTrack, nextTrackElement, trackList, token);
+}
+
+async function playTrack(track, trackElement, trackList, token = musicPlayToken) {
+  if (!hasUserInteracted) return;
+  
+  // Clear any scheduled auto-play timeout
   if (autoPlayTimeout) {
     clearTimeout(autoPlayTimeout);
     autoPlayTimeout = null;
   }
   
   if (track.unlocked) {
-    // If a song is already playing, fade it out and wait before starting a new one.
+    // If a song is already playing, fade it out and wait before starting a new one
     if (currentAudio) {
       await fadeOutAudio(currentAudio, 10);
       await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay between tracks
@@ -139,12 +155,12 @@ async function playTrack(track, trackElement, trackList) {
       currentAudio = null;
     }
     
-    // Start the selected track.
+    // Start the selected track
     currentAudio = new Audio(track.path);
     currentTrack = track.name;
     currentAudio.volume = 0;
     
-    // Update UI to display the currently playing track.
+    // Update UI to display the currently playing track
     const trackDisplay = document.querySelector('#music-menu .track');
     trackDisplay.textContent = `Playing: ${currentTrack}`;
     
@@ -154,7 +170,7 @@ async function playTrack(track, trackElement, trackList) {
       await currentAudio.play();
       await fadeInAudio(currentAudio, 10, token);
       
-      // Setup a smooth fade out during the last 10 seconds of the track.
+      // Setup a smooth fade out during the last 10 seconds of the track
       if (duration > 10) {
         if (fadeOutListener) {
           currentAudio.removeEventListener('timeupdate', fadeOutListener);
@@ -162,14 +178,22 @@ async function playTrack(track, trackElement, trackList) {
         fadeOutListener = () => {
           const remaining = currentAudio.duration - currentAudio.currentTime;
           if (remaining <= 10) {
-            currentAudio.volume = remaining / 10;
+            currentAudio.volume = Math.min(remaining / 10 * targetVolume, targetVolume);
           }
         };
         currentAudio.addEventListener('timeupdate', fadeOutListener);
-        currentAudio.addEventListener('ended', () => {
-          currentAudio.removeEventListener('timeupdate', fadeOutListener);
-        });
       }
+      
+      // Setup track end handling for both AUTO and MAN modes
+      currentAudio.addEventListener('ended', async () => {
+        if (token !== musicPlayToken) return;
+        if (autoPlayMode) {
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          if (token !== musicPlayToken) return;
+          playNextTrack(trackList, true);
+        }
+      });
+      
     } catch (e) {
       console.error('Error playing audio:', e);
       const trackDisplay = document.querySelector('#music-menu .track');
@@ -177,7 +201,7 @@ async function playTrack(track, trackElement, trackList) {
       return;
     }
     
-    // Update UI: unselect all track entries, then select the clicked one.
+    // Update UI: unselect all track entries, then select the clicked one
     trackList.querySelectorAll('.track-entry').forEach(entry => {
       entry.classList.remove('selected');
       if (entry.classList.contains('unlocked')) {
@@ -186,20 +210,6 @@ async function playTrack(track, trackElement, trackList) {
     });
     trackElement.classList.add('selected');
     trackElement.style.color = '#00ff00';
-    
-    // If AUTO mode is enabled, schedule a random track after the current one ends.
-    if (autoPlayMode) {
-      currentAudio.addEventListener('ended', () => {
-        if (token !== musicPlayToken) return;
-        autoPlayTimeout = setTimeout(() => {
-          const randomIndex = Math.floor(Math.random() * tracks.length);
-          currentTrackIndex = randomIndex;
-          const nextTrack = tracks[randomIndex];
-          const nextTrackElement = trackList.children[randomIndex];
-          playTrack(nextTrack, nextTrackElement, trackList);
-        }, 3000);
-      });
-    }
   }
 }
 
