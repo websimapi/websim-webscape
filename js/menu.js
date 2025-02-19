@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeQuestJournal();
   initializeSkillsMenu();
   initializeMusicMenu();
-  initializeSpellbook();
+  initializeSpellbook();  // Make sure this is included
 
   // Set default menu selection to logout button
   const defaultButton = document.querySelector('.bottom-icon:nth-child(4)');
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Close context menu on scroll
   document.addEventListener('scroll', hideContextMenu);
 
-  // FIX: In Two mouse mode, prevent the browser’s default context menu
+  // FIX: In Two mouse mode, prevent the browser's default context menu
   document.addEventListener('contextmenu', (e) => {
     if (window.mouseMode === "Two") {
       e.preventDefault();

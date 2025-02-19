@@ -3,11 +3,23 @@ import { toggleMenu } from './menuManager.js';
 function initializeSpellbook() {
   const spellbookButton = document.querySelector('.icon.inventory');
   const spellbookMenu = document.getElementById('spellbook-menu');
-  const spellbookContent = spellbookMenu.querySelector('.spellbook-content');
-  const spellbookGrid = spellbookContent.querySelector('.spellbook-grid');
-  const spellInfo = spellbookContent.querySelector('.spell-info');
+  
+  if (!spellbookButton || !spellbookMenu) {
+    console.error('Spellbook elements not found');
+    return;
+  }
 
-  // Create 64 empty spell slots
+  // Create spellbook grid
+  const spellbookGrid = spellbookMenu.querySelector('.spellbook-grid');
+  if (!spellbookGrid) {
+    console.error('Spellbook grid not found');
+    return;
+  }
+
+  // Clear any existing content
+  spellbookGrid.innerHTML = '';
+
+  // Create 64 empty spell slots (8x8 grid)
   for (let i = 0; i < 64; i++) {
     const spellSlot = document.createElement('div');
     spellSlot.className = 'spell-slot';
@@ -15,11 +27,17 @@ function initializeSpellbook() {
 
     // Add hover effect to show spell info
     spellSlot.addEventListener('mouseover', () => {
-      spellInfo.textContent = 'Empty spell slot';
+      const spellInfo = spellbookMenu.querySelector('.spell-info');
+      if (spellInfo) {
+        spellInfo.textContent = 'Empty spell slot';
+      }
     });
 
     spellSlot.addEventListener('mouseout', () => {
-      spellInfo.textContent = '';
+      const spellInfo = spellbookMenu.querySelector('.spell-info');
+      if (spellInfo) {
+        spellInfo.textContent = '';
+      }
     });
   }
 

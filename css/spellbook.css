@@ -18,6 +18,7 @@
   height: calc(100% - 4px);
   display: flex;
   flex-direction: column;
+  padding: 4px;
 }
 
 .spellbook-grid {
@@ -47,6 +48,7 @@
 .spell-info {
   background: #000;
   margin: 4px;
+  margin-top: auto;
   height: 40px;
   padding: 4px;
   color: #fff;
