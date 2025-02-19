@@ -195,6 +195,8 @@ messageInput.addEventListener('keypress', async (e) => {
       const chatContent = document.querySelector('.chat-content');
       const messageDiv = document.createElement('div');
       messageDiv.className = 'chat-message system';
+      const timestamp = Date.now(); // Fix: set timestamp for proper insertion order
+      messageDiv.setAttribute('data-timestamp', timestamp);
       messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
       insertIntoChatContent(messageDiv);
     }
@@ -318,6 +320,7 @@ room.onmessage = (event) => {
         const timestamp = Date.now();
         messageDiv.setAttribute('data-timestamp', timestamp);
         messageDiv.innerHTML = `<span class="username">${username}</span><span class="separator">: </span>${event.data.message}`;
+        
         // Add event listeners for username interactions
         const usernameSpan = messageDiv.querySelector('.username');
         usernameSpan.addEventListener('click', (e) => {
