@@ -57,10 +57,11 @@ function fadeOutAudio(audio, fadeDuration = 10) {
     const startTime = performance.now();
     const initialVolume = audio.volume;
     function step(now) {
-      let elapsed = now - startTime;
-      let fraction = elapsed / (fadeDuration * 1000);
+      const elapsed = now - startTime;
+      const fraction = elapsed / (fadeDuration * 1000);
+      const clampedFraction = Math.min(fraction, 1);
+      audio.volume = Math.max(initialVolume * (1 - clampedFraction), 0);
       if (fraction < 1) {
-        audio.volume = Math.max(initialVolume * (1 - fraction), 0);
         currentFadeOutAnimator = requestAnimationFrame(step);
       } else {
         audio.volume = 0;
@@ -78,10 +79,11 @@ function fadeInAudio(audio, fadeDuration = 10) {
   return new Promise((resolve) => {
     const startTime = performance.now();
     function step(now) {
-      let elapsed = now - startTime;
-      let fraction = elapsed / (fadeDuration * 1000);
+      const elapsed = now - startTime;
+      const fraction = elapsed / (fadeDuration * 1000);
+      const clampedFraction = Math.min(fraction, 1);
       if (fraction < 1) {
-        audio.volume = Math.min(fraction, 1);
+        audio.volume = Math.min(clampedFraction, 1);
         currentFadeInAnimator = requestAnimationFrame(step);
       } else {
         audio.volume = 1;
@@ -106,14 +108,14 @@ async function playTrack(track, trackElement, trackList) {
     autoPlayTimeout = null;
   }
   
-  // If a track is already playing (even if in fade in), cancel any ongoing fadeIn animation.
+  // Cancel any ongoing fade in animation if necessary.
   if (currentFadeInAnimator) {
     cancelAnimationFrame(currentFadeInAnimator);
     currentFadeInAnimator = null;
   }
   
   if (currentAudio) {
-    await fadeOutAudio(currentAudio, 10); // Fade out over 10 seconds (now smoother)
+    await fadeOutAudio(currentAudio, 10); // Smooth fade out over 10 seconds
     await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay before starting next track
     if (token !== musicPlayToken) return; // Abort if a new track was requested meanwhile
     currentAudio = null;
@@ -136,15 +138,14 @@ async function playTrack(track, trackElement, trackList) {
     
     // Setup smooth fade out during the last 10 seconds of the track.
     if (duration > 10) {
-      // Remove any previous fade out listener if exists.
       if (currentAudio._fadeOutListener) {
         currentAudio.removeEventListener('timeupdate', currentAudio._fadeOutListener);
       }
       const fadeOutListener = () => {
         const remaining = currentAudio.duration - currentAudio.currentTime;
         if (remaining <= 10) {
-          // Linear easing for smoother fade out over the last 10 seconds.
-          currentAudio.volume = remaining / 10;
+          // Ensure volume does not go below 0 using Math.max
+          currentAudio.volume = Math.max(remaining / 10, 0);
         }
       };
       currentAudio._fadeOutListener = fadeOutListener;
@@ -160,7 +161,7 @@ async function playTrack(track, trackElement, trackList) {
     return;
   }
   
-  // Update the UI: unselect all track entries and then select the clicked one.
+  // Update the UI: unselect all track entries then select the clicked one.
   trackList.querySelectorAll('.track-entry').forEach(entry => {
     entry.classList.remove('selected');
     if (entry.classList.contains('unlocked')) {
@@ -170,7 +171,7 @@ async function playTrack(track, trackElement, trackList) {
   trackElement.classList.add('selected');
   trackElement.style.color = '#00ff00';
   
-  // If AUTO mode is enabled, schedule a random track after song ends.
+  // In AUTO mode, schedule a random track after the song ends.
   if (autoPlayMode) {
     currentAudio.addEventListener('ended', () => {
       if (token !== musicPlayToken) return;
@@ -212,7 +213,7 @@ function initializeMusicMenu() {
     
     if (track.unlocked) {
       trackElement.classList.add('unlocked');
-      // Ensure unlocked songs appear in green.
+      // Unlocked songs appear in green.
       trackElement.style.color = '#00ff00';
     }
     
