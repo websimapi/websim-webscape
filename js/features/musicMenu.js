@@ -28,6 +28,19 @@ function saveMusicSettings(isAuto) {
   localStorage.setItem('musicMode', isAuto ? 'auto' : 'manual');
 }
 
+async function getDuration(audioPath) {
+  return new Promise((resolve) => {
+    const audio = new Audio(audioPath);
+    audio.addEventListener('loadedmetadata', () => {
+      resolve(audio.duration);
+    });
+    // Set error handler in case the audio fails to load
+    audio.addEventListener('error', () => {
+      resolve(0); // Return 0 duration on error
+    });
+  });
+}
+
 async function playTrack(track, trackElement, trackList) {
   if (!hasUserInteracted) return;
 
@@ -69,6 +82,9 @@ async function playTrack(track, trackElement, trackList) {
     trackDisplay.textContent = `Playing: ${currentTrack}`;
     
     try {
+      // Get the duration before playing
+      const duration = await getDuration(track.path);
+      
       await currentAudio.play();
       
       // Fade in over 10 seconds
@@ -77,7 +93,7 @@ async function playTrack(track, trackElement, trackList) {
       const steps = fadeInDuration * 1000 / fadeInInterval;
       const volumeStep = 1 / steps;
       
-      let fadeInTimer = setInterval(() => {
+      const fadeInTimer = setInterval(() => {
         if (currentAudio.volume < 1 - volumeStep) {
           currentAudio.volume += volumeStep;
         } else {
@@ -87,22 +103,25 @@ async function playTrack(track, trackElement, trackList) {
       }, fadeInInterval);
       
       // Setup fade out for end of track
-      const duration = currentAudio.duration;
-      if (!isNaN(duration)) {
+      if (duration > 0) {
+        // Schedule the fade out to start 10 seconds before the end
+        const fadeOutStart = (duration - 10) * 1000;
         setTimeout(() => {
-          const fadeOutInterval = 50;
-          const fadeOutSteps = 10 * 1000 / fadeOutInterval;
-          const fadeOutStep = currentAudio.volume / fadeOutSteps;
-          
-          let fadeOutTimer = setInterval(() => {
-            if (currentAudio && currentAudio.volume > fadeOutStep) {
-              currentAudio.volume -= fadeOutStep;
-            } else if (currentAudio) {
-              currentAudio.volume = 0;
-              clearInterval(fadeOutTimer);
-            }
-          }, fadeOutInterval);
-        }, (duration - 10) * 1000);
+          if (currentAudio) {
+            const fadeOutInterval = 50;
+            const fadeOutSteps = 10 * 1000 / fadeOutInterval;
+            const fadeOutStep = currentAudio.volume / fadeOutSteps;
+            
+            const fadeOutTimer = setInterval(() => {
+              if (currentAudio && currentAudio.volume > fadeOutStep) {
+                currentAudio.volume -= fadeOutStep;
+              } else if (currentAudio) {
+                currentAudio.volume = 0;
+                clearInterval(fadeOutTimer);
+              }
+            }, fadeOutInterval);
+          }
+        }, fadeOutStart);
       }
 
     } catch (e) {
