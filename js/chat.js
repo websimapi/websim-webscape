@@ -125,15 +125,14 @@ function showChatContextMenu(e, username) {
   // Do not show dropdown for your own username.
   if (username === room.party.client.username) return;
   
-  // NEW: In Two-mouse mode, left-click will immediately perform the primary action (message).
+  // In Two-mouse mode, left-click will immediately perform the primary action (message).
   if (window.mouseMode === "Two" && e.button === 0) {
     showMessageOverlay(username);
     return;
   }
   
   e.preventDefault();
-  e.stopPropagation();
-
+  
   // Get game container bounds to ensure our menu doesn’t go outside.
   const gameContainer = document.getElementById('client-wrapper');
   const containerBounds = gameContainer.getBoundingClientRect();
@@ -168,10 +167,10 @@ function showChatContextMenu(e, username) {
   chatContextMenu.style.left = `${xPos}px`;
   chatContextMenu.style.top = `${yPos}px`;
 
-  const messageOption = chatContextMenu.querySelector('.message');
-  const addFriendOption = chatContextMenu.querySelector('.add-friend');
-  const addIgnoreOption = chatContextMenu.querySelector('.add-ignore');
-  const cancelOption = chatContextMenu.querySelector('.cancel');
+  const messageOption = chatContextMenu.querySelector('.context-menu-option.message');
+  const addFriendOption = chatContextMenu.querySelector('.context-menu-option.add-friend');
+  const addIgnoreOption = chatContextMenu.querySelector('.context-menu-option.add-ignore');
+  const cancelOption = chatContextMenu.querySelector('.context-menu-option.cancel');
 
   messageOption.addEventListener('click', (event) => {
     event.stopPropagation();
@@ -246,7 +245,13 @@ chatInput.addEventListener('keypress', (e) => {
     messageDiv.innerHTML = `<span class="username">${room.party.client.username}</span><span class="separator">: </span>${message}`;
 
     const usernameSpan = messageDiv.querySelector('.username');
+    // For left click on own username (in Two-mouse mode, left click triggers message)
     usernameSpan.addEventListener('click', (e) => {
+      showChatContextMenu(e, room.party.client.username);
+    });
+    // For right click, always open dropdown menu
+    usernameSpan.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
       showChatContextMenu(e, room.party.client.username);
     });
     usernameSpan.addEventListener('mouseover', (e) => {
@@ -273,6 +278,11 @@ room.onmessage = (event) => {
         messageDiv.innerHTML = `<span class="username">${event.data.username}</span><span class="separator">: </span>${event.data.message}`;
         const usernameSpan = messageDiv.querySelector('.username');
         usernameSpan.addEventListener('click', (e) => {
+          showChatContextMenu(e, event.data.username);
+        });
+        // Add contextmenu listener to trigger dropdown on right click in Two-mouse mode
+        usernameSpan.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
           showChatContextMenu(e, event.data.username);
         });
         usernameSpan.addEventListener('mouseover', (e) => {
