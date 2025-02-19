@@ -297,7 +297,7 @@ function initializeMusicMenu() {
       const trackElt = trackList.children[randomIndex];
       playTrack(tracks[randomIndex], trackElt, trackList);
     }
-  }, 7000);  // Changed from 30000ms to 7000ms (7 seconds)
+  }, 30000);
   
   document.addEventListener('click', () => {
     hasUserInteracted = true;
