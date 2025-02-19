@@ -34,6 +34,11 @@ const tracks = [
     name: "Aurora's Lullaby",
     path: "/lurora's_lullaby.ogg",
     unlocked: true
+  },
+  {
+    name: "Pig Pipe",
+    path: "/pig_pipe.ogg", 
+    unlocked: true
   }
 ];
 
