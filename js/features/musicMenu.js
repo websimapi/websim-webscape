@@ -176,7 +176,6 @@ function initializeMusicMenu() {
   const musicButton = document.querySelector('.bottom-icon.music');
   const musicMenu = document.getElementById('music-menu');
   const musicContent = musicMenu.querySelector('.music-content');
-  const trackDisplay = musicMenu.querySelector('.track');
   const autoButton = musicMenu.querySelector('.music-auto');
   const manualButton = musicMenu.querySelector('.music-manual');
   
@@ -274,7 +273,7 @@ function initializeMusicMenu() {
       const trackElt = trackList.children[randomIndex];
       playTrack(tracks[randomIndex], trackElt, trackList);
     }
-  }, 3000);
+  }, 30000); // Changed from 3000ms to 30000ms (30 seconds)
   
   // The very first user interaction anywhere on the page will enable audio.
   document.addEventListener('click', () => {
