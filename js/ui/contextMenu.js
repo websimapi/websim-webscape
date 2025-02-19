@@ -5,12 +5,10 @@ document.body.appendChild(contextMenu);
 
 function showContextMenu(e, username, onMessage, onRemove) {
   e.preventDefault();
-
-  // Position and show context menu based on event coordinates
+  
   contextMenu.style.left = `${e.pageX}px`;
   contextMenu.style.top = `${e.pageY}px`;
 
-  // Set menu options HTML
   contextMenu.innerHTML = `
     <div class="context-menu-option message">Message ${username}</div>
     <div class="context-menu-option remove">Remove ${username}</div>
@@ -19,7 +17,6 @@ function showContextMenu(e, username, onMessage, onRemove) {
   
   contextMenu.classList.add('shown');
 
-  // For Firefox compatibility, use 'mouseup' instead of 'click'
   const isFirefox = typeof InstallTrigger !== 'undefined';
   const eventType = isFirefox ? 'mouseup' : 'click';
 
@@ -49,4 +46,23 @@ function hideContextMenu() {
   contextMenu.classList.remove('shown');
 }
 
-export { showContextMenu, hideContextMenu };
+function handleMouseContextMenu(e, username, onMessage, onRemove) {
+  const mouseMode = localStorage.getItem('mouseMode') || 'two';
+  if (mouseMode === 'two') {
+    if (e.button === 0) {
+      // In Two mouse mode, left click immediately triggers the first action (Message)
+      e.preventDefault();
+      if (onMessage) onMessage();
+    } else if (e.button === 2) {
+      // Right click shows the full sub menu
+      e.preventDefault();
+      showContextMenu(e, username, onMessage, onRemove);
+    }
+  } else {
+    // In One mouse mode, regardless of which button is pressed, always open the drop down
+    e.preventDefault();
+    showContextMenu(e, username, onMessage, onRemove);
+  }
+}
+
+export { showContextMenu, hideContextMenu, handleMouseContextMenu };

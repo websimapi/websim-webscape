@@ -15,7 +15,6 @@ function initializeGameOptions() {
   const buttons = gameOptionsPanel.querySelectorAll('.game-options-buttons button');
   buttons.forEach(button => {
     button.addEventListener('click', () => {
-      // Mark the clicked button as selected while unselecting its siblings.
       const parent = button.parentElement;
       parent.querySelectorAll('button').forEach(btn => btn.classList.remove('selected'));
       button.classList.add('selected');
@@ -80,6 +79,37 @@ function initializeGameOptions() {
       });
     });
   }
+  
+  // Setup Mouse Button Mode control
+  // The Mouse Buttons section is identified by its header text "Mouse Buttons"
+  const gameOptionsColumns = gameOptionsPanel.querySelectorAll('.game-options-column');
+  gameOptionsColumns.forEach(column => {
+    if (column.textContent.includes('Mouse Buttons')) {
+      const mouseButtonsContainer = column.querySelector('.game-options-buttons');
+      const mouseButtons = mouseButtonsContainer.querySelectorAll('button');
+      // Load stored mouse mode from localStorage, default to 'two'
+      let storedMouseMode = localStorage.getItem('mouseMode') || 'two';
+      mouseButtons.forEach(button => {
+        const btnText = button.textContent.trim().toLowerCase();
+        if (btnText === storedMouseMode) {
+          button.classList.add('selected');
+        } else {
+          button.classList.remove('selected');
+        }
+        button.addEventListener('click', () => {
+          const selectedMode = button.textContent.trim().toLowerCase();
+          localStorage.setItem('mouseMode', selectedMode);
+          mouseButtons.forEach(btn => {
+            if (btn.textContent.trim().toLowerCase() === selectedMode) {
+              btn.classList.add('selected');
+            } else {
+              btn.classList.remove('selected');
+            }
+          });
+        });
+      });
+    }
+  });
 }
 
 export { initializeGameOptions };

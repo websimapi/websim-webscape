@@ -1,5 +1,5 @@
 import { addTooltip, tooltip } from '../ui/tooltips.js';
-import { showContextMenu, hideContextMenu } from '../ui/contextMenu.js';
+import { showContextMenu, hideContextMenu, handleMouseContextMenu } from '../ui/contextMenu.js';
 import { setupOverlay } from '../ui/overlays.js';
 import { toggleMenu } from './menuManager.js';
 
@@ -27,7 +27,6 @@ function initializeFriendsList() {
   setupOverlay(addFriendOverlay, addFriendInput);
   setupOverlay(delFriendOverlay, delFriendInput);
 
-  // --- Local Storage Persistence Functions ---
   function saveFriendsList() {
     const friendEntries = friendsListContainer.querySelectorAll('.list-entry');
     const friendsData = Array.from(friendEntries).map(entry => {
@@ -48,7 +47,6 @@ function initializeFriendsList() {
     return [];
   }
 
-  // Populate friends list from local storage on initialization
   const storedFriends = loadFriendsList();
   storedFriends.forEach(friend => {
     const newFriend = document.createElement('div');
@@ -60,21 +58,18 @@ function initializeFriendsList() {
     friendsListContainer.appendChild(newFriend);
   });
 
-  // Add Friend button click handler
   addFriendButton.addEventListener('click', () => {
     addFriendOverlay.classList.add('shown');
     addFriendInput.value = '';
     addFriendInput.focus();
   });
 
-  // Del Friend button click handler
   delFriendButton.addEventListener('click', () => {
     delFriendOverlay.classList.add('shown');
     delFriendInput.value = '';
     delFriendInput.focus();
   });
 
-  // Handle overlay submissions
   document.addEventListener('overlay-submit', (e) => {
     const { name, overlay } = e.detail;
     
@@ -99,7 +94,6 @@ function initializeFriendsList() {
     }
   });
 
-  // Setup friend list hover effects
   friendsListContainer.addEventListener('mouseover', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
@@ -120,14 +114,15 @@ function initializeFriendsList() {
     }
   });
 
-  // Handle friend list clicks – Message action and removal via context menu
+  // Use our new mouse mode aware function to handle context menu actions.
   friendsListContainer.addEventListener('click', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
       const username = playerNameElement.textContent;
-      showContextMenu(e, username, 
+      handleMouseContextMenu(
+        e,
+        username,
         () => {
-          // Messaging callback: trigger the message overlay using the globally available function
           if (typeof showMessageOverlay === 'function') {
             showMessageOverlay(username);
           } else {
