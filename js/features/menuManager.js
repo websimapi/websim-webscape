@@ -1,8 +1,7 @@
-// Track currently active menu button and panel
 let activeButton = null;
 let activePanel = null;
 
-// Updated list of menu items with their corresponding panels, including the new Eldritch Book panel.
+// Updated menu mapping to include the Spellbook panel.
 const menuItems = {
   'friends-button': '.friends-list',
   'ignore-button': '.ignore-list', 
@@ -12,11 +11,10 @@ const menuItems = {
   'skills': '#skills-menu',
   'quest': '#quest-journal',
   'music': '#music-menu',
-  'eldritch': '#eldritch-book'
+  'spellbook': '#spellbook'
 };
 
 function hideAllPanels() {
-  // Hide all panels defined in the menuItems mapping.
   Object.values(menuItems).forEach(panelSelector => {
     const panel = document.querySelector(panelSelector);
     if (panel) {
@@ -27,7 +25,6 @@ function hideAllPanels() {
     }
   });
 
-  // Remove selected state from all buttons
   const allButtons = document.querySelectorAll('.bottom-icon, .icon');
   allButtons.forEach(button => {
     button.classList.remove('selected');
@@ -36,10 +33,9 @@ function hideAllPanels() {
 
 function toggleMenu(button, panelSelector) {
   const panel = document.querySelector(panelSelector);
-  
-  // If clicking the same button that's already active
+
+  // If clicking the same button that's already active:
   if (button === activeButton) {
-    // Keep current selection but ensure only this button remains selected
     hideAllPanels();
     button.classList.add('selected');
     panel.classList.remove('hidden');
@@ -49,7 +45,8 @@ function toggleMenu(button, panelSelector) {
       panelSelector.includes('game-options') ||
       panelSelector.includes('quest') ||
       panelSelector.includes('skills') ||
-      panelSelector.includes('music')
+      panelSelector.includes('music') ||
+      panelSelector.includes('spellbook')
     ) {
       panel.classList.add('shown');
     }
@@ -58,10 +55,10 @@ function toggleMenu(button, panelSelector) {
     return;
   }
 
-  // Hide all other panels first
+  // Hide all other panels.
   hideAllPanels();
 
-  // Show the selected panel and mark button as selected
+  // Show the new panel.
   button.classList.add('selected');
   panel.classList.remove('hidden');
   if (
@@ -70,7 +67,8 @@ function toggleMenu(button, panelSelector) {
     panelSelector.includes('game-options') ||
     panelSelector.includes('quest') ||
     panelSelector.includes('skills') ||
-    panelSelector.includes('music')
+    panelSelector.includes('music') ||
+    panelSelector.includes('spellbook')
   ) {
     panel.classList.add('shown');
   }

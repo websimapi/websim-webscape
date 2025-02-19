@@ -8,10 +8,10 @@ import { hideContextMenu } from './ui/contextMenu.js';
 import { hideAllPanels } from './features/menuManager.js';
 import { initializeSkillsMenu } from './features/skillsMenu.js';
 import { initializeMusicMenu } from './features/musicMenu.js';
-import { initializeEldritchBook } from './features/eldritchBook.js';
+import { initializeSpellbookUI } from './features/spellbook.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize all features
+  // Initialize all features.
   initializeFriendsList();
   initializeIgnoreList();
   initializeInventory();
@@ -20,23 +20,23 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeQuestJournal();
   initializeSkillsMenu();
   initializeMusicMenu();
-  initializeEldritchBook();
+  initializeSpellbookUI();
 
-  // Set default menu selection to logout button
+  // Set default menu selection to logout button.
   const defaultButton = document.querySelector('.bottom-icon:nth-child(4)');
   defaultButton.click();
 
-  // Global click handler to close context menu only
+  // Global click handler to close context menu.
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.context-menu') && !e.target.closest('.player-name')) {
       hideContextMenu();
     }
   });
 
-  // Close context menu on scroll
+  // Close context menu on scroll.
   document.addEventListener('scroll', hideContextMenu);
 
-  // FIX: In Two mouse mode, prevent the browser’s default context menu
+  // Prevent browser’s default context menu in Two mouse mode.
   document.addEventListener('contextmenu', (e) => {
     if (window.mouseMode === "Two") {
       e.preventDefault();
