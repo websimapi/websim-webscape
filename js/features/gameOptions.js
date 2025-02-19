@@ -33,12 +33,9 @@ function initializeGameOptions() {
       "4": 1.0
     };
     const volumeButtons = musicVolumeSection.querySelectorAll('.game-options-buttons button');
-    // Retrieve stored music volume; default to 1.0 if not present.
     let storedVolume = localStorage.getItem('musicVolume');
     let initialVolume = storedVolume !== null ? parseFloat(storedVolume) : 1.0;
-    // Set the music volume initially.
     setMusicVolume(initialVolume);
-    // Mark the corresponding button as selected.
     volumeButtons.forEach(button => {
       const text = button.textContent.trim();
       if (volumeMapping[text] === initialVolume) {
@@ -46,7 +43,6 @@ function initializeGameOptions() {
       } else {
         button.classList.remove('selected');
       }
-      // Attach click event to update volume, persist the setting, and update button indicator.
       button.addEventListener('click', () => {
         const btnText = button.textContent.trim();
         const newVolume = volumeMapping[btnText];
@@ -54,6 +50,33 @@ function initializeGameOptions() {
         localStorage.setItem('musicVolume', newVolume);
         volumeButtons.forEach(btn => btn.classList.remove('selected'));
         button.classList.add('selected');
+      });
+    });
+  }
+
+  // Setup Split Private-chat control
+  const splitChatSection = document.getElementById('split-private-chat-section');
+  if (splitChatSection) {
+    const splitButtons = splitChatSection.querySelectorAll('.game-options-buttons button');
+    let storedSplit = localStorage.getItem('splitPrivateChat');
+    let splitEnabled = storedSplit === 'true';
+    splitButtons.forEach(button => {
+      if (button.textContent.trim() === (splitEnabled ? "On" : "Off")) {
+        button.classList.add('selected');
+      } else {
+        button.classList.remove('selected');
+      }
+      button.addEventListener('click', () => {
+        const value = (button.textContent.trim() === "On");
+        localStorage.setItem('splitPrivateChat', value);
+        splitEnabled = value;
+        splitButtons.forEach(btn => {
+          if (btn.textContent.trim() === (value ? "On" : "Off")) {
+            btn.classList.add('selected');
+          } else {
+            btn.classList.remove('selected');
+          }
+        });
       });
     });
   }

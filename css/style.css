@@ -537,3 +537,23 @@ body {
 #music-volume-section .game-options-buttons button.selected {
   background: #800000;
 }
+
+/* Split Private Chat Container */
+#split-private-chat {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  max-width: 40%;
+  max-height: 30%;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 8px;
+  border: 1px solid #00ffff;
+  border-radius: 4px;
+  font-size: 14px;
+  color: cyan;
+  display: none;
+}
+.split-private-message {
+  margin-bottom: 4px;
+}

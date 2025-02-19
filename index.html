@@ -18,6 +18,7 @@
     <div id="left-column">
       <div id="game-screen">
         <!-- Game content would be rendered here -->
+        <div id="split-private-chat"></div>
       </div>
       <div id="chat-window">
         <div class="chat-content">
@@ -144,16 +145,16 @@
             </div>
           </div>
           
-          <div class="game-options-section">
+          <div class="game-options-section" id="split-private-chat-section">
             <div class="game-options-header">Split Private-chat</div>
             <div class="game-options-buttons">
+              <button type="button" class="selected">Off</button>
               <button type="button">On</button>
-              <button type="button">Off</button>
             </div>
           </div>
           
-          <div class="game-options-section" id="music-volume-section">
-            <div class="game-options-header">Music Volume</div>
+          <div class="game-options-section">
+            <div class="game-options-header">Effect Volume</div>
             <div class="game-options-buttons">
               <button type="button">Off</button>
               <button type="button">1</button>
@@ -163,8 +164,8 @@
             </div>
           </div>
           
-          <div class="game-options-section">
-            <div class="game-options-header">Effect Volume</div>
+          <div class="game-options-section" id="music-volume-section">
+            <div class="game-options-header">Music Volume</div>
             <div class="game-options-buttons">
               <button type="button">Off</button>
               <button type="button">1</button>

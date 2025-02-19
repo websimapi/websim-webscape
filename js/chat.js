@@ -90,7 +90,7 @@ messageInput.addEventListener('keypress', async (e) => {
         recipient: recipient
       });
       
-      // Add message to chat
+      // Add message to chat (for sent private messages, we will leave them in chat)
       const chatContent = document.querySelector('.chat-content');
       const messageDiv = document.createElement('div');
       messageDiv.className = 'chat-message private-message';
@@ -291,8 +291,20 @@ room.onmessage = (event) => {
       
     case 'private-message':
       if (event.data.recipient === room.party.client.username) {
-        messageDiv.className = 'chat-message private-message';
-        messageDiv.innerHTML = `From ${event.data.username}: ${event.data.message}`;
+        const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+        if (splitPrivate) {
+          const splitContainer = document.getElementById('split-private-chat');
+          if (splitContainer) {
+            const splitMessage = document.createElement('div');
+            splitMessage.className = 'split-private-message';
+            splitMessage.textContent = `From ${event.data.username}: ${event.data.message}`;
+            splitContainer.appendChild(splitMessage);
+            splitContainer.style.display = 'block';
+          }
+        } else {
+          messageDiv.className = 'chat-message private-message';
+          messageDiv.innerHTML = `From ${event.data.username}: ${event.data.message}`;
+        }
       }
       break;
   }
