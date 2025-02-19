@@ -13,7 +13,6 @@ let fadeOutListener = null;
 let autoPlayTimeout = null;
 let musicPlayToken = 0; // Incremented every time a new track is requested
 let targetVolume = 1; // Default target volume (100%)
-let isMuted = false; // Track muted state separately from volume
 
 const tracks = [
   {
@@ -67,13 +66,18 @@ async function getDuration(audioPath) {
 // Fade out the given audio to 0 volume smoothly over fadeDuration seconds.
 function fadeOutAudio(audio, fadeDuration = 10) {
   return new Promise((resolve) => {
+    if (!audio || audio.volume === 0) {
+      resolve();
+      return;
+    }
     const startVolume = audio.volume;
     const startTime = performance.now();
     function step() {
       const elapsed = performance.now() - startTime;
       const fraction = elapsed / (fadeDuration * 1000);
       if (fraction < 1) {
-        audio.volume = Math.max(startVolume * (1 - fraction), 0);
+        const newVolume = Math.max(0, startVolume * (1 - fraction));
+        audio.volume = newVolume;
         requestAnimationFrame(step);
       } else {
         audio.volume = 0;
@@ -86,9 +90,13 @@ function fadeOutAudio(audio, fadeDuration = 10) {
 }
 
 // Fade in the audio from volume 0 to the targetVolume over fadeDuration seconds.
-// Uses an ease-out quadratic for smoothness and supports cancellation via token.
 function fadeInAudio(audio, fadeDuration = 10, token) {
   return new Promise((resolve) => {
+    if (targetVolume === 0) {
+      audio.volume = 0;
+      resolve();
+      return;
+    }
     const startTime = performance.now();
     function step() {
       if (token !== musicPlayToken) {
@@ -99,7 +107,7 @@ function fadeInAudio(audio, fadeDuration = 10, token) {
       const fraction = elapsed / (fadeDuration * 1000);
       if (fraction < 1) {
         const eased = 1 - Math.pow(1 - fraction, 2);
-        audio.volume = Math.min(eased, targetVolume);
+        audio.volume = Math.min(eased * targetVolume, targetVolume);
         requestAnimationFrame(step);
       } else {
         audio.volume = targetVolume;
@@ -110,36 +118,29 @@ function fadeInAudio(audio, fadeDuration = 10, token) {
   });
 }
 
-// Allow external modules (like game options) to set the music volume
+// Allow external modules (like game options) to set the music volume.
 function setMusicVolume(newVolume) {
   targetVolume = newVolume;
-  isMuted = (newVolume === 0);
-  
   if (currentAudio) {
-    if (isMuted) {
-      currentAudio.volume = 0;
-    } else {
-      currentAudio.volume = newVolume;
-    }
+    currentAudio.volume = newVolume;
   }
 }
 
 async function playTrack(track, trackElement, trackList) {
-  // If we haven't had user interaction yet, exit early
   if (!hasUserInteracted) return;
   
-  // Increment token to cancel any previous pending transitions
+  // Increment token to cancel any previous pending transitions.
   musicPlayToken++;
   const token = musicPlayToken;
   
-  // Clear any scheduled auto-play timeout
+  // Clear any scheduled auto-play timeout.
   if (autoPlayTimeout) {
     clearTimeout(autoPlayTimeout);
     autoPlayTimeout = null;
   }
   
   if (track.unlocked) {
-    // If a song is already playing, fade it out and wait before starting a new one
+    // If a song is already playing, fade it out and wait before starting a new one.
     if (currentAudio) {
       await fadeOutAudio(currentAudio, 10);
       await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay between tracks
@@ -147,12 +148,12 @@ async function playTrack(track, trackElement, trackList) {
       currentAudio = null;
     }
     
-    // Start the selected track
+    // Start the selected track.
     currentAudio = new Audio(track.path);
     currentTrack = track.name;
-    currentAudio.volume = isMuted ? 0 : targetVolume;
+    currentAudio.volume = 0;
     
-    // Update UI to display the currently playing track
+    // Update UI to display the currently playing track.
     const trackDisplay = document.querySelector('#music-menu .track');
     trackDisplay.textContent = `Playing: ${currentTrack}`;
     
@@ -160,25 +161,43 @@ async function playTrack(track, trackElement, trackList) {
       const duration = await getDuration(track.path);
       if (token !== musicPlayToken) return;
       await currentAudio.play();
-      if (!isMuted) {
-        await fadeInAudio(currentAudio, 10, token);
-      }
+      await fadeInAudio(currentAudio, 10, token);
       
-      // Setup a smooth fade out during the last 10 seconds of the track
       if (duration > 10) {
+        // Setup fade out for both manual and auto modes
+        const startFadeTime = duration - 10;
+        
         if (fadeOutListener) {
           currentAudio.removeEventListener('timeupdate', fadeOutListener);
         }
+        
         fadeOutListener = () => {
-          if (!isMuted && duration - currentAudio.currentTime <= 10) {
-            currentAudio.volume = ((duration - currentAudio.currentTime) / 10) * targetVolume;
+          if (currentAudio.currentTime >= startFadeTime) {
+            const remainingTime = duration - currentAudio.currentTime;
+            const fadeRatio = remainingTime / 10;
+            currentAudio.volume = Math.max(0, targetVolume * fadeRatio);
           }
         };
+        
         currentAudio.addEventListener('timeupdate', fadeOutListener);
+        
+        // Handle track end
         currentAudio.addEventListener('ended', () => {
           currentAudio.removeEventListener('timeupdate', fadeOutListener);
+          currentAudio.volume = 0; // Ensure volume is 0 when track ends
+          
+          if (autoPlayMode && token === musicPlayToken) {
+            autoPlayTimeout = setTimeout(() => {
+              const randomIndex = Math.floor(Math.random() * tracks.length);
+              currentTrackIndex = randomIndex;
+              const nextTrack = tracks[randomIndex];
+              const nextTrackElement = trackList.children[randomIndex];
+              playTrack(nextTrack, nextTrackElement, trackList);
+            }, 3000);
+          }
         });
       }
+      
     } catch (e) {
       console.error('Error playing audio:', e);
       const trackDisplay = document.querySelector('#music-menu .track');
@@ -186,7 +205,7 @@ async function playTrack(track, trackElement, trackList) {
       return;
     }
     
-    // Update UI: unselect all track entries, then select the clicked one
+    // Update UI: unselect all track entries, then select the clicked one.
     trackList.querySelectorAll('.track-entry').forEach(entry => {
       entry.classList.remove('selected');
       if (entry.classList.contains('unlocked')) {
@@ -195,20 +214,6 @@ async function playTrack(track, trackElement, trackList) {
     });
     trackElement.classList.add('selected');
     trackElement.style.color = '#00ff00';
-    
-    // Handle auto-play mode
-    if (autoPlayMode) {
-      currentAudio.addEventListener('ended', () => {
-        if (token !== musicPlayToken) return;
-        autoPlayTimeout = setTimeout(() => {
-          const randomIndex = Math.floor(Math.random() * tracks.length);
-          currentTrackIndex = randomIndex;
-          const nextTrack = tracks[randomIndex];
-          const nextTrackElement = trackList.children[randomIndex];
-          playTrack(nextTrack, nextTrackElement, trackList);
-        }, 3000);
-      });
-    }
   }
 }
 
