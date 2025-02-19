@@ -4,8 +4,8 @@ contextMenu.className = 'context-menu';
 document.body.appendChild(contextMenu);
 
 function showContextMenu(e, username, onMessage, onRemove) {
-  // NEW: Check mouse mode – in Two-mouse mode, left click should perform the first action (Message) immediately.
-  if (window.mouseMode === "Two" && e.button === 0) {
+  // In Two-mouse mode, any mouse click immediately performs the primary action (Message).
+  if (window.mouseMode === "Two") {
     if (typeof onMessage === 'function') {
       onMessage();
       return;
