@@ -2,7 +2,7 @@
 let activeButton = null;
 let activePanel = null;
 
-// Updated list of menu items with their corresponding panels, including the new Music panel.
+// Updated list of menu items
 const menuItems = {
   'friends-button': '.friends-list',
   'ignore-button': '.ignore-list', 
@@ -11,7 +11,8 @@ const menuItems = {
   'game-options-button': '#game-options',
   'skills': '#skills-menu',
   'quest': '#quest-journal',
-  'music': '#music-menu'
+  'music': '#music-menu',
+  'spellbook': '#spellbook-menu'
 };
 
 function hideAllPanels() {

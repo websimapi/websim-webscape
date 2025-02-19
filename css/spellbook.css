@@ -1,0 +1,57 @@
+#spellbook-menu {
+  position: relative;
+  width: calc(100% - 8px);
+  background: #382418;
+  padding: 4px;
+  display: none;
+  margin-top: 4px;
+  height: calc(100% - 276px);
+}
+
+#spellbook-menu.shown {
+  display: block;
+}
+
+.spellbook-content {
+  background: #474745;
+  border: 2px solid #5a473a;
+  height: calc(100% - 4px);
+  display: flex;
+  flex-direction: column;
+}
+
+.spellbook-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  padding: 4px;
+  margin: 0;
+}
+
+.spell-slot {
+  width: 22px;
+  height: 22px;
+  background: #1a1a1a;
+  border: 1px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.spell-slot:hover {
+  background: #2a2a2a;
+}
+
+.spell-info {
+  background: #000;
+  margin: 4px;
+  height: 40px;
+  padding: 4px;
+  color: #fff;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
