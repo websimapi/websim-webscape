@@ -82,6 +82,8 @@ function initializeGameOptions() {
             btn.classList.remove('selected');
           }
         });
+        // Dispatch an event so that the chat module can re-render private messages appropriately.
+        document.dispatchEvent(new CustomEvent('splitChatToggled', { detail: { splitEnabled: value } }));
       });
     });
   }
