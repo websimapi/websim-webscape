@@ -299,6 +299,10 @@ room.onmessage = (event) => {
             splitMessage.className = 'split-private-message';
             splitMessage.textContent = `From ${event.data.username}: ${event.data.message}`;
             splitContainer.appendChild(splitMessage);
+            // Limit to 5 messages: remove the oldest if more than 5 exist.
+            if (splitContainer.childElementCount > 5) {
+              splitContainer.removeChild(splitContainer.firstElementChild);
+            }
             splitContainer.style.display = 'block';
           }
         } else {

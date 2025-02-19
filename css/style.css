@@ -442,6 +442,16 @@ body {
   flex: 1;
 }
 
+/* Maroon background for selected Music Volume buttons */
+#music-volume-section .game-options-buttons button.selected {
+  background: #800000;
+}
+
+/* Maroon background for selected Split Private Chat buttons */
+#split-private-chat-section .game-options-buttons button.selected {
+  background: #800000;
+}
+
 /* Update Quest Journal styles */
 #quest-journal {
   position: relative;
@@ -533,27 +543,23 @@ body {
   scrollbar-color: #5a473a #382418;
 }
 
-/* Newly added Music Volume Selected Indicator */
-#music-volume-section .game-options-buttons button.selected {
-  background: #800000;
-}
-
-/* Split Private Chat Container */
+/* Split Private Chat Container - repositioned to bottom left, smaller font, fixed height to show up to 5 messages */
 #split-private-chat {
   position: absolute;
   bottom: 10px;
-  right: 10px;
+  left: 10px;
   max-width: 40%;
-  max-height: 30%;
+  height: 60px;
   overflow-y: auto;
   background: rgba(0, 0, 0, 0.7);
   padding: 8px;
   border: 1px solid #00ffff;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 10px;
   color: cyan;
   display: none;
 }
+
 .split-private-message {
   margin-bottom: 4px;
 }
