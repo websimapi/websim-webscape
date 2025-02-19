@@ -2,7 +2,7 @@
 let activeButton = null;
 let activePanel = null;
 
-// Updated list of menu items with their corresponding panels, including the new Spellbook panel.
+// Updated list of menu items with their corresponding panels, including the new Eldritch Book panel.
 const menuItems = {
   'friends-button': '.friends-list',
   'ignore-button': '.ignore-list', 
@@ -12,7 +12,7 @@ const menuItems = {
   'skills': '#skills-menu',
   'quest': '#quest-journal',
   'music': '#music-menu',
-  'spellbook': '#spellbook-menu'
+  'eldritch': '#eldritch-book'
 };
 
 function hideAllPanels() {
@@ -39,6 +39,7 @@ function toggleMenu(button, panelSelector) {
   
   // If clicking the same button that's already active
   if (button === activeButton) {
+    // Keep current selection but ensure only this button remains selected
     hideAllPanels();
     button.classList.add('selected');
     panel.classList.remove('hidden');
@@ -48,8 +49,7 @@ function toggleMenu(button, panelSelector) {
       panelSelector.includes('game-options') ||
       panelSelector.includes('quest') ||
       panelSelector.includes('skills') ||
-      panelSelector.includes('music') ||
-      panelSelector.includes('spellbook')
+      panelSelector.includes('music')
     ) {
       panel.classList.add('shown');
     }
@@ -70,8 +70,7 @@ function toggleMenu(button, panelSelector) {
     panelSelector.includes('game-options') ||
     panelSelector.includes('quest') ||
     panelSelector.includes('skills') ||
-    panelSelector.includes('music') ||
-    panelSelector.includes('spellbook')
+    panelSelector.includes('music')
   ) {
     panel.classList.add('shown');
   }
