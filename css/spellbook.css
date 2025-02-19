@@ -1,16 +1,22 @@
+/* Spellbook UI Styling */
 #spellbook {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   gap: 2px;
   padding: 4px;
   background: #382418;
-  /* You may specify a fixed height or allow it to grow as needed */
+  margin-top: 4px;
+  min-height: 240px; /* Ensures enough vertical space for 8 rows */
 }
 
 .spellbook-slot {
-  width: 48px;
-  height: 48px;
   background: #474745;
   border: 1px solid #000;
   border-radius: 2px;
+  aspect-ratio: 1;
+  width: 100%;
+}
+
+#spellbook.hidden {
+  display: none;
 }
