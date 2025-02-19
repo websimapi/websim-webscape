@@ -113,11 +113,42 @@ function fadeInAudio(audio, fadeDuration = 10, token) {
 function setMusicVolume(newVolume) {
   targetVolume = newVolume;
   if (currentAudio) {
-    currentAudio.volume = newVolume;
+    if (newVolume === 0) {
+      currentAudio.pause();
+      currentAudio = null;
+      const trackDisplay = document.querySelector('#music-menu .track');
+      if (trackDisplay) {
+        trackDisplay.textContent = 'Playing: No track';
+      }
+      // Clear any pending autoplay
+      if (autoPlayTimeout) {
+        clearTimeout(autoPlayTimeout);
+        autoPlayTimeout = null;
+      }
+    } else {
+      if (currentAudio) {
+        currentAudio.volume = newVolume;
+      }
+    }
   }
 }
 
 async function playTrack(track, trackElement, trackList) {
+  // Add early return if target volume is 0 (music OFF)
+  if (targetVolume === 0) {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio = null;
+    }
+    if (autoPlayTimeout) {
+      clearTimeout(autoPlayTimeout);
+      autoPlayTimeout = null;
+    }
+    const trackDisplay = document.querySelector('#music-menu .track');
+    trackDisplay.textContent = 'Playing: No track';
+    return;
+  }
+
   if (!hasUserInteracted) return;
   
   // Increment token to cancel any previous pending transitions.
@@ -160,14 +191,23 @@ async function playTrack(track, trackElement, trackList) {
           currentAudio.removeEventListener('timeupdate', fadeOutListener);
         }
         fadeOutListener = () => {
+          // Don't fade if volume is 0
+          if (targetVolume === 0) return;
           const remaining = currentAudio.duration - currentAudio.currentTime;
           if (remaining <= 10) {
-            currentAudio.volume = remaining / 10;
+            currentAudio.volume = (remaining / 10) * targetVolume;
           }
         };
         currentAudio.addEventListener('timeupdate', fadeOutListener);
         currentAudio.addEventListener('ended', () => {
           currentAudio.removeEventListener('timeupdate', fadeOutListener);
+          // Don't schedule next track if volume is 0
+          if (targetVolume === 0) {
+            currentAudio = null;
+            const trackDisplay = document.querySelector('#music-menu .track');
+            trackDisplay.textContent = 'Playing: No track';
+            return;
+          }
         });
       }
     } catch (e) {
@@ -187,10 +227,10 @@ async function playTrack(track, trackElement, trackList) {
     trackElement.classList.add('selected');
     trackElement.style.color = '#00ff00';
     
-    // If AUTO mode is enabled, schedule a random track after the current one ends.
-    if (autoPlayMode) {
+    // If AUTO mode is enabled and volume is not 0, schedule a random track after the current one ends.
+    if (autoPlayMode && targetVolume > 0) {
       currentAudio.addEventListener('ended', () => {
-        if (token !== musicPlayToken) return;
+        if (token !== musicPlayToken || targetVolume === 0) return;
         autoPlayTimeout = setTimeout(() => {
           const randomIndex = Math.floor(Math.random() * tracks.length);
           currentTrackIndex = randomIndex;
