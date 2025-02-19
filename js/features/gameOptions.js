@@ -82,10 +82,12 @@ function initializeGameOptions() {
             btn.classList.remove('selected');
           }
         });
-        // NEW: When split chat mode is turned off, hide the split chat feed.
+        // Toggle the visibility of the split chat feed.
         const splitContainer = document.getElementById('split-private-chat');
         if (splitContainer) {
-          if (!value) {
+          if (value) {
+            splitContainer.style.display = 'flex';
+          } else {
             splitContainer.style.display = 'none';
           }
         }
@@ -93,8 +95,7 @@ function initializeGameOptions() {
     });
   }
 
-  // --- NEW: Setup Mouse Button Mode selection ---
-  // This is for the "Mouse Buttons" section – the first column in the two‑column layout.
+  // Setup Mouse Button Mode selection
   const mouseModeColumn = gameOptionsPanel.querySelector('.game-options-two-column .game-options-column:first-child');
   if (mouseModeColumn) {
     const mouseModeButtonsContainer = mouseModeColumn.querySelector('.game-options-buttons');
