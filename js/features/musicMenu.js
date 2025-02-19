@@ -13,6 +13,7 @@ let fadeOutListener = null;
 let autoPlayTimeout = null;
 let musicPlayToken = 0; // Incremented every time a new track is requested
 let targetVolume = 1; // Default target volume (100%)
+let isMuted = false; // Track muted state separately from volume
 
 const tracks = [
   {
@@ -109,60 +110,36 @@ function fadeInAudio(audio, fadeDuration = 10, token) {
   });
 }
 
-// Allow external modules (like game options) to set the music volume.
+// Allow external modules (like game options) to set the music volume
 function setMusicVolume(newVolume) {
   targetVolume = newVolume;
+  isMuted = (newVolume === 0);
+  
   if (currentAudio) {
-    if (newVolume === 0) {
-      currentAudio.pause();
-      currentAudio = null;
-      const trackDisplay = document.querySelector('#music-menu .track');
-      if (trackDisplay) {
-        trackDisplay.textContent = 'Playing: No track';
-      }
-      // Clear any pending autoplay
-      if (autoPlayTimeout) {
-        clearTimeout(autoPlayTimeout);
-        autoPlayTimeout = null;
-      }
+    if (isMuted) {
+      currentAudio.volume = 0;
     } else {
-      if (currentAudio) {
-        currentAudio.volume = newVolume;
-      }
+      currentAudio.volume = newVolume;
     }
   }
 }
 
 async function playTrack(track, trackElement, trackList) {
-  // Add early return if target volume is 0 (music OFF)
-  if (targetVolume === 0) {
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio = null;
-    }
-    if (autoPlayTimeout) {
-      clearTimeout(autoPlayTimeout);
-      autoPlayTimeout = null;
-    }
-    const trackDisplay = document.querySelector('#music-menu .track');
-    trackDisplay.textContent = 'Playing: No track';
-    return;
-  }
-
+  // If we haven't had user interaction yet, exit early
   if (!hasUserInteracted) return;
   
-  // Increment token to cancel any previous pending transitions.
+  // Increment token to cancel any previous pending transitions
   musicPlayToken++;
   const token = musicPlayToken;
   
-  // Clear any scheduled auto-play timeout.
+  // Clear any scheduled auto-play timeout
   if (autoPlayTimeout) {
     clearTimeout(autoPlayTimeout);
     autoPlayTimeout = null;
   }
   
   if (track.unlocked) {
-    // If a song is already playing, fade it out and wait before starting a new one.
+    // If a song is already playing, fade it out and wait before starting a new one
     if (currentAudio) {
       await fadeOutAudio(currentAudio, 10);
       await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay between tracks
@@ -170,12 +147,12 @@ async function playTrack(track, trackElement, trackList) {
       currentAudio = null;
     }
     
-    // Start the selected track.
+    // Start the selected track
     currentAudio = new Audio(track.path);
     currentTrack = track.name;
-    currentAudio.volume = 0;
+    currentAudio.volume = isMuted ? 0 : targetVolume;
     
-    // Update UI to display the currently playing track.
+    // Update UI to display the currently playing track
     const trackDisplay = document.querySelector('#music-menu .track');
     trackDisplay.textContent = `Playing: ${currentTrack}`;
     
@@ -183,31 +160,23 @@ async function playTrack(track, trackElement, trackList) {
       const duration = await getDuration(track.path);
       if (token !== musicPlayToken) return;
       await currentAudio.play();
-      await fadeInAudio(currentAudio, 10, token);
+      if (!isMuted) {
+        await fadeInAudio(currentAudio, 10, token);
+      }
       
-      // Setup a smooth fade out during the last 10 seconds of the track.
+      // Setup a smooth fade out during the last 10 seconds of the track
       if (duration > 10) {
         if (fadeOutListener) {
           currentAudio.removeEventListener('timeupdate', fadeOutListener);
         }
         fadeOutListener = () => {
-          // Don't fade if volume is 0
-          if (targetVolume === 0) return;
-          const remaining = currentAudio.duration - currentAudio.currentTime;
-          if (remaining <= 10) {
-            currentAudio.volume = (remaining / 10) * targetVolume;
+          if (!isMuted && duration - currentAudio.currentTime <= 10) {
+            currentAudio.volume = ((duration - currentAudio.currentTime) / 10) * targetVolume;
           }
         };
         currentAudio.addEventListener('timeupdate', fadeOutListener);
         currentAudio.addEventListener('ended', () => {
           currentAudio.removeEventListener('timeupdate', fadeOutListener);
-          // Don't schedule next track if volume is 0
-          if (targetVolume === 0) {
-            currentAudio = null;
-            const trackDisplay = document.querySelector('#music-menu .track');
-            trackDisplay.textContent = 'Playing: No track';
-            return;
-          }
         });
       }
     } catch (e) {
@@ -217,7 +186,7 @@ async function playTrack(track, trackElement, trackList) {
       return;
     }
     
-    // Update UI: unselect all track entries, then select the clicked one.
+    // Update UI: unselect all track entries, then select the clicked one
     trackList.querySelectorAll('.track-entry').forEach(entry => {
       entry.classList.remove('selected');
       if (entry.classList.contains('unlocked')) {
@@ -227,10 +196,10 @@ async function playTrack(track, trackElement, trackList) {
     trackElement.classList.add('selected');
     trackElement.style.color = '#00ff00';
     
-    // If AUTO mode is enabled and volume is not 0, schedule a random track after the current one ends.
-    if (autoPlayMode && targetVolume > 0) {
+    // Handle auto-play mode
+    if (autoPlayMode) {
       currentAudio.addEventListener('ended', () => {
-        if (token !== musicPlayToken || targetVolume === 0) return;
+        if (token !== musicPlayToken) return;
         autoPlayTimeout = setTimeout(() => {
           const randomIndex = Math.floor(Math.random() * tracks.length);
           currentTrackIndex = randomIndex;
