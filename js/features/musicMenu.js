@@ -46,8 +46,9 @@ async function playTrack(track, trackElement, trackList) {
   if (track.unlocked) {
     if (currentAudio) {
       if (!currentAudio.paused) {
-        const fadeOutDurationExit = 10;
-        const fadeOutInterval = 50;
+        // Fade out the current track over 10 seconds before switching
+        const fadeOutDurationExit = 10; // seconds
+        const fadeOutInterval = 50; // ms
         const steps = (fadeOutDurationExit * 1000) / fadeOutInterval;
         const volumeStep = currentAudio.volume / steps;
         
@@ -62,6 +63,7 @@ async function playTrack(track, trackElement, trackList) {
           }
         }, fadeOutInterval);
         
+        // Wait until fade-out completes before starting new track
         await new Promise(resolve => setTimeout(resolve, fadeOutDurationExit * 1000));
       } else {
         currentAudio.pause();
@@ -80,9 +82,9 @@ async function playTrack(track, trackElement, trackList) {
       const duration = await getDuration(track.path);
       await currentAudio.play();
       
-      // Fade in over 20 seconds for a smoother transition
-      const fadeInDuration = 20;
-      const fadeInInterval = 50;
+      // Fade in over the first 10 seconds for a smoother transition
+      const fadeInDuration = 10; // seconds
+      const fadeInInterval = 50; // ms
       const fadeInSteps = (fadeInDuration * 1000) / fadeInInterval;
       const fadeInStep = 1 / fadeInSteps;
       
@@ -95,25 +97,30 @@ async function playTrack(track, trackElement, trackList) {
         }
       }, fadeInInterval);
       
-      // Setup fade out using timeupdate event for the last 20 seconds of the track
-      const fadeOutDuration = 20;
+      // Setup smooth fade out over the last 10 seconds of the track
+      const fadeOutDuration = 10; // seconds
       if (duration > fadeOutDuration) {
-        const fadeOutFunction = () => {
-          const remaining = currentAudio.duration - currentAudio.currentTime;
-          if (remaining <= fadeOutDuration) {
-            let t = remaining / fadeOutDuration;
-            // Use easeOutCubic for a smoother fade-out transition
-            function easeOutCubic(x) {
-              return 1 - Math.pow(1 - x, 3);
+        // Clear any previous fade-out timers if they exist
+        if (currentAudio.fadeOutTimeout) {
+          clearTimeout(currentAudio.fadeOutTimeout);
+        }
+        if (currentAudio.fadeOutInterval) {
+          clearInterval(currentAudio.fadeOutInterval);
+        }
+        const timeToFadeOutStart = (duration - fadeOutDuration - currentAudio.currentTime) * 1000;
+        currentAudio.fadeOutTimeout = setTimeout(() => {
+          const fadeIntervalMs = 100; // update every 100ms for smaller volume adjustments
+          const fadeSteps = (fadeOutDuration * 1000) / fadeIntervalMs;
+          const volumeStep = currentAudio.volume / fadeSteps;
+          currentAudio.fadeOutInterval = setInterval(() => {
+            if (currentAudio.volume > volumeStep) {
+              currentAudio.volume = Math.max(currentAudio.volume - volumeStep, 0);
+            } else {
+              currentAudio.volume = 0;
+              clearInterval(currentAudio.fadeOutInterval);
             }
-            let easedVolume = easeOutCubic(t);
-            currentAudio.volume = Math.max(easedVolume, 0);
-          }
-        };
-        currentAudio.addEventListener('timeupdate', fadeOutFunction);
-        currentAudio.addEventListener('ended', () => {
-          currentAudio.removeEventListener('timeupdate', fadeOutFunction);
-        });
+          }, fadeIntervalMs);
+        }, timeToFadeOutStart);
       }
     } catch (e) {
       console.error('Error playing audio:', e);
@@ -121,6 +128,7 @@ async function playTrack(track, trackElement, trackList) {
       return;
     }
 
+    // Mark selected track in the list
     trackList.querySelectorAll('.track-entry').forEach(entry => {
       entry.classList.remove('selected');
     });
@@ -166,7 +174,10 @@ function initializeMusicMenu() {
     if (track.unlocked) {
       trackElement.classList.add('unlocked');
     }
-
+    
+    // Remove underline from song names
+    trackElement.style.textDecoration = 'none';
+    
     trackElement.addEventListener('click', () => {
       hasUserInteracted = true;
       if (track.unlocked) {
@@ -209,7 +220,7 @@ function initializeMusicMenu() {
     manualButton.classList.add('selected');
     autoButton.classList.remove('selected');
     
-    if (currentAudio) {
+    if (currentAudio && currentAudio.onended) {
       currentAudio.onended = null;
     }
   });
@@ -222,6 +233,7 @@ function initializeMusicMenu() {
     autoButton.classList.remove('selected');
   }
 
+  // Ensure no audio auto-start until a user gesture is registered
   document.addEventListener('click', () => {
     hasUserInteracted = true;
   }, { once: true });
