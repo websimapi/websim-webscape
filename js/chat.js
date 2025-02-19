@@ -249,7 +249,6 @@ chatInput.addEventListener('keypress', (e) => {
   }
 });
 
-// Add contextmenu event for usernames in incoming chat messages so that right-click behaves like left-click.
 room.onmessage = (event) => {
   const chatContent = document.querySelector('.chat-content');
   const messageDiv = document.createElement('div');
