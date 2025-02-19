@@ -173,7 +173,7 @@
   display: none !important;
 }
 
-/* New rule for split private messages */
+/* New rule for split private messages (if explicitly applied) */
 .split-private-message {
   font-size: 10px;
   color: cyan;
@@ -220,4 +220,13 @@
 .skills-content {
   scrollbar-width: thin;
   scrollbar-color: #5a473a #382418;
+}
+
+/* 
+  NEW OVERRIDE:
+  When private messages are displayed in the split chat container,
+  override their text color to be cyan.
+*/
+#split-private-chat .chat-message.private-message {
+  color: cyan;
 }
