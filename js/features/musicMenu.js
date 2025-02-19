@@ -16,6 +16,11 @@ const tracks = [
     name: 'Ambient Venture',
     path: '/ambient_venture.ogg',
     unlocked: true
+  },
+  {
+    name: 'Shadow Warden',
+    path: '/shadow_warden.ogg',
+    unlocked: true
   }
 ];
 
@@ -96,12 +101,12 @@ async function playTrack(track, trackElement, trackList) {
         }
       }, fadeInInterval);
       
-      // Setup fade out over the last 10 seconds using a linear easing function
+      // Setup fade out over the last 10 seconds using a smooth quadratic easing function
       if (duration > 10) {
         const fadeOutFunction = () => {
           const remaining = currentAudio.duration - currentAudio.currentTime;
           if (remaining <= 10) {
-            currentAudio.volume = remaining / 10;
+            currentAudio.volume = Math.pow(remaining / 10, 2);
           }
         };
         currentAudio.addEventListener('timeupdate', fadeOutFunction);
