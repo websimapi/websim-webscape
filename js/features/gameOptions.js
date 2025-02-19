@@ -11,7 +11,7 @@ function initializeGameOptions() {
     });
   }
 
-  // Add event listeners to each button inside the game options panel.
+  // Global event listener for all game options buttons to update the selected state.
   const buttons = gameOptionsPanel.querySelectorAll('.game-options-buttons button');
   buttons.forEach(button => {
     button.addEventListener('click', () => {
@@ -22,53 +22,38 @@ function initializeGameOptions() {
     });
   });
 
-  // Setup Music Volume control buttons within Game Options.
-  // The Music Volume section now has an id for easy targeting.
+  // Setup Music Volume control buttons within Game Options with persistence and maroon indicator.
   const musicVolumeSection = gameOptionsPanel.querySelector('#music-volume-section');
   if (musicVolumeSection) {
+    const volumeMapping = {
+      "Off": 0,
+      "1": 0.25,
+      "2": 0.50,
+      "3": 0.75,
+      "4": 1.0
+    };
     const volumeButtons = musicVolumeSection.querySelectorAll('.game-options-buttons button');
-
-    // Retrieve stored volume setting from localStorage, if any, and update the UI accordingly.
-    let storedVolume = localStorage.getItem('musicVolumeSetting');
-    if (storedVolume !== null) {
-      let volumeValue = parseFloat(storedVolume);
-      setMusicVolume(volumeValue);
-      volumeButtons.forEach(button => {
-        const text = button.textContent.trim();
-        let buttonVolume = text === 'Off' ? 0 :
-                           text === '1' ? 0.25 :
-                           text === '2' ? 0.50 :
-                           text === '3' ? 0.75 :
-                           text === '4' ? 1.0 : null;
-        if (buttonVolume === volumeValue) {
-          button.classList.add('selected');
-        } else {
-          button.classList.remove('selected');
-        }
-      });
-    }
-
+    // Retrieve stored music volume; default to 1.0 if not present.
+    let storedVolume = localStorage.getItem('musicVolume');
+    let initialVolume = storedVolume !== null ? parseFloat(storedVolume) : 1.0;
+    // Set the music volume initially.
+    setMusicVolume(initialVolume);
+    // Mark the corresponding button as selected.
     volumeButtons.forEach(button => {
+      const text = button.textContent.trim();
+      if (volumeMapping[text] === initialVolume) {
+        button.classList.add('selected');
+      } else {
+        button.classList.remove('selected');
+      }
+      // Attach click event to update volume, persist the setting, and update button indicator.
       button.addEventListener('click', () => {
-        const text = button.textContent.trim();
-        let volume = 0;
-        if (text === 'Off') {
-          volume = 0;
-        } else if (text === '1') {
-          volume = 0.25;
-        } else if (text === '2') {
-          volume = 0.50;
-        } else if (text === '3') {
-          volume = 0.75;
-        } else if (text === '4') {
-          volume = 1.0;
-        }
-        setMusicVolume(volume);
-        // Update UI: mark selected button.
+        const btnText = button.textContent.trim();
+        const newVolume = volumeMapping[btnText];
+        setMusicVolume(newVolume);
+        localStorage.setItem('musicVolume', newVolume);
         volumeButtons.forEach(btn => btn.classList.remove('selected'));
         button.classList.add('selected');
-        // Save the selected volume to localStorage for persistence.
-        localStorage.setItem('musicVolumeSetting', volume.toString());
       });
     });
   }
