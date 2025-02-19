@@ -82,8 +82,13 @@ function initializeGameOptions() {
             btn.classList.remove('selected');
           }
         });
-        // Dispatch an event so that the chat module can re-render private messages appropriately.
-        document.dispatchEvent(new CustomEvent('splitChatToggled', { detail: { splitEnabled: value } }));
+        // NEW: When split chat mode is turned off, hide the split chat feed.
+        const splitContainer = document.getElementById('split-private-chat');
+        if (splitContainer) {
+          if (!value) {
+            splitContainer.style.display = 'none';
+          }
+        }
       });
     });
   }

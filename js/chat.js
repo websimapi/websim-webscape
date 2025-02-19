@@ -4,9 +4,6 @@ const room = new WebsimSocket();
 // Track online users
 let onlineUsers = new Set();
 
-// Global array to store all private messages
-let privateMessages = [];
-
 // Get the username element
 const usernameElement = document.getElementById('current-username');
 
@@ -91,11 +88,30 @@ messageInput.addEventListener('keypress', async (e) => {
         recipient: recipient
       });
       
-      // Record the sent private message and re-render the private messages view
-      privateMessages.push({ direction: 'to', username: recipient, message: message });
-      renderPrivateMessages();
+      // If Split Private-Chat mode is enabled, add the sent "To" message to the split chat container.
+      const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+      if (splitPrivate) {
+        const splitContainer = document.getElementById('split-private-chat');
+        if (splitContainer) {
+          const splitMessage = document.createElement('div');
+          splitMessage.className = 'split-private-message';
+          splitMessage.textContent = `To ${recipient}: ${message}`;
+          splitContainer.appendChild(splitMessage);
+          if (splitContainer.childElementCount > 5) {
+            splitContainer.removeChild(splitContainer.firstElementChild);
+          }
+          splitContainer.style.display = 'flex';
+        }
+      } else {
+        // For standard chat, add the message as before.
+        const chatContent = document.querySelector('.chat-content');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message private-message';
+        messageDiv.innerHTML = `To ${recipient}: ${message}`;
+        chatContent.insertBefore(messageDiv, chatContent.firstChild);
+      }
     } else {
-      // Add error message to chat if recipient is offline.
+      // Add error message to chat
       const chatContent = document.querySelector('.chat-content');
       const messageDiv = document.createElement('div');
       messageDiv.className = 'chat-message system';
@@ -251,12 +267,12 @@ chatInput.addEventListener('keypress', (e) => {
 
 room.onmessage = (event) => {
   const chatContent = document.querySelector('.chat-content');
+  const messageDiv = document.createElement('div');
   
   switch (event.data.type) {
     case 'chat':
       if (event.data.clientId !== room.party.client.id) {
         const username = event.data.username;
-        const messageDiv = document.createElement('div');
         messageDiv.className = 'chat-message user';
         messageDiv.innerHTML = `<span class="username">${username}</span><span class="separator">: </span>${event.data.message}`;
         const usernameSpan = messageDiv.querySelector('.username');
@@ -273,67 +289,37 @@ room.onmessage = (event) => {
           e.preventDefault();
           showChatContextMenu(e, username);
         });
-        chatContent.insertBefore(messageDiv, chatContent.firstChild);
       }
       break;
       
     case 'private-message':
       if (event.data.recipient === room.party.client.username) {
-        // Record the received private message and re-render the private messages view
-        privateMessages.push({ direction: 'from', username: event.data.username, message: event.data.message });
-        renderPrivateMessages();
+        const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+        if (splitPrivate) {
+          const splitContainer = document.getElementById('split-private-chat');
+          if (splitContainer) {
+            const splitMessage = document.createElement('div');
+            splitMessage.className = 'split-private-message';
+            splitMessage.textContent = `From ${event.data.username}: ${event.data.message}`;
+            splitContainer.appendChild(splitMessage);
+            if (splitContainer.childElementCount > 5) {
+              splitContainer.removeChild(splitContainer.firstElementChild);
+            }
+            splitContainer.style.display = 'flex';
+          }
+        } else {
+          messageDiv.className = 'chat-message private-message';
+          messageDiv.innerHTML = `From ${event.data.username}: ${event.data.message}`;
+        }
       }
       break;
     default:
       console.log("Received event:", event.data);
   }
-};
-
-function renderPrivateMessages() {
-  const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-  const chatContent = document.querySelector('.chat-content');
-  const splitContainer = document.getElementById('split-private-chat');
-  if (splitPrivate) {
-    // Remove any private messages from the regular chat view.
-    const privateEls = chatContent.querySelectorAll('.chat-message.private-message');
-    privateEls.forEach(el => el.remove());
-    // Render up to the last 5 private messages in the split chat container.
-    splitContainer.innerHTML = '';
-    const messagesToShow = privateMessages.slice(-5);
-    messagesToShow.forEach(msg => {
-      const msgEl = document.createElement('div');
-      msgEl.className = 'split-private-message';
-      if (msg.direction === 'to') {
-        msgEl.textContent = `To ${msg.username}: ${msg.message}`;
-      } else {
-        msgEl.textContent = `From ${msg.username}: ${msg.message}`;
-      }
-      splitContainer.appendChild(msgEl);
-    });
-    splitContainer.style.display = messagesToShow.length > 0 ? 'flex' : 'none';
-  } else {
-    // Hide the split chat container and render private messages in the regular chat view.
-    splitContainer.style.display = 'none';
-    // Remove any existing private messages in the regular chat view.
-    const privateEls = chatContent.querySelectorAll('.chat-message.private-message');
-    privateEls.forEach(el => el.remove());
-    // Render all private messages in the chat content.
-    privateMessages.forEach(msg => {
-      const msgEl = document.createElement('div');
-      msgEl.className = 'chat-message private-message';
-      if (msg.direction === 'to') {
-        msgEl.innerHTML = `To ${msg.username}: ${msg.message}`;
-      } else {
-        msgEl.innerHTML = `From ${msg.username}: ${msg.message}`;
-      }
-      chatContent.appendChild(msgEl);
-    });
+  
+  if (messageDiv.innerHTML) {
+    chatContent.insertBefore(messageDiv, chatContent.firstChild);
   }
-}
-
-// Listen for split chat mode toggles to re-render the private messages appropriately.
-document.addEventListener('splitChatToggled', (e) => {
-  renderPrivateMessages();
-});
+};
 
 setInterval(updateOnlineStatus, 3000);
