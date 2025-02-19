@@ -29,6 +29,11 @@ const tracks = [
     name: 'No Thing',
     path: '/no_thing.ogg',
     unlocked: true
+  },
+  {
+    name: "Aurora's Lullaby",
+    path: "/lurora's_lullaby.ogg",
+    unlocked: true
   }
 ];
 
@@ -74,7 +79,8 @@ function fadeOutAudio(audio, fadeDuration = 10) {
   });
 }
 
-// Fade in the audio from volume 0 to the targetVolume over fadeDuration seconds using an ease-out quadratic curve.
+// Fade in the audio from volume 0 to the targetVolume over fadeDuration seconds.
+// Uses an ease-out quadratic for smoothness and supports cancellation via token.
 function fadeInAudio(audio, fadeDuration = 10, token) {
   return new Promise((resolve) => {
     const startTime = performance.now();
@@ -143,27 +149,22 @@ async function playTrack(track, trackElement, trackList) {
       await currentAudio.play();
       await fadeInAudio(currentAudio, 10, token);
       
-      // In AUTO mode, replace the linear timeupdate fade out with a smooth fade using fadeOutAudio.
-      if (duration > 10 && autoPlayMode) {
-        let isAutoFadingOut = false;
-        const autoFadeOutListener = () => {
+      // Setup a smooth fade out during the last 10 seconds of the track.
+      if (duration > 10) {
+        if (fadeOutListener) {
+          currentAudio.removeEventListener('timeupdate', fadeOutListener);
+        }
+        fadeOutListener = () => {
           const remaining = currentAudio.duration - currentAudio.currentTime;
-          if (remaining <= 10 && !isAutoFadingOut) {
-            isAutoFadingOut = true;
-            currentAudio.removeEventListener('timeupdate', autoFadeOutListener);
-            fadeOutAudio(currentAudio, 10).then(() => {
-              // Dispatch an 'ended' event to trigger auto next track scheduling.
-              const endedEvent = new Event('ended');
-              currentAudio.dispatchEvent(endedEvent);
-            });
+          if (remaining <= 10) {
+            currentAudio.volume = remaining / 10;
           }
         };
-        currentAudio.addEventListener('timeupdate', autoFadeOutListener);
+        currentAudio.addEventListener('timeupdate', fadeOutListener);
         currentAudio.addEventListener('ended', () => {
-          currentAudio.removeEventListener('timeupdate', autoFadeOutListener);
+          currentAudio.removeEventListener('timeupdate', fadeOutListener);
         });
       }
-      
     } catch (e) {
       console.error('Error playing audio:', e);
       const trackDisplay = document.querySelector('#music-menu .track');
@@ -233,7 +234,7 @@ function initializeMusicMenu() {
         clearTimeout(autoPlayTimeout);
         autoPlayTimeout = null;
       }
-      // Switch to MANUAL mode when a track is clicked.
+      // Switch to MAN (manual) mode when a track is clicked.
       autoPlayMode = false;
       saveMusicSettings(false);
       manualButton.classList.add('selected');
