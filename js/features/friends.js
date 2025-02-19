@@ -1,5 +1,4 @@
 import { addTooltip, tooltip } from '../ui/tooltips.js';
-import { showContextMenu, hideContextMenu } from '../ui/contextMenu.js';
 import { setupOverlay } from '../ui/overlays.js';
 import { toggleMenu } from './menuManager.js';
 
@@ -141,7 +140,7 @@ function initializeFriendsList() {
     }
   });
 
-  // NEW: Modify contextmenu event so that right click in Two-button mode acts like a left click in One-button mode.
+  // NEW: Add contextmenu event handler so that when in Two Button Mode right click acts identically to left click (bringing up the menu)
   friendsListContainer.addEventListener('contextmenu', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
