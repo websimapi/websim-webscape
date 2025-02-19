@@ -11,6 +11,7 @@ const menuItems = {
   'game-options-button': '#game-options',
   'skills': '#skills-menu',
   'quest': '#quest-journal',
+  'spellbook': '#spellbook-menu',
   'music': '#music-menu'
 };
 
