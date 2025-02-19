@@ -173,8 +173,9 @@ function hideAllContextMenus() {
 }
 
 const chatInput = document.querySelector('.chat-input');
-chatInput.addEventListener('keypress', (e) => {
+chatInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && chatInput.value.trim()) {
+    e.preventDefault();
     const message = chatInput.value.trim();
 
     room.send({
