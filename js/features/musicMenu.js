@@ -46,9 +46,9 @@ async function playTrack(track, trackElement, trackList) {
   if (track.unlocked) {
     if (currentAudio) {
       if (!currentAudio.paused) {
-        const fadeOutDuration = 10;
+        const fadeOutDurationExit = 10;
         const fadeOutInterval = 50;
-        const steps = (fadeOutDuration * 1000) / fadeOutInterval;
+        const steps = (fadeOutDurationExit * 1000) / fadeOutInterval;
         const volumeStep = currentAudio.volume / steps;
         
         const fadeOutTimer = setInterval(() => {
@@ -62,7 +62,7 @@ async function playTrack(track, trackElement, trackList) {
           }
         }, fadeOutInterval);
         
-        await new Promise(resolve => setTimeout(resolve, fadeOutDuration * 1000));
+        await new Promise(resolve => setTimeout(resolve, fadeOutDurationExit * 1000));
       } else {
         currentAudio.pause();
         currentAudio = null;
@@ -78,11 +78,10 @@ async function playTrack(track, trackElement, trackList) {
     
     try {
       const duration = await getDuration(track.path);
-      
       await currentAudio.play();
       
-      // Fade in over 10 seconds
-      const fadeInDuration = 10;
+      // Fade in over 15 seconds for a smoother transition
+      const fadeInDuration = 15;
       const fadeInInterval = 50;
       const steps = (fadeInDuration * 1000) / fadeInInterval;
       const volumeStep = 1 / steps;
@@ -96,13 +95,20 @@ async function playTrack(track, trackElement, trackList) {
         }
       }, fadeInInterval);
       
-      // Setup fade out using timeupdate event for the last 10 seconds of the track
-      if (duration > 10) {
+      // Define an easing function for a smoother fade-out effect
+      function easeOutQuad(t) {
+        return t * (2 - t);
+      }
+      
+      // Setup fade out using timeupdate event for the last 15 seconds of the track
+      const fadeOutDuration = 15;
+      if (duration > fadeOutDuration) {
         const fadeOutFunction = () => {
           const remaining = currentAudio.duration - currentAudio.currentTime;
-          if (remaining <= 10) {
-            // Use square-root easing to reduce volume more gradually over the last 10 seconds
-            currentAudio.volume = Math.max(Math.sqrt(remaining / 10), 0);
+          if (remaining <= fadeOutDuration) {
+            let factor = remaining / fadeOutDuration;
+            let easedVolume = easeOutQuad(factor);
+            currentAudio.volume = Math.max(easedVolume, 0);
           }
         };
         currentAudio.addEventListener('timeupdate', fadeOutFunction);
