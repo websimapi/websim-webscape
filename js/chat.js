@@ -122,12 +122,9 @@ function showChatContextMenu(e, username) {
   // Do not show dropdown for your own username.
   if (username === room.party.client.username) return;
   
-  // In Two-mouse mode, any mouse click immediately triggers messaging.
-  if (window.mouseMode === "Two") {
-    showMessageOverlay(username);
-    return;
-  }
-  
+  // In Two-mouse mode, right-click should now bring up the drop down menu.
+  e.preventDefault();
+
   // Get game container bounds to ensure our menu doesn’t go outside.
   const gameContainer = document.getElementById('client-wrapper');
   const containerBounds = gameContainer.getBoundingClientRect();
@@ -249,6 +246,7 @@ chatInput.addEventListener('keypress', (e) => {
       hideUsernameHoverTooltip();
     });
     // (For your own username we do not add a contextmenu listener)
+
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
 
     chatInput.value = '';
@@ -275,12 +273,10 @@ room.onmessage = (event) => {
         usernameSpan.addEventListener('mouseout', (e) => {
           hideUsernameHoverTooltip();
         });
-        // NEW: In Two Mouse Mode, right-click should immediately initiate messaging.
+        // NEW: In Two Mouse Mode, right-click now brings up the drop down menu.
         usernameSpan.addEventListener('contextmenu', (e) => {
-          if (window.mouseMode === "Two") {
-            e.preventDefault();
-            showMessageOverlay(username);
-          }
+          e.preventDefault();
+          showChatContextMenu(e, username);
         });
       }
       break;

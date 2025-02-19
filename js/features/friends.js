@@ -141,32 +141,26 @@ function initializeFriendsList() {
     }
   });
 
-  // NEW: Add contextmenu event handler so that in Two mouse mode a right click 
-  // immediately triggers messaging instead of opening the menu.
+  // NEW: Add contextmenu event handler so that right-click in Two-button mode 
+  // acts like a left-click in One-button mode and brings up the drop down menu.
   friendsListContainer.addEventListener('contextmenu', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
       e.preventDefault();
       const username = playerNameElement.textContent;
-      if (window.mouseMode === "Two") {
-        if (typeof showMessageOverlay === 'function') {
-          showMessageOverlay(username);
-        }
-      } else {
-        showContextMenu(e, username, 
-          () => {
-            if (typeof showMessageOverlay === 'function') {
-              showMessageOverlay(username);
-            } else {
-              console.warn('Messaging function is not available.');
-            }
-          },
-          () => {
-            playerNameElement.closest('.list-entry').remove();
-            saveFriendsList();
+      showContextMenu(e, username, 
+        () => {
+          if (typeof showMessageOverlay === 'function') {
+            showMessageOverlay(username);
+          } else {
+            console.warn('Messaging function is not available.');
           }
-        );
-      }
+        },
+        () => {
+          playerNameElement.closest('.list-entry').remove();
+          saveFriendsList();
+        }
+      );
     }
   });
 }
