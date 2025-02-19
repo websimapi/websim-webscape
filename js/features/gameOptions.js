@@ -82,20 +82,21 @@ function initializeGameOptions() {
             btn.classList.remove('selected');
           }
         });
-        // Toggle the visibility of the split chat feed.
+        // Update the visibility of the split chat container via CSS class toggle.
         const splitContainer = document.getElementById('split-private-chat');
         if (splitContainer) {
           if (value) {
-            splitContainer.style.display = 'flex';
+            splitContainer.classList.remove('hidden');
           } else {
-            splitContainer.style.display = 'none';
+            splitContainer.classList.add('hidden');
           }
         }
       });
     });
   }
 
-  // Setup Mouse Button Mode selection
+  // --- NEW: Setup Mouse Button Mode selection ---
+  // This is for the "Mouse Buttons" section – the first column in the two‑column layout.
   const mouseModeColumn = gameOptionsPanel.querySelector('.game-options-two-column .game-options-column:first-child');
   if (mouseModeColumn) {
     const mouseModeButtonsContainer = mouseModeColumn.querySelector('.game-options-buttons');
