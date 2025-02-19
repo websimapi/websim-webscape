@@ -82,7 +82,7 @@ async function playTrack(track, trackElement, trackList) {
           currentAudio.volume += volumeStep;
         } else {
           currentAudio.volume = 1;
-          clearInterval(finishTimer);
+          clearInterval(fadeInTimer);
         }
       }, fadeInInterval);
       
