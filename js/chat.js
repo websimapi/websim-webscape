@@ -303,7 +303,7 @@ room.onmessage = (event) => {
             if (splitContainer.childElementCount > 5) {
               splitContainer.removeChild(splitContainer.firstElementChild);
             }
-            splitContainer.style.display = 'block';
+            splitContainer.style.display = 'flex';
           }
         } else {
           messageDiv.className = 'chat-message private-message';
@@ -318,5 +318,4 @@ room.onmessage = (event) => {
   }
 };
 
-// Added interval to update the friends list online/offline status every 3 seconds.
 setInterval(updateOnlineStatus, 3000);
