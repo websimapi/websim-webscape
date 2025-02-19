@@ -88,12 +88,28 @@ messageInput.addEventListener('keypress', async (e) => {
         recipient: recipient
       });
       
-      // Add message to chat (for sent private messages, we leave them in chat)
-      const chatContent = document.querySelector('.chat-content');
-      const messageDiv = document.createElement('div');
-      messageDiv.className = 'chat-message private-message';
-      messageDiv.innerHTML = `To ${recipient}: ${message}`;
-      chatContent.insertBefore(messageDiv, chatContent.firstChild);
+      // If Split Private-Chat mode is enabled, add the sent "To" message to the split chat container.
+      const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+      if (splitPrivate) {
+        const splitContainer = document.getElementById('split-private-chat');
+        if (splitContainer) {
+          const splitMessage = document.createElement('div');
+          splitMessage.className = 'split-private-message';
+          splitMessage.textContent = `To ${recipient}: ${message}`;
+          splitContainer.appendChild(splitMessage);
+          if (splitContainer.childElementCount > 5) {
+            splitContainer.removeChild(splitContainer.firstElementChild);
+          }
+          splitContainer.style.display = 'flex';
+        }
+      } else {
+        // For standard chat, add the message as before.
+        const chatContent = document.querySelector('.chat-content');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message private-message';
+        messageDiv.innerHTML = `To ${recipient}: ${message}`;
+        chatContent.insertBefore(messageDiv, chatContent.firstChild);
+      }
     } else {
       // Add error message to chat
       const chatContent = document.querySelector('.chat-content');
@@ -297,6 +313,8 @@ room.onmessage = (event) => {
         }
       }
       break;
+    default:
+      console.log("Received event:", event.data);
   }
   
   if (messageDiv.innerHTML) {

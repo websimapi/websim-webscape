@@ -167,3 +167,52 @@
   flex-direction: column;
   justify-content: flex-end;
 }
+
+/* New rule for split private messages */
+.split-private-message {
+  font-size: 10px;
+  color: cyan;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #382418;
+  border: 1px solid #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #5a473a;
+  border: 1px solid #000;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6a574a;
+}
+
+::-webkit-scrollbar-corner {
+  background: #382418;
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #5a473a #382418;
+}
+
+/* Ensure all scrollable containers show scrollbars */
+.list-container,
+.quest-journal-content,
+.chat-content,
+.skills-content {
+  scrollbar-width: thin;
+  scrollbar-color: #5a473a #382418;
+}
