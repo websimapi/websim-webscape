@@ -58,15 +58,15 @@ async function getDuration(audioPath) {
   });
 }
 
-// Improved fade out with smoother transition
+// Improved fade out with cubic easing for smoother transition
 function fadeOutAudio(audio, fadeDuration = 10) {
   return new Promise((resolve) => {
     const startVolume = audio.volume;
     const startTime = performance.now();
     
-    // Use quadratic easing for smoother fade out
-    function easeOutQuad(t) {
-      return t * (2 - t);
+    // Use cubic easing for even smoother fade out
+    function easeOutCubic(t) {
+      return 1 - Math.pow(1 - t, 3);
     }
     
     function step() {
@@ -74,8 +74,8 @@ function fadeOutAudio(audio, fadeDuration = 10) {
       const fraction = elapsed / (fadeDuration * 1000);
       
       if (fraction < 1) {
-        // Apply quadratic easing to the volume reduction
-        const eased = easeOutQuad(1 - fraction);
+        // Apply cubic easing to the volume reduction
+        const eased = 1 - easeOutCubic(fraction);
         audio.volume = Math.max(startVolume * eased, 0);
         requestAnimationFrame(step);
       } else {
@@ -88,14 +88,14 @@ function fadeOutAudio(audio, fadeDuration = 10) {
   });
 }
 
-// Improved fade in with better timing
+// Improved fade in with cubic easing
 function fadeInAudio(audio, fadeDuration = 10, token) {
   return new Promise((resolve) => {
     const startTime = performance.now();
     
-    // Use quadratic easing for smoother fade in
-    function easeInQuad(t) {
-      return t * t;
+    // Use cubic easing for smoother fade in
+    function easeInCubic(t) {
+      return t * t * t;
     }
     
     function step() {
@@ -107,7 +107,7 @@ function fadeInAudio(audio, fadeDuration = 10, token) {
       const fraction = elapsed / (fadeDuration * 1000);
       
       if (fraction < 1) {
-        const eased = easeInQuad(fraction);
+        const eased = easeInCubic(fraction);
         audio.volume = Math.min(eased * targetVolume, targetVolume);
         requestAnimationFrame(step);
       } else {
@@ -157,39 +157,40 @@ async function playTrack(track, trackElement, trackList) {
       await currentAudio.play();
       await fadeInAudio(currentAudio, 10, token);
       
-      // Improved fade out timing for both auto and manual modes
-      if (duration > 15) { // Start fade earlier
+      // Enhanced fade out behavior for both auto and manual modes
+      if (duration > 15) {
         if (fadeOutListener) {
           currentAudio.removeEventListener('timeupdate', fadeOutListener);
         }
         fadeOutListener = () => {
           const remaining = currentAudio.duration - currentAudio.currentTime;
-          if (remaining <= 15) { // Longer fade period
-            // Smoother volume reduction curve
+          if (remaining <= 15) {
+            // Improved quadratic easing for smoother fade
             const fadeRatio = remaining / 15;
-            const smoothVolume = Math.pow(fadeRatio, 2) * targetVolume; // Quadratic fade
+            // Use cubic easing for even smoother transition
+            const smoothVolume = Math.pow(fadeRatio, 3) * targetVolume;
             currentAudio.volume = smoothVolume;
           }
         };
         currentAudio.addEventListener('timeupdate', fadeOutListener);
         
-        // Setup for auto mode transition
+        // Enhanced auto mode transition with smoother timing
         if (autoPlayMode) {
           currentAudio.addEventListener('ended', () => {
             if (token !== musicPlayToken) return;
-            // Reduced delay and immediate setup of next track
+            // Start next track with minimal delay
             autoPlayTimeout = setTimeout(() => {
               const randomIndex = Math.floor(Math.random() * tracks.length);
               currentTrackIndex = randomIndex;
               const nextTrack = tracks[randomIndex];
               const nextTrackElement = trackList.children[randomIndex];
+              // Ensure smooth transition by starting next track immediately
               playTrack(nextTrack, nextTrackElement, trackList);
-            }, 500); // Reduced delay between tracks
+            }, 300); // Reduced delay to 300ms for smoother transition
           });
         }
       }
       
-      // Clear the ended listener if not in auto mode
       if (!autoPlayMode) {
         currentAudio.onended = null;
       }
