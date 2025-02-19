@@ -122,18 +122,13 @@ function showChatContextMenu(e, username) {
   // Do not show dropdown for your own username.
   if (username === room.party.client.username) return;
   
-  // In Two-mouse mode, right-click should now bring up the drop down menu.
-  e.preventDefault();
-
-  // Get game container bounds to ensure our menu doesn’t go outside.
+  // In Two-button mode, right click should now mimic left click and show the context menu.
   const gameContainer = document.getElementById('client-wrapper');
   const containerBounds = gameContainer.getBoundingClientRect();
 
-  // Calculate initial position using event coordinates.
   let xPos = e.pageX;
   let yPos = e.pageY;
 
-  // Set menu content.
   chatContextMenu.innerHTML = `
     <div class="context-menu-option message">Message ${username}</div>
     <div class="context-menu-option add-friend">Add Friend ${username}</div>
@@ -142,10 +137,7 @@ function showChatContextMenu(e, username) {
   `;
   chatContextMenu.classList.add('shown');
 
-  // Now that the menu is visible, measure its bounds.
   const menuBounds = chatContextMenu.getBoundingClientRect();
-
-  // Adjust position to prevent overflow.
   if (xPos + menuBounds.width > containerBounds.right) {
     xPos = containerBounds.right - menuBounds.width - 10;
   }
@@ -155,7 +147,6 @@ function showChatContextMenu(e, username) {
   xPos = Math.max(containerBounds.left + 10, xPos);
   yPos = Math.max(containerBounds.top + 10, yPos);
 
-  // Set the final position.
   chatContextMenu.style.left = `${xPos}px`;
   chatContextMenu.style.top = `${yPos}px`;
 
@@ -245,8 +236,11 @@ chatInput.addEventListener('keypress', (e) => {
     usernameSpan.addEventListener('mouseout', (e) => {
       hideUsernameHoverTooltip();
     });
-    // (For your own username we do not add a contextmenu listener)
-
+    // Modified: Right-click on chat usernames now shows the same context menu as left-click.
+    usernameSpan.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      showChatContextMenu(e, room.party.client.username);
+    });
     chatContent.insertBefore(messageDiv, chatContent.firstChild);
 
     chatInput.value = '';
@@ -273,7 +267,7 @@ room.onmessage = (event) => {
         usernameSpan.addEventListener('mouseout', (e) => {
           hideUsernameHoverTooltip();
         });
-        // NEW: In Two Mouse Mode, right-click now brings up the drop down menu.
+        // Modified: Right-click now behaves like a left-click, showing the context menu.
         usernameSpan.addEventListener('contextmenu', (e) => {
           e.preventDefault();
           showChatContextMenu(e, username);

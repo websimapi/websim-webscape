@@ -141,8 +141,7 @@ function initializeFriendsList() {
     }
   });
 
-  // NEW: Add contextmenu event handler so that right-click in Two-button mode 
-  // acts like a left-click in One-button mode and brings up the drop down menu.
+  // NEW: Modify contextmenu event so that right click in Two-button mode acts like a left click in One-button mode.
   friendsListContainer.addEventListener('contextmenu', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
