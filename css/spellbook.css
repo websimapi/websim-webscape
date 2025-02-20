@@ -38,7 +38,7 @@
   padding: 2px;
   background: #382418;
   border: 1px solid #000;
-  max-height: calc(100% - 24px);
+  max-height: calc(100% - 80px);
   overflow: hidden;
 }
 
@@ -59,4 +59,19 @@
 .spell-slot:hover {
   background: #3a2f2a;
   border-color: #4a3f3a;
+}
+
+/* New styles for spell description box */
+.spellbook-description {
+  height: 48px;
+  background: #000;
+  margin-top: 8px;
+  padding: 4px 8px;
+  color: #dda0dd;
+  font-size: 11px;
+  border: 1px solid #5a473a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
