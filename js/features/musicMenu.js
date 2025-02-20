@@ -138,61 +138,58 @@ async function playTrack(track, trackElement, trackList) {
     autoPlayTimeout = null;
   }
   
-  if (track.unlocked) {
-    // If a song is already playing, fade it out and wait before starting a new one.
-    if (currentAudio) {
-      await fadeOutAudio(currentAudio, 10);
-      await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay between tracks
-      if (token !== musicPlayToken) return;
-      currentAudio = null;
+  if (currentAudio) {
+    await fadeOutAudio(currentAudio, 10);
+    await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay between tracks
+    if (token !== musicPlayToken) return;
+    currentAudio = null;
+  }
+  
+  // Start the selected track.
+  currentAudio = new Audio(track.path);
+  currentTrack = track.name;
+  currentAudio.volume = 0;
+  
+  // Update UI to display the currently playing track.
+  const trackDisplay = document.querySelector('#music-menu .track');
+  trackDisplay.textContent = `Playing: ${currentTrack}`;
+  
+  try {
+    const duration = await getDuration(track.path);
+    if (token !== musicPlayToken) return;
+    await currentAudio.play();
+    await fadeInAudio(currentAudio, 10, token);
+    
+    // NEW AUTO FADE-OUT LOGIC:
+    // Wait until the song has played then, when it is in its last 10 seconds, trigger a fade out.
+    if (autoPlayMode && duration > 10) {
+      let fadeOutScheduled = false;
+      const onTimeUpdate = async () => {
+        if (fadeOutScheduled || !currentAudio) return;
+        const remaining = currentAudio.duration - currentAudio.currentTime;
+        if (remaining <= 10) {
+          fadeOutScheduled = true;
+          currentAudio.removeEventListener('timeupdate', onTimeUpdate);
+          await fadeOutAudio(currentAudio, 10);
+        }
+      };
+      currentAudio.addEventListener('timeupdate', onTimeUpdate);
     }
     
-    // Start the selected track.
-    currentAudio = new Audio(track.path);
-    currentTrack = track.name;
-    currentAudio.volume = 0;
-    
-    // Update UI to display the currently playing track.
-    const trackDisplay = document.querySelector('#music-menu .track');
-    trackDisplay.textContent = `Playing: ${currentTrack}`;
-    
-    try {
-      const duration = await getDuration(track.path);
-      if (token !== musicPlayToken) return;
-      await currentAudio.play();
-      await fadeInAudio(currentAudio, 10, token);
-      
-      const fadeDuration = 10;
-      if (duration > fadeDuration && autoPlayMode) {
-        // Calculate delay based on the current playback time so that fade out starts exactly 10 seconds before the song ends.
-        const delaySeconds = Math.max(0, duration - fadeDuration - currentAudio.currentTime);
-        setTimeout(async () => {
-          if (token !== musicPlayToken || !currentAudio) return;
-          await fadeOutAudio(currentAudio, fadeDuration);
-        }, delaySeconds * 1000);
+    currentAudio.addEventListener('ended', () => {
+      if (currentAudio) {
+        currentAudio.volume = 0;
       }
-      
-      currentAudio.addEventListener('ended', () => {
-        if (currentAudio) {
-          currentAudio.volume = 0;
-        }
-        if (autoPlayMode && token === musicPlayToken) {
-          autoPlayTimeout = setTimeout(() => {
-            const randomIndex = Math.floor(Math.random() * tracks.length);
-            currentTrackIndex = randomIndex;
-            const nextTrack = tracks[randomIndex];
-            const nextTrackElement = trackList.children[randomIndex];
-            playTrack(nextTrack, nextTrackElement, trackList);
-          }, 3000);
-        }
-      });
-      
-    } catch (e) {
-      console.error('Error playing audio:', e);
-      const trackDisplay = document.querySelector('#music-menu .track');
-      trackDisplay.textContent = 'Playing: No track';
-      return;
-    }
+      if (autoPlayMode && token === musicPlayToken) {
+        autoPlayTimeout = setTimeout(() => {
+          const randomIndex = Math.floor(Math.random() * tracks.length);
+          currentTrackIndex = randomIndex;
+          const nextTrack = tracks[randomIndex];
+          const nextTrackElement = trackList.children[randomIndex];
+          playTrack(nextTrack, nextTrackElement, trackList);
+        }, 3000);
+      }
+    });
     
     // Update UI: unselect all track entries, then select the clicked one.
     trackList.querySelectorAll('.track-entry').forEach(entry => {
@@ -203,6 +200,12 @@ async function playTrack(track, trackElement, trackList) {
     });
     trackElement.classList.add('selected');
     trackElement.style.color = '#00ff00';
+    
+  } catch (e) {
+    console.error('Error playing audio:', e);
+    const trackDisplay = document.querySelector('#music-menu .track');
+    trackDisplay.textContent = 'Playing: No track';
+    return;
   }
 }
 
