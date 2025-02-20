@@ -6,7 +6,7 @@
   padding: 4px;
   display: none;
   margin-top: 4px;
-  height: calc(100% - 262px); /* Reduced from -257px to -262px to reduce overall height */
+  height: calc(100% - 262px);
 }
 
 #spellbook.shown {
@@ -19,18 +19,20 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 1px; /* Reduced from 2px to 1px */
+  padding: 1px;
   box-sizing: border-box;
+  position: relative;
+  top: -10px;
 }
 
 .spellbook-grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   gap: 1px;
-  padding: 0px; /* Reduced from 1px to 0px */
+  padding: 0px;
   background: #382418;
   border: 1px solid #000;
-  max-height: calc(100% - 26px); /* Reduced from 28px to 26px */
+  max-height: calc(100% - 16px);
   overflow: hidden;
 }
 
@@ -43,8 +45,8 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  max-width: 18px;
-  max-height: 18px;
+  max-width: 28px;
+  max-height: 28px;
   margin: 0.5px;
 }
 
@@ -55,10 +57,10 @@
 
 /* Description box styles */
 .spellbook-description {
-  height: 23px; /* Reduced from 25px to 23px */
+  height: 23px;
   background: #000;
   margin-top: auto;
-  padding: 2px; /* Reduced from 4px to 2px */
+  padding: 2px;
   color: #dda0dd;
   font-size: 11px;
   border: 1px solid #5a473a;
