@@ -6,7 +6,7 @@
   padding: 4px;
   display: none;
   margin-top: 4px;
-  height: calc(100% - 251px); /* Kept at this height for overall container */
+  height: calc(100% - 254px); /* Reduced by 3px */
 }
 
 #spellbook.shown {
@@ -30,7 +30,7 @@
   padding: 1px;
   background: #382418;
   border: 1px solid #000;
-  max-height: calc(100% - 24px); /* Reduced from 29px to move box up */
+  max-height: calc(100% - 21px); /* Reduced from 24px to move box up 3px */
   overflow: hidden;
 }
 
@@ -55,7 +55,7 @@
 
 /* Description box styles */
 .spellbook-description {
-  height: 28px; /* Increased from 23px to give more height */
+  height: 28px;
   background: #000;
   margin-top: auto;
   padding: 2px;
