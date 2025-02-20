@@ -18,29 +18,42 @@ const tracks = [
   {
     name: 'Ambient Venture',
     path: '/ambient_venture.ogg',
-    unlocked: true
+    unlocked: true,
+    duration: 0 // Will be populated on load
   },
   {
     name: 'Shadow Warden',
     path: '/shadow_warden.ogg',
-    unlocked: true
+    unlocked: true,
+    duration: 0
   },
   {
     name: 'No Thing',
     path: '/no_thing.ogg',
-    unlocked: true
+    unlocked: true,
+    duration: 0
   },
   {
     name: "Aurora's Lullaby",
     path: "/lurora's_lullaby.ogg",
-    unlocked: true
+    unlocked: true,
+    duration: 0
   },
   {
     name: "Pig Pipe",
     path: "/pig_pipe.ogg", 
-    unlocked: true
+    unlocked: true,
+    duration: 0
   }
 ];
+
+// Calculate durations for all tracks on load
+async function calculateTrackDurations() {
+  for (const track of tracks) {
+    track.duration = await getDuration(track.path);
+    console.log(`Loaded duration for ${track.name}: ${track.duration}s`);
+  }
+}
 
 function loadMusicSettings() {
   const storedMode = localStorage.getItem('musicMode');
@@ -158,14 +171,12 @@ async function playTrack(track, trackElement, trackList) {
     trackDisplay.textContent = `Playing: ${currentTrack}`;
     
     try {
-      const duration = await getDuration(track.path);
-      if (token !== musicPlayToken) return;
       await currentAudio.play();
       await fadeInAudio(currentAudio, 10, token);
       
-      if (duration > 10) {
-        // Setup fade out for both manual and auto modes
-        const startFadeTime = duration - 10;
+      // Setup fade out based on track duration
+      if (track.duration > 10) {
+        const startFadeTime = track.duration - 10;
         
         if (fadeOutListener) {
           currentAudio.removeEventListener('timeupdate', fadeOutListener);
@@ -173,9 +184,11 @@ async function playTrack(track, trackElement, trackList) {
         
         fadeOutListener = () => {
           if (currentAudio.currentTime >= startFadeTime) {
-            const remainingTime = duration - currentAudio.currentTime;
+            const remainingTime = track.duration - currentAudio.currentTime;
             const fadeRatio = remainingTime / 10;
-            currentAudio.volume = Math.max(0, targetVolume * fadeRatio);
+            if (targetVolume > 0) { // Only adjust volume if not muted
+              currentAudio.volume = Math.max(0, targetVolume * fadeRatio);
+            }
           }
         };
         
@@ -217,7 +230,10 @@ async function playTrack(track, trackElement, trackList) {
   }
 }
 
-function initializeMusicMenu() {
+async function initializeMusicMenu() {
+  // Calculate all track durations before initializing the menu
+  await calculateTrackDurations();
+  
   const musicButton = document.querySelector('.bottom-icon.music');
   const musicMenu = document.getElementById('music-menu');
   const musicContent = musicMenu.querySelector('.music-content');
