@@ -6,7 +6,7 @@
   padding: 4px;
   display: none;
   margin-top: 4px;
-  height: calc(100% - 246px); /* Increased space for slots */
+  height: calc(100% - 249px); /* Adjusted from -246px to -249px */
 }
 
 #spellbook.shown {
@@ -30,7 +30,7 @@
   padding: 1px;
   background: #382418;
   border: 1px solid #000;
-  max-height: calc(100% - 34px); /* Adjusted to allow more space for grid */
+  max-height: calc(100% - 31px); /* Adjusted from -34px to -31px to match the 3px reduction */
   overflow: hidden;
 }
 
