@@ -6,7 +6,7 @@
   padding: 4px;
   display: none;
   margin-top: 4px;
-  height: calc(100% - 276px);
+  height: calc(100% - 246px);
 }
 
 #spellbook.shown {
@@ -57,7 +57,7 @@
 .spellbook-description {
   height: 48px;
   background: #000;
-  margin-top: 4px;
+  margin-top: auto;
   padding: 4px;
   color: #dda0dd;
   font-size: 11px;
