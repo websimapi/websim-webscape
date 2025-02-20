@@ -13,7 +13,7 @@
   left: 4px;
   width: 40px;
   height: 40px;
-  background: radial-gradient(circle at center, #ff6666 0%, #800000 100%);
+  background: radial-gradient(circle at center, #8B0000 0%, #4B0000 100%);
   border: 1px solid #5a473a;
   border-radius: 50%;
   z-index: 2;
@@ -24,7 +24,7 @@
 
 #compass-n, #compass-s, #compass-e, #compass-w {
   position: absolute;
-  color: white;
+  color: black;
   font-size: 12px;
   line-height: 1;
   text-align: center;
