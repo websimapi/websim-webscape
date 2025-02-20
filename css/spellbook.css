@@ -21,8 +21,6 @@
   flex-direction: column;
   padding: 1px;
   box-sizing: border-box;
-  position: relative;
-  top: -10px;
 }
 
 .spellbook-grid {
@@ -32,7 +30,7 @@
   padding: 0px;
   background: #382418;
   border: 1px solid #000;
-  max-height: calc(100% - 16px);
+  max-height: calc(100% - 23px);
   overflow: hidden;
 }
 
@@ -45,8 +43,8 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  max-width: 28px;
-  max-height: 28px;
+  max-width: 18px;
+  max-height: 18px;
   margin: 0.5px;
 }
 
@@ -57,7 +55,7 @@
 
 /* Description box styles */
 .spellbook-description {
-  height: 23px;
+  height: 20px;
   background: #000;
   margin-top: auto;
   padding: 2px;
