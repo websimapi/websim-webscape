@@ -164,15 +164,14 @@ async function playTrack(track, trackElement, trackList) {
       
       const fadeDuration = 10;
       if (duration > fadeDuration && autoPlayMode) {
-        // Schedule fade out to start at (duration - fadeDuration) seconds.
-        const delay = (duration - fadeDuration) * 1000;
+        // Calculate delay based on the current playback time so that fade out starts exactly 10 seconds before the song ends.
+        const delaySeconds = Math.max(0, duration - fadeDuration - currentAudio.currentTime);
         setTimeout(async () => {
           if (token !== musicPlayToken || !currentAudio) return;
           await fadeOutAudio(currentAudio, fadeDuration);
-        }, delay);
+        }, delaySeconds * 1000);
       }
       
-      // Handle track end: ensure volume is 0 and schedule auto-play if enabled.
       currentAudio.addEventListener('ended', () => {
         if (currentAudio) {
           currentAudio.volume = 0;
