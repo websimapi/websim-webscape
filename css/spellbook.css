@@ -19,26 +19,18 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 4px;
+  padding: 2px;
   box-sizing: border-box;
-}
-
-.spellbook-title {
-  color: #dda0dd;
-  font-size: 12px;
-  text-align: center;
-  margin-bottom: 4px;
-  text-shadow: 1px 1px 1px #000;
 }
 
 .spellbook-grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   gap: 1px;
-  padding: 2px;
+  padding: 1px;
   background: #382418;
   border: 1px solid #000;
-  max-height: calc(100% - 80px);
+  max-height: calc(100% - 54px);
   overflow: hidden;
 }
 
@@ -61,12 +53,12 @@
   border-color: #4a3f3a;
 }
 
-/* New styles for spell description box */
+/* Description box styles */
 .spellbook-description {
   height: 48px;
   background: #000;
-  margin-top: 8px;
-  padding: 4px 8px;
+  margin-top: 4px;
+  padding: 4px;
   color: #dda0dd;
   font-size: 11px;
   border: 1px solid #5a473a;
