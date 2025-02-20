@@ -78,10 +78,20 @@ function initializeAudioContext() {
 function fadeToVolume(targetVal, duration) {
   if (!gainNode || !audioContext) return;
   
-  const now = audioContext.currentTime;
-  gainNode.gain.cancelScheduledValues(now);
-  gainNode.gain.setValueAtTime(gainNode.gain.value, now);
-  gainNode.gain.linearRampToValueAtTime(targetVal * targetVolume, now + duration);
+  // Ensure target value is finite and between 0-1
+  const safeTarget = Math.max(0, Math.min(1, Number(targetVal) || 0));
+  const safeDuration = Math.max(0, Number(duration) || 0);
+  
+  try {
+    const now = audioContext.currentTime;
+    gainNode.gain.cancelScheduledValues(now);
+    gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+    gainNode.gain.linearRampToValueAtTime(safeTarget * targetVolume, now + safeDuration);
+  } catch (err) {
+    console.error('Error fading volume:', err);
+    // Fallback to direct volume set if ramping fails
+    gainNode.gain.setValueAtTime(safeTarget * targetVolume, audioContext.currentTime);
+  }
 }
 
 async function playTrack(track, trackElement, trackList) {
@@ -186,9 +196,18 @@ async function playTrack(track, trackElement, trackList) {
 
 // Allow external modules to set music volume
 function setMusicVolume(newVolume) {
-  targetVolume = newVolume;
+  // Ensure volume is a finite number between 0-1
+  targetVolume = Math.max(0, Math.min(1, Number(newVolume) || 0));
   if (gainNode) {
-    fadeToVolume(gainNode.gain.value / targetVolume, 0.1);
+    try {
+      const currentValue = gainNode.gain.value;
+      const safeValue = currentValue / Math.max(0.00001, targetVolume); // Avoid division by zero
+      fadeToVolume(safeValue, 0.1);
+    } catch (err) {
+      console.error('Error setting volume:', err);
+      // Fallback to direct volume set
+      gainNode.gain.setValueAtTime(targetVolume, audioContext.currentTime);
+    }
   }
 }
 
