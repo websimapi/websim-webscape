@@ -9,7 +9,7 @@ let currentTrack = 'No track';
 let autoPlayMode = false;
 let currentTrackIndex = 0;
 let hasUserInteracted = false;
-let fadeOutListener = null;
+let fadeOutListener = null; // (No longer used in our new auto fade code)
 let autoPlayTimeout = null;
 let musicPlayToken = 0; // Incremented every time a new track is requested
 let targetVolume = 1; // Default target volume (100%)
@@ -37,7 +37,7 @@ const tracks = [
   },
   {
     name: "Pig Pipe",
-    path: "/pig_pipe.ogg", 
+    path: "/pig_pipe.ogg",
     unlocked: true
   }
 ];
@@ -63,7 +63,7 @@ async function getDuration(audioPath) {
   });
 }
 
-// Fade out the given audio to 0 volume smoothly over fadeDuration seconds
+// Fade out the given audio to 0 volume smoothly over fadeDuration seconds.
 function fadeOutAudio(audio, fadeDuration = 10) {
   return new Promise((resolve) => {
     if (!audio || audio.volume === 0) {
@@ -89,7 +89,7 @@ function fadeOutAudio(audio, fadeDuration = 10) {
   });
 }
 
-// Fade in the audio from volume 0 to the targetVolume over fadeDuration seconds
+// Fade in the audio from volume 0 to the targetVolume over fadeDuration seconds.
 function fadeInAudio(audio, fadeDuration = 10, token) {
   return new Promise((resolve) => {
     if (targetVolume === 0) {
@@ -118,7 +118,7 @@ function fadeInAudio(audio, fadeDuration = 10, token) {
   });
 }
 
-// Allow external modules (like game options) to set the music volume
+// Allow external modules (like game options) to set the music volume.
 function setMusicVolume(newVolume) {
   targetVolume = newVolume;
   if (currentAudio) {
@@ -126,83 +126,68 @@ function setMusicVolume(newVolume) {
   }
 }
 
-async function setupTrackFadeOut(audio, duration, token) {
-  const fadeOutStart = duration - 10; // Start fade out 10 seconds before end
-  
-  if (fadeOutListener) {
-    audio.removeEventListener('timeupdate', fadeOutListener);
-  }
-
-  fadeOutListener = () => {
-    if (token !== musicPlayToken) return;
-    
-    if (audio.currentTime >= fadeOutStart) {
-      const remainingTime = duration - audio.currentTime;
-      const fadeRatio = Math.max(0, remainingTime / 10);
-      audio.volume = targetVolume * fadeRatio;
-      
-      // If we're almost at the end and in auto mode, prepare the next track
-      if (autoPlayMode && remainingTime <= 0.1) {
-        audio.pause();
-        audio.volume = 0;
-        clearTimeout(autoPlayTimeout);
-        autoPlayTimeout = setTimeout(() => {
-          const randomIndex = Math.floor(Math.random() * tracks.length);
-          currentTrackIndex = randomIndex;
-          const nextTrack = tracks[randomIndex];
-          const nextTrackElement = document.querySelector('.track-list').children[randomIndex];
-          playTrack(nextTrack, nextTrackElement, document.querySelector('.track-list'));
-        }, 3000);
-      }
-    }
-  };
-
-  audio.addEventListener('timeupdate', fadeOutListener);
-}
-
 async function playTrack(track, trackElement, trackList) {
   if (!hasUserInteracted) return;
   
+  // Increment token to cancel any previous pending transitions.
   musicPlayToken++;
   const token = musicPlayToken;
   
+  // Clear any scheduled auto-play timeout.
   if (autoPlayTimeout) {
     clearTimeout(autoPlayTimeout);
     autoPlayTimeout = null;
   }
   
   if (track.unlocked) {
+    // If a song is already playing, fade it out and wait before starting a new one.
     if (currentAudio) {
       await fadeOutAudio(currentAudio, 10);
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay between tracks
       if (token !== musicPlayToken) return;
       currentAudio = null;
     }
     
+    // Start the selected track.
     currentAudio = new Audio(track.path);
     currentTrack = track.name;
     currentAudio.volume = 0;
     
+    // Update UI to display the currently playing track.
     const trackDisplay = document.querySelector('#music-menu .track');
     trackDisplay.textContent = `Playing: ${currentTrack}`;
     
     try {
       const duration = await getDuration(track.path);
       if (token !== musicPlayToken) return;
-      
       await currentAudio.play();
       await fadeInAudio(currentAudio, 10, token);
       
       if (duration > 10) {
-        await setupTrackFadeOut(currentAudio, duration, token);
-        
+        // Setup fade out for both manual and auto modes using the last 10 seconds.
+        const startFadeTime = duration - 10;
+        let fadeTriggered = false;
+        const autoFadeListener = () => {
+          if (!fadeTriggered && currentAudio.currentTime >= startFadeTime) {
+            fadeTriggered = true;
+            currentAudio.removeEventListener('timeupdate', autoFadeListener);
+            fadeOutAudio(currentAudio, 10).then(() => {
+              currentAudio.volume = 0;
+              if (autoPlayMode && token === musicPlayToken) {
+                autoPlayTimeout = setTimeout(() => {
+                  const randomIndex = Math.floor(Math.random() * tracks.length);
+                  currentTrackIndex = randomIndex;
+                  const nextTrack = tracks[randomIndex];
+                  const nextTrackElement = trackList.children[randomIndex];
+                  playTrack(nextTrack, nextTrackElement, trackList);
+                }, 3000);
+              }
+            });
+          }
+        };
+        currentAudio.addEventListener('timeupdate', autoFadeListener);
         currentAudio.addEventListener('ended', () => {
-          if (token !== musicPlayToken) return;
-          currentAudio.removeEventListener('timeupdate', fadeOutListener);
-          currentAudio.volume = 0;
-          
-          if (autoPlayMode) {
-            clearTimeout(autoPlayTimeout);
+          if (!fadeTriggered && autoPlayMode && token === musicPlayToken) {
             autoPlayTimeout = setTimeout(() => {
               const randomIndex = Math.floor(Math.random() * tracks.length);
               currentTrackIndex = randomIndex;
@@ -221,6 +206,7 @@ async function playTrack(track, trackElement, trackList) {
       return;
     }
     
+    // Update UI: unselect all track entries, then select the clicked one.
     trackList.querySelectorAll('.track-entry').forEach(entry => {
       entry.classList.remove('selected');
       if (entry.classList.contains('unlocked')) {
