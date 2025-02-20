@@ -9,7 +9,6 @@ let currentTrack = 'No track';
 let autoPlayMode = false;
 let currentTrackIndex = 0;
 let hasUserInteracted = false;
-let fadeOutListener = null;
 let autoPlayTimeout = null;
 let musicPlayToken = 0; // Incremented every time a new track is requested
 let targetVolume = 1; // Default target volume (100%)
@@ -37,7 +36,7 @@ const tracks = [
   },
   {
     name: "Pig Pipe",
-    path: "/pig_pipe.ogg", 
+    path: "/pig_pipe.ogg",
     unlocked: true
   }
 ];
@@ -163,41 +162,31 @@ async function playTrack(track, trackElement, trackList) {
       await currentAudio.play();
       await fadeInAudio(currentAudio, 10, token);
       
-      if (duration > 10) {
-        // Setup fade out for both manual and auto modes using an easing curve similar to fadeInAudio
-        const startFadeTime = duration - 10;
-        
-        if (fadeOutListener) {
-          currentAudio.removeEventListener('timeupdate', fadeOutListener);
-        }
-        
-        fadeOutListener = () => {
-          if (currentAudio.currentTime >= startFadeTime) {
-            let progress = (currentAudio.currentTime - startFadeTime) / 10;
-            progress = Math.min(progress, 1);
-            // Use a squared easing function for fade out for a smoother transition
-            currentAudio.volume = targetVolume * Math.pow(1 - progress, 2);
-          }
-        };
-        
-        currentAudio.addEventListener('timeupdate', fadeOutListener);
-        
-        // Handle track end
-        currentAudio.addEventListener('ended', () => {
-          currentAudio.removeEventListener('timeupdate', fadeOutListener);
-          currentAudio.volume = 0; // Ensure volume is 0 when track ends
-          
-          if (autoPlayMode && token === musicPlayToken) {
-            autoPlayTimeout = setTimeout(() => {
-              const randomIndex = Math.floor(Math.random() * tracks.length);
-              currentTrackIndex = randomIndex;
-              const nextTrack = tracks[randomIndex];
-              const nextTrackElement = trackList.children[randomIndex];
-              playTrack(nextTrack, nextTrackElement, trackList);
-            }, 3000);
-          }
-        });
+      const fadeDuration = 10;
+      if (duration > fadeDuration && autoPlayMode) {
+        // Schedule fade out to start at (duration - fadeDuration) seconds.
+        const delay = (duration - fadeDuration) * 1000;
+        setTimeout(async () => {
+          if (token !== musicPlayToken || !currentAudio) return;
+          await fadeOutAudio(currentAudio, fadeDuration);
+        }, delay);
       }
+      
+      // Handle track end: ensure volume is 0 and schedule auto-play if enabled.
+      currentAudio.addEventListener('ended', () => {
+        if (currentAudio) {
+          currentAudio.volume = 0;
+        }
+        if (autoPlayMode && token === musicPlayToken) {
+          autoPlayTimeout = setTimeout(() => {
+            const randomIndex = Math.floor(Math.random() * tracks.length);
+            currentTrackIndex = randomIndex;
+            const nextTrack = tracks[randomIndex];
+            const nextTrackElement = trackList.children[randomIndex];
+            playTrack(nextTrack, nextTrackElement, trackList);
+          }, 3000);
+        }
+      });
       
     } catch (e) {
       console.error('Error playing audio:', e);
