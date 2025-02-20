@@ -53,9 +53,9 @@
   border-color: #4a3f3a;
 }
 
-/* Description box styles */
+/* Description box styles - reduced height by 20px */
 .spellbook-description {
-  height: 48px;
+  height: 28px;
   background: #000;
   margin-top: auto;
   padding: 4px;
