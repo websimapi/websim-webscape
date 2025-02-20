@@ -152,7 +152,34 @@
               </svg>
             </div>
             <div class="icon stats">5</div>
-            <div class="icon quests">6</div>
+            <div class="icon quests">
+              <!-- New Sacrament Icon -->
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
+                <defs>
+                  <linearGradient id="chaliceGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#ffd700"/>
+                    <stop offset="100%" stop-color="#daa520"/>
+                  </linearGradient>
+                  <linearGradient id="altarGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#8b4513"/>
+                    <stop offset="100%" stop-color="#654321"/>
+                  </linearGradient>
+                </defs>
+                <!-- Stone altar base -->
+                <rect x="2" y="16" width="20" height="6" fill="url(#altarGradient)" rx="1"/>
+                <!-- Chalice stem -->
+                <rect x="11" y="8" width="2" height="8" fill="url(#chaliceGradient)"/>
+                <!-- Chalice bowl -->
+                <path d="M8 8 C8 4 16 4 16 8 L8 8" fill="url(#chaliceGradient)"/>
+                <!-- Holy light rays -->
+                <path d="M12 2 L12 6" stroke="#fff" stroke-width="0.5" opacity="0.8"/>
+                <path d="M9 3 L10 6" stroke="#fff" stroke-width="0.5" opacity="0.8"/>
+                <path d="M15 3 L14 6" stroke="#fff" stroke-width="0.5" opacity="0.8"/>
+                <!-- Offering symbols -->
+                <circle cx="7" y="14" r="1" fill="#dc143c" opacity="0.9"/>
+                <circle cx="17" y="14" r="1" fill="#dc143c" opacity="0.9"/>
+              </svg>
+            </div>
             <div class="icon inventory">
               <!-- Eldritch Spellbook Icon -->
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
