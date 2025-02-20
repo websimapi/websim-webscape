@@ -164,7 +164,7 @@ async function playTrack(track, trackElement, trackList) {
       await fadeInAudio(currentAudio, 10, token);
       
       if (duration > 10) {
-        // Setup fade out for both manual and auto modes
+        // Setup fade out for both manual and auto modes using an easing curve similar to fadeInAudio
         const startFadeTime = duration - 10;
         
         if (fadeOutListener) {
@@ -173,9 +173,10 @@ async function playTrack(track, trackElement, trackList) {
         
         fadeOutListener = () => {
           if (currentAudio.currentTime >= startFadeTime) {
-            const remainingTime = duration - currentAudio.currentTime;
-            const fadeRatio = remainingTime / 10;
-            currentAudio.volume = Math.max(0, targetVolume * fadeRatio);
+            let progress = (currentAudio.currentTime - startFadeTime) / 10;
+            progress = Math.min(progress, 1);
+            // Use a squared easing function for fade out for a smoother transition
+            currentAudio.volume = targetVolume * Math.pow(1 - progress, 2);
           }
         };
         
