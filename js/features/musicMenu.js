@@ -9,7 +9,7 @@ let currentTrack = 'No track';
 let autoPlayMode = false;
 let currentTrackIndex = 0;
 let hasUserInteracted = false;
-let fadeOutListener = null; // (No longer used in our new auto fade code)
+let fadeOutListener = null;
 let autoPlayTimeout = null;
 let musicPlayToken = 0; // Incremented every time a new track is requested
 let targetVolume = 1; // Default target volume (100%)
@@ -37,7 +37,7 @@ const tracks = [
   },
   {
     name: "Pig Pipe",
-    path: "/pig_pipe.ogg",
+    path: "/pig_pipe.ogg", 
     unlocked: true
   }
 ];
@@ -164,30 +164,29 @@ async function playTrack(track, trackElement, trackList) {
       await fadeInAudio(currentAudio, 10, token);
       
       if (duration > 10) {
-        // Setup fade out for both manual and auto modes using the last 10 seconds.
+        // Setup fade out for both manual and auto modes
         const startFadeTime = duration - 10;
-        let fadeTriggered = false;
-        const autoFadeListener = () => {
-          if (!fadeTriggered && currentAudio.currentTime >= startFadeTime) {
-            fadeTriggered = true;
-            currentAudio.removeEventListener('timeupdate', autoFadeListener);
-            fadeOutAudio(currentAudio, 10).then(() => {
-              currentAudio.volume = 0;
-              if (autoPlayMode && token === musicPlayToken) {
-                autoPlayTimeout = setTimeout(() => {
-                  const randomIndex = Math.floor(Math.random() * tracks.length);
-                  currentTrackIndex = randomIndex;
-                  const nextTrack = tracks[randomIndex];
-                  const nextTrackElement = trackList.children[randomIndex];
-                  playTrack(nextTrack, nextTrackElement, trackList);
-                }, 3000);
-              }
-            });
+        
+        if (fadeOutListener) {
+          currentAudio.removeEventListener('timeupdate', fadeOutListener);
+        }
+        
+        fadeOutListener = () => {
+          if (currentAudio.currentTime >= startFadeTime) {
+            const remainingTime = duration - currentAudio.currentTime;
+            const fadeRatio = remainingTime / 10;
+            currentAudio.volume = Math.max(0, targetVolume * fadeRatio);
           }
         };
-        currentAudio.addEventListener('timeupdate', autoFadeListener);
+        
+        currentAudio.addEventListener('timeupdate', fadeOutListener);
+        
+        // Handle track end
         currentAudio.addEventListener('ended', () => {
-          if (!fadeTriggered && autoPlayMode && token === musicPlayToken) {
+          currentAudio.removeEventListener('timeupdate', fadeOutListener);
+          currentAudio.volume = 0; // Ensure volume is 0 when track ends
+          
+          if (autoPlayMode && token === musicPlayToken) {
             autoPlayTimeout = setTimeout(() => {
               const randomIndex = Math.floor(Math.random() * tracks.length);
               currentTrackIndex = randomIndex;
