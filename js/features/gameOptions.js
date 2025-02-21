@@ -89,36 +89,45 @@ function initializeGameOptions() {
         
         if (splitContainer) {
           if (value) {
-            // Moving to split chat: create clones for split view
+            // Moving from main chat to split chat
             splitContainer.classList.remove('hidden');
+            // Get all private messages from main chat
             const privateMessages = mainChat.querySelectorAll('.private-message');
             privateMessages.forEach(msg => {
+              // Clone the message for split chat
               const clonedMsg = msg.cloneNode(true);
               splitContainer.appendChild(clonedMsg);
               // Keep only last 5 messages in split chat
               while (splitContainer.childElementCount > 5) {
                 splitContainer.removeChild(splitContainer.firstChild);
               }
+              // Remove from main chat
               msg.remove();
             });
           } else {
             // Moving from split chat to main chat
             splitContainer.classList.add('hidden');
+            // Get all messages from split chat
             const splitMessages = Array.from(splitContainer.children);
-            const mainChatMessages = Array.from(mainChat.children);
-            
-            // Combine all messages and sort by timestamp
-            const allMessages = [...mainChatMessages, ...splitMessages.map(msg => msg.cloneNode(true))];
-            const sortedMessages = allMessages.sort((a, b) => {
-              return parseFloat(b.getAttribute('data-timestamp')) - parseFloat(a.getAttribute('data-timestamp'));
+            splitMessages.forEach(msg => {
+              // Clone the message for main chat
+              const clonedMsg = msg.cloneNode(true);
+              // Insert maintaining timestamp order
+              const timestamp = parseFloat(clonedMsg.getAttribute('data-timestamp') || '0');
+              let inserted = false;
+              const existingMessages = mainChat.children;
+              for (let i = 0; i < existingMessages.length; i++) {
+                const existingTimestamp = parseFloat(existingMessages[i].getAttribute('data-timestamp') || '0');
+                if (existingTimestamp <= timestamp) {
+                  mainChat.insertBefore(clonedMsg, existingMessages[i]);
+                  inserted = true;
+                  break;
+                }
+              }
+              if (!inserted) {
+                mainChat.appendChild(clonedMsg);
+              }
             });
-            
-            // Clear and repopulate main chat with sorted messages
-            mainChat.innerHTML = '';
-            sortedMessages.forEach(msg => {
-              mainChat.appendChild(msg.cloneNode(true));
-            });
-            
             // Clear split chat
             splitContainer.innerHTML = '';
           }
