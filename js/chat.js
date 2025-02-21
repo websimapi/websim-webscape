@@ -302,8 +302,8 @@ function renderAllPrivateMessages() {
     splitContainer.innerHTML = '';
   }
 
-  // Sort messages by timestamp
-  const sortedMessages = [...privateMessageHistory].sort((a, b) => b.timestamp - a.timestamp);
+  // Sort private messages by timestamp
+  const sortedMessages = [...privateMessageHistory].sort((a, b) => a.timestamp - b.timestamp);
 
   if (splitPrivate && splitContainer) {
     // Split chat mode: messages go to split container
@@ -326,7 +326,16 @@ function renderAllPrivateMessages() {
     });
   } else {
     // Combined mode: integrate private messages with public/global chat
-    sortedMessages.forEach(msg => {
+    // First get all existing non-private messages
+    const existingMessages = Array.from(chatContent.children)
+      .filter(msg => !msg.classList.contains('private-message'))
+      .map(msg => ({
+        element: msg.cloneNode(true),
+        timestamp: parseFloat(msg.getAttribute('data-timestamp') || msg.timestamp || Date.now())
+      }));
+
+    // Create message elements for private messages
+    const privateMessages = sortedMessages.map(msg => {
       const msgDiv = document.createElement('div');
       msgDiv.className = 'chat-message private-message';
       msgDiv.setAttribute('data-timestamp', msg.timestamp);
@@ -337,20 +346,20 @@ function renderAllPrivateMessages() {
         msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
       }
 
-      // Insert maintaining chronological order
-      let inserted = false;
-      const messages = chatContent.children;
-      for (let i = 0; i < messages.length; i++) {
-        const timestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
-        if (timestamp <= msg.timestamp) {
-          chatContent.insertBefore(msgDiv, messages[i]);
-          inserted = true;
-          break;
-        }
-      }
-      if (!inserted) {
-        chatContent.appendChild(msgDiv);
-      }
+      return {
+        element: msgDiv,
+        timestamp: msg.timestamp
+      };
+    });
+
+    // Combine and sort all messages
+    const allMessages = [...existingMessages, ...privateMessages]
+      .sort((a, b) => b.timestamp - a.timestamp);
+
+    // Clear and repopulate chat content
+    chatContent.innerHTML = '';
+    allMessages.forEach(msg => {
+      chatContent.appendChild(msg.element);
     });
   }
 }
