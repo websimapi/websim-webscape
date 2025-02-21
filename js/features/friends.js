@@ -11,20 +11,33 @@ let userWorlds = new Map();
 
 // Create a record in the collection to store user's world selection
 async function selectWorld(worldId) {
-  await room.collection('world_selection').create({
-    world_id: worldId
-  });
+  try {
+    await room.collection('world_selection').create({
+      world_id: worldId
+    });
+  } catch (err) {
+    console.error('Error saving world selection:', err);
+  }
 }
 
 // Query world selections from the collection
 async function getWorldSelections() {
-  const selections = await room.collection('world_selection').getList();
-  // Group by username, taking most recent selection for each user
-  const latestSelections = new Map();
-  for (const selection of selections) {
-    latestSelections.set(selection.username, selection.world_id);
+  try {
+    const selections = await room.collection('world_selection').getList();
+    if (!selections) return new Map();
+    
+    // Group by username, taking most recent selection for each user
+    const latestSelections = new Map();
+    for (const selection of selections) {
+      if (selection && selection.username) {
+        latestSelections.set(selection.username, selection.world_id);
+      }
+    }
+    return latestSelections;
+  } catch (err) {
+    console.error('Error getting world selections:', err);
+    return new Map();
   }
-  return latestSelections;
 }
 
 function initializeFriendsList() {
@@ -76,8 +89,12 @@ function initializeFriendsList() {
   room.collection('world_selection').subscribe(async (selections) => {
     userWorlds.clear();
     // Update userWorlds map with latest selections
-    for (const selection of selections) {
-      userWorlds.set(selection.username, selection.world_id);
+    if (selections) {
+      for (const selection of selections) {
+        if (selection && selection.username) {
+          userWorlds.set(selection.username, selection.world_id);
+        }
+      }
     }
     // Update friend status displays
     updateFriendStatuses();
@@ -91,6 +108,7 @@ function initializeFriendsList() {
     friendEntries.forEach(entry => {
       const username = entry.querySelector('.player-name').textContent;
       const statusElement = entry.querySelector('.world-status');
+      if (!statusElement) return;
       
       if (onlinePeers.has(username)) {
         const worldId = userWorlds.get(username);
@@ -110,7 +128,7 @@ function initializeFriendsList() {
 
   // Listen for world changes in the UI
   window.addEventListener('message', async (event) => {
-    if (event.data.type === 'world-selected') {
+    if (event.data && event.data.type === 'world-selected' && event.data.worldId) {
       await selectWorld(event.data.worldId);
     }
   });
@@ -118,13 +136,15 @@ function initializeFriendsList() {
   // Populate friends list from local storage on initialization
   const storedFriends = loadFriendsList();
   storedFriends.forEach(friend => {
-    const newFriend = document.createElement('div');
-    newFriend.className = 'list-entry';
-    newFriend.innerHTML = `
-      <span class="player-name">${friend.name}</span>
-      <span class="world-status offline">Offline</span>
-    `;
-    friendsListContainer.appendChild(newFriend);
+    if (friend && friend.name) {
+      const newFriend = document.createElement('div');
+      newFriend.className = 'list-entry';
+      newFriend.innerHTML = `
+        <span class="player-name">${friend.name}</span>
+        <span class="world-status offline">Offline</span>
+      `;
+      friendsListContainer.appendChild(newFriend);
+    }
   });
 
   // Add Friend button click handler
@@ -145,7 +165,7 @@ function initializeFriendsList() {
   document.addEventListener('overlay-submit', (e) => {
     const { name, overlay } = e.detail;
     
-    if (overlay === addFriendOverlay) {
+    if (overlay === addFriendOverlay && name) {
       const newFriend = document.createElement('div');
       newFriend.className = 'list-entry';
       newFriend.innerHTML = `
@@ -155,7 +175,7 @@ function initializeFriendsList() {
       friendsListContainer.appendChild(newFriend);
       saveFriendsList();
       updateFriendStatuses();
-    } else if (overlay === delFriendOverlay) {
+    } else if (overlay === delFriendOverlay && name) {
       const friendEntries = friendsListContainer.querySelectorAll('.list-entry');
       friendEntries.forEach(entry => {
         const playerName = entry.querySelector('.player-name').textContent;
