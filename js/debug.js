@@ -1,244 +1,193 @@
-// Debug configuration
-const DEBUG = {
-  // Feature flags for different debug categories
-  UI: true,
-  EVENTS: true,
-  WEBSOCKET: true,
-  MENU: true,
-  AUDIO: true,
-  DOM: true,
-  BROWSER: true,
-  
-  // Log level configuration
-  LOG_LEVEL: 'debug', // 'debug', 'info', 'warn', 'error'
+// Debug configuration 
+const DEBUG_CONFIG = {
+  ENABLED: true,
+  CATEGORIES: {
+    INIT: true,      // Initialization logs
+    EVENTS: true,    // Event handling logs
+    MENUS: true,     // Menu state logs
+    NETWORK: true,   // WebSocket/network logs
+    AUDIO: true,     // Audio/music player logs
+    DOM: true        // DOM manipulation logs
+  },
+  LEVEL: {
+    ERROR: true,
+    WARN: true, 
+    INFO: true,
+    DEBUG: true
+  }
 };
 
-// Browser detection
-const browserInfo = {
-  isFirefox: typeof InstallTrigger !== 'undefined',
-  isChrome: !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime),
-  isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
-  userAgent: navigator.userAgent,
-};
+// Utility to get stack trace
+function getStack() {
+  const stack = new Error().stack;
+  if (!stack) return '';
+  const lines = stack.split('\n');
+  // Remove the first 2 lines (Error and this function)
+  return lines.slice(2).join('\n');
+}
 
-class DebugManager {
-  constructor() {
-    this.startTime = performance.now();
-    this.eventLog = [];
-    this.errorLog = [];
-    
-    // Initialize browser info logging
-    this.logBrowserInfo();
-  }
+// Timestamp utility
+function getTimestamp() {
+  return new Date().toISOString();
+}
 
-  logBrowserInfo() {
-    console.group('Browser Information');
-    console.log('Browser:', browserInfo);
-    console.log('User Agent:', navigator.userAgent);
-    console.log('Window Size:', {
-      inner: { width: window.innerWidth, height: window.innerHeight },
-      outer: { width: window.outerWidth, height: window.outerHeight }
-    });
-    console.log('Screen:', {
-      width: window.screen.width,
-      height: window.screen.height,
-      pixelRatio: window.devicePixelRatio
-    });
-    console.groupEnd();
-  }
-
-  log(category, message, data = null) {
-    if (!DEBUG[category]) return;
-
-    const timestamp = performance.now() - this.startTime;
-    const logEntry = {
-      timestamp: Math.round(timestamp),
-      category,
-      message,
-      data
-    };
-
-    console.group(`${category} [${logEntry.timestamp}ms]`);
-    console.log(message);
-    if (data) console.log('Data:', data);
-    console.groupEnd();
-
-    this.eventLog.push(logEntry);
-  }
-
-  error(category, message, error) {
-    const errorEntry = {
-      timestamp: performance.now() - this.startTime,
-      category,
-      message,
-      error: error instanceof Error ? error : new Error(error)
-    };
-
-    console.error(`${category} Error:`, message, error);
-    this.errorLog.push(errorEntry);
-  }
-
-  // UI specific logging
-  logUIEvent(elementId, eventType, details = null) {
-    if (!DEBUG.UI) return;
-    this.log('UI', `UI Event: ${eventType} on ${elementId}`, details);
-  }
-
-  // Menu state logging
-  logMenuState(menuId, isVisible, trigger = '') {
-    if (!DEBUG.MENU) return;
-    this.log('MENU', `Menu State Change: ${menuId}`, {
-      visible: isVisible,
-      trigger,
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  // DOM mutation logging
-  logDOMChange(target, type, details = null) {
-    if (!DEBUG.DOM) return;
-    this.log('DOM', `DOM Mutation: ${type}`, {
-      target: target.id || target.className || 'unknown',
-      details
-    });
-  }
-
-  // WebSocket logging
-  logWebSocket(type, data) {
-    if (!DEBUG.WEBSOCKET) return;
-    this.log('WEBSOCKET', `WebSocket ${type}`, data);
-  }
-
-  // Audio logging
-  logAudio(action, details) {
-    if (!DEBUG.AUDIO) return;
-    this.log('AUDIO', `Audio ${action}`, details);
-  }
-
-  // Element existence check
-  checkElementExists(selector, context = 'Unknown') {
-    const element = document.querySelector(selector);
-    if (!element) {
-      this.error('DOM', `Element not found: ${selector}`, `Context: ${context}`);
-      return false;
-    }
-    return true;
-  }
-
-  // Event listener validation
-  validateEventListener(element, eventType, handler) {
-    if (!element) {
-      this.error('EVENTS', `Cannot add ${eventType} listener to null element`);
-      return false;
-    }
-    return true;
-  }
-
-  // Get current state summary
-  getDebugSummary() {
-    return {
-      totalEvents: this.eventLog.length,
-      totalErrors: this.errorLog.length,
-      browserInfo,
-      recentEvents: this.eventLog.slice(-10),
-      recentErrors: this.errorLog.slice(-10)
-    };
-  }
-
-  // Monitor specific element
-  monitorElement(elementId) {
-    const element = document.getElementById(elementId);
-    if (!element) {
-      this.error('DOM', `Cannot monitor element: ${elementId} - not found`);
+// Main debug logger
+class DebugLogger {
+  static log(category, level, message, data = null) {
+    if (!DEBUG_CONFIG.ENABLED || !DEBUG_CONFIG.CATEGORIES[category] || !DEBUG_CONFIG.LEVEL[level]) {
       return;
     }
 
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        this.logDOMChange(mutation.target, mutation.type, {
-          addedNodes: mutation.addedNodes.length,
-          removedNodes: mutation.removedNodes.length,
-          attributes: mutation.attributeName
-        });
-      });
-    });
+    const timestamp = getTimestamp();
+    const stack = getStack();
+    
+    const logMessage = {
+      timestamp,
+      category,
+      level,
+      message,
+      data,
+      stack
+    };
 
-    observer.observe(element, {
-      attributes: true,
-      childList: true,
-      subtree: true
-    });
+    // Use different console methods based on level
+    switch(level) {
+      case 'ERROR':
+        console.error(logMessage);
+        break;
+      case 'WARN':
+        console.warn(logMessage);
+        break;
+      case 'DEBUG':
+        console.debug(logMessage);
+        break;
+      default:
+        console.log(logMessage);
+    }
+  }
+
+  // Convenience methods
+  static error(category, message, data = null) {
+    this.log(category, 'ERROR', message, data);
+  }
+
+  static warn(category, message, data = null) {
+    this.log(category, 'WARN', message, data);
+  }
+
+  static info(category, message, data = null) {
+    this.log(category, 'INFO', message, data);
+  }
+
+  static debug(category, message, data = null) {
+    this.log(category, 'DEBUG', message, data);
   }
 }
 
-// Create global debug instance
-window.debug = new DebugManager();
-
-// Export for module usage
-export const debug = window.debug;
-
-// Add some utility functions for common debugging tasks
-export const debugUtils = {
-  // Check if all required DOM elements are present
-  validateRequiredElements() {
-    const requiredElements = [
-      '#game-screen',
-      '#chat-window',
-      '#right-panel',
-      '#minimap-section',
-      '#worlds-menu',
-      '.bottom-icon:first-child',
-      '.chat-input',
-      '#current-username'
-    ];
-
-    console.group('Validating Required Elements');
-    const results = requiredElements.map(selector => {
-      const exists = document.querySelector(selector) !== null;
-      console.log(`${selector}: ${exists ? '✓' : '✗'}`);
-      return { selector, exists };
-    });
-    console.groupEnd();
-
-    return results;
+// DOM Utilities
+const DOMDebug = {
+  // Log element existence and properties
+  checkElement(selector, context = 'Unknown') {
+    const element = document.querySelector(selector);
+    if (element) {
+      DebugLogger.info('DOM', `Element found: ${selector} [${context}]`, {
+        id: element.id,
+        classes: Array.from(element.classList),
+        visible: element.offsetParent !== null,
+        dimensions: {
+          width: element.offsetWidth,
+          height: element.offsetHeight
+        },
+        position: {
+          top: element.offsetTop,
+          left: element.offsetLeft
+        },
+        styles: window.getComputedStyle(element)
+      });
+    } else {
+      DebugLogger.error('DOM', `Element not found: ${selector} [${context}]`);
+    }
+    return element;
   },
 
-  // Check event listeners
-  validateEventListeners() {
-    const elements = document.querySelectorAll('.bottom-icon, .icon');
-    console.group('Validating Event Listeners');
-    elements.forEach(element => {
-      const listeners = getEventListeners(element);
-      console.log(`Element ${element.className}:`, listeners);
-    });
-    console.groupEnd();
+  // Log event listener registration
+  logEventListener(element, eventType, context = 'Unknown') {
+    if (element) {
+      DebugLogger.debug('EVENTS', `Event listener registered: ${eventType} [${context}]`, {
+        element: element.tagName,
+        id: element.id,
+        classes: Array.from(element.classList)
+      });
+    } else {
+      DebugLogger.error('EVENTS', `Failed to register event listener: ${eventType} [${context}]`);
+    }
   },
 
-  // Test menu transitions
-  testMenuTransitions() {
-    const menuButtons = document.querySelectorAll('.bottom-icon');
-    console.group('Testing Menu Transitions');
-    menuButtons.forEach(button => {
-      button.click();
-      console.log(`Clicked ${button.className}`);
-      // Wait a bit between clicks
-      setTimeout(() => {}, 100);
-    });
-    console.groupEnd();
+  // Check menu state
+  checkMenuState(menuId, context = 'Unknown') {
+    const menu = document.querySelector(menuId);
+    if (menu) {
+      DebugLogger.debug('MENUS', `Menu state check: ${menuId} [${context}]`, {
+        visible: !menu.classList.contains('hidden'),
+        classes: Array.from(menu.classList),
+        display: window.getComputedStyle(menu).display,
+        position: {
+          top: menu.offsetTop,
+          left: menu.offsetLeft
+        }
+      });
+    } else {
+      DebugLogger.error('MENUS', `Menu not found: ${menuId} [${context}]`);
+    }
   }
 };
 
-// Add specific Firefox debugging
-if (browserInfo.isFirefox) {
-  console.info('Firefox-specific debugging enabled');
-  // Add extra logging for Firefox-specific issues
-  window.addEventListener('error', (event) => {
-    debug.error('FIREFOX', 'Uncaught error:', {
-      message: event.message,
-      filename: event.filename,
-      lineNumber: event.lineno,
-      colNumber: event.colno,
-      error: event.error
+// Browser compatibility checks
+const BrowserDebug = {
+  checkCompatibility() {
+    const browserInfo = {
+      userAgent: navigator.userAgent,
+      isFirefox: typeof InstallTrigger !== 'undefined',
+      isChrome: !!window.chrome,
+      features: {
+        eventListeners: !!window.addEventListener,
+        customEvents: !!window.CustomEvent,
+        flexbox: CSS.supports('display', 'flex'),
+        grid: CSS.supports('display', 'grid'),
+      }
+    };
+    
+    DebugLogger.info('INIT', 'Browser compatibility check', browserInfo);
+    return browserInfo;
+  }
+};
+
+// WebSocket connection monitoring
+const NetworkDebug = {
+  logWebSocketEvent(event, context = 'Unknown') {
+    DebugLogger.debug('NETWORK', `WebSocket Event: ${event.type} [${context}]`, {
+      data: event.data,
+      timestamp: new Date().toISOString()
     });
-  });
-}
+  }
+};
+
+// Audio system debugging
+const AudioDebug = {
+  logAudioEvent(action, details, context = 'Unknown') {
+    DebugLogger.debug('AUDIO', `Audio Event: ${action} [${context}]`, {
+      ...details,
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
+// Export all debug utilities
+export {
+  DebugLogger,
+  DOMDebug,
+  BrowserDebug,
+  NetworkDebug,
+  AudioDebug,
+  DEBUG_CONFIG
+};

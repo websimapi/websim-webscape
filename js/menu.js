@@ -11,17 +11,18 @@ import { initializeMusicMenu } from './features/musicMenu.js';
 import { initializeSpellbook } from './features/spellbook.js';
 import { initializeCompass } from './features/compass.js';
 import { initializeWorlds } from './features/worlds.js';
-import { debug } from './debug.js';
+import { DebugLogger, DOMDebug, BrowserDebug } from './debug.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  debug.log('INIT', 'Starting menu initialization');
-  
+  // Log browser compatibility information
+  const browserInfo = BrowserDebug.checkCompatibility();
+  DebugLogger.info('INIT', 'Starting application initialization', { browserInfo });
+
   try {
-    // Validate critical DOM elements before initialization
-    debug.log('DOM', 'Validating critical elements');
-    if (!document.querySelector('.bottom-icon:nth-child(4)')) {
-      throw new Error('Critical UI elements missing');
-    }
+    // Check critical UI elements
+    DOMDebug.checkElement('.bottom-icon:nth-child(4)', 'Default Button');
+    DOMDebug.checkElement('#game-screen', 'Game Screen');
+    DOMDebug.checkElement('#right-panel', 'Right Panel');
 
     // Initialize all features with debug logging
     const features = [
@@ -40,57 +41,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
     features.forEach(feature => {
       try {
-        debug.log('INIT', `Initializing ${feature.name}`);
+        DebugLogger.debug('INIT', `Initializing ${feature.name}`);
         feature.init();
-        debug.log('INIT', `${feature.name} initialized successfully`);
+        DebugLogger.info('INIT', `Successfully initialized ${feature.name}`);
       } catch (error) {
-        debug.error('INIT', `Failed to initialize ${feature.name}`, error);
+        DebugLogger.error('INIT', `Failed to initialize ${feature.name}`, { error });
       }
     });
 
-    // Set default menu selection to logout button
-    debug.log('UI', 'Setting default menu selection');
+    // Set default menu selection
     const defaultButton = document.querySelector('.bottom-icon:nth-child(4)');
     if (defaultButton) {
       defaultButton.click();
+      DebugLogger.debug('INIT', 'Default button clicked');
     } else {
-      debug.error('UI', 'Default button not found');
+      DebugLogger.error('INIT', 'Default button not found');
     }
 
-    // Setup global event handlers
-    debug.log('EVENTS', 'Setting up global event handlers');
-    
-    // Global click handler to close context menu
+    // Global click handler setup
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.context-menu') && !e.target.closest('.player-name')) {
-        debug.log('UI', 'Closing context menu via global click');
         hideContextMenu();
+        DebugLogger.debug('EVENTS', 'Global click: hiding context menu');
       }
     });
 
     // Close context menu on scroll
     document.addEventListener('scroll', () => {
-      debug.log('UI', 'Closing context menu via scroll');
       hideContextMenu();
+      DebugLogger.debug('EVENTS', 'Scroll event: hiding context menu');
     });
 
     // Handle context menu in Two mouse mode
     document.addEventListener('contextmenu', (e) => {
       if (window.mouseMode === "Two") {
-        debug.log('UI', 'Preventing default context menu in Two mouse mode');
         e.preventDefault();
+        DebugLogger.debug('EVENTS', 'Context menu prevented in Two mouse mode');
       }
     });
 
-    debug.log('INIT', 'Menu initialization completed successfully');
+    DebugLogger.info('INIT', 'Application initialization completed successfully');
+
   } catch (error) {
-    debug.error('INIT', 'Critical error during initialization', error);
-    console.error('Failed to initialize menu system:', error);
+    DebugLogger.error('INIT', 'Critical error during initialization', { error });
   }
 });
 
-// Monitor critical UI elements for changes
-if (DEBUG.DOM) {
-  debug.monitorElement('right-panel');
-  debug.monitorElement('chat-window');
-}
+// Add error handling for dynamic imports
+window.addEventListener('error', (event) => {
+  DebugLogger.error('INIT', 'Script loading error', {
+    message: event.message,
+    filename: event.filename,
+    lineNumber: event.lineno,
+    colNumber: event.colno,
+    error: event.error
+  });
+});

@@ -471,6 +471,19 @@ Out</div>
       </div>
     </div>
 
+    <script>
+      // Global error handler
+      window.onerror = function(message, source, lineno, colno, error) {
+        console.error('Global error:', {
+          message,
+          source,
+          lineno,
+          colno,
+          error
+        });
+        return false;
+      };
+    </script>
     <script src="js/chat.js"></script>
     <script src="js/inventory.js"></script>
     <script src="js/menu.js" type="module"></script>
