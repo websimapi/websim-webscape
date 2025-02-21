@@ -11,8 +11,34 @@ import { initializeMusicMenu } from './features/musicMenu.js';
 import { initializeSpellbook } from './features/spellbook.js';
 import { initializeCompass } from './features/compass.js';
 import { initializeWorlds } from './features/worlds.js';
+import { debugger } from './debug.js';
+
+// Track all initialization functions
+const modules = {
+  FriendsList: { initializeFriendsList },
+  IgnoreList: { initializeIgnoreList },
+  Inventory: { initializeInventory },
+  Logout: { initializeLogout },
+  GameOptions: { initializeGameOptions },
+  QuestJournal: { initializeQuestJournal },
+  SkillsMenu: { initializeSkillsMenu },
+  MusicMenu: { initializeMusicMenu },
+  Spellbook: { initializeSpellbook },
+  Compass: { initializeCompass },
+  Worlds: { initializeWorlds }
+};
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Enable debugging in development
+  if (process.env.NODE_ENV !== 'production') {
+    debugger.toggle(true);
+    
+    // Track all modules
+    Object.entries(modules).forEach(([name, module]) => {
+      debugger.trackModule(module, name);
+    });
+  }
+
   // Initialize all features
   initializeFriendsList();
   initializeIgnoreList();
