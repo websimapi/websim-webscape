@@ -25,10 +25,10 @@ function getCurrentWorld() {
 }
 
 function clearPublicChat() {
-  const chatContent = document.querySelector('.chat-content');
-  // Remove only public chat messages, keeping private messages and system messages
-  const publicMessages = chatContent.querySelectorAll('.chat-message.user:not(.private-message)');
-  publicMessages.forEach(msg => msg.remove());
+  publicChatHistory.length = 0; // Clear public chat history
+  if (chatMode === 'public') {
+    renderChatHistory(); // Only re-render if in public mode
+  }
 }
 
 // Update friend list world status colors
