@@ -30,7 +30,7 @@
   padding: 1px;
   background: #382418;
   border: 1px solid #000;
-  max-height: calc(100% - 24px); /* Reduced from 34px to 24px to account for smaller description box */
+  max-height: calc(100% - 34px); /* Increased from 24px to 34px to account for moving description box down */
   overflow: hidden;
 }
 
@@ -55,10 +55,10 @@
 
 /* Description box styles */
 .spellbook-description {
-  height: 20px; /* Reduced from 28px to 20px */
+  height: 20px;
   background: #000;
-  margin-top: auto;
-  padding: 2px; /* Reduced padding from 4px to 2px */
+  margin-top: 10px; /* Added 10px margin-top to move box down */
+  padding: 2px;
   color: #dda0dd;
   font-size: 11px;
   border: 1px solid #5a473a;
