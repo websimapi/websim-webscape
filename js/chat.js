@@ -130,7 +130,7 @@ function renderChatHistory() {
   
   const history = chatMode === 'global' ? globalChatHistory : publicChatHistory;
   // Sort messages in ascending order by timestamp (oldest first)
-  const sortedHistory = [...history].sort((a, b) => b.timestamp - a.timestamp);
+  const sortedHistory = [...history].sort((a, b) => a.timestamp - b.timestamp);
 
   sortedHistory.forEach(msg => {
     const messageDiv = document.createElement('div');
@@ -170,6 +170,28 @@ function renderChatHistory() {
     
     chatContent.appendChild(messageDiv);
   });
+}
+
+// Function to clear public chat
+export function clearPublicChat() {
+  publicChatHistory.length = 0; // Clear public chat history
+  if (chatMode === 'public') {
+    renderChatHistory(); // Only re-render if in public mode
+  }
+}
+
+// Function to switch chat modes (public/global)
+export function switchChatMode(mode) {
+  chatMode = mode;
+  const tabs = document.querySelectorAll('.chat-tab');
+  tabs.forEach(tab => {
+    tab.classList.remove('selected');
+    if ((mode === 'public' && tab.textContent === 'Public chat') ||
+        (mode === 'global' && tab.textContent === 'Global chat')) {
+      tab.classList.add('selected');
+    }
+  });
+  renderChatHistory();
 }
 
 // Create message overlay using the same markup as the Add Friend overlay
@@ -269,28 +291,6 @@ function renderAllPrivateMessages() {
   });
 }
 window.renderPrivateMessages = renderAllPrivateMessages;
-
-// Function to clear public chat
-export function clearPublicChat() {
-  publicChatHistory.length = 0; // Clear public chat history
-  if (chatMode === 'public') {
-    renderChatHistory(); // Only re-render if in public mode
-  }
-}
-
-// Function to switch chat modes (public/global)
-export function switchChatMode(mode) {
-  chatMode = mode;
-  const tabs = document.querySelectorAll('.chat-tab');
-  tabs.forEach(tab => {
-    tab.classList.remove('selected');
-    if ((mode === 'public' && tab.textContent === 'Public chat') ||
-        (mode === 'global' && tab.textContent === 'Global chat')) {
-      tab.classList.add('selected');
-    }
-  });
-  renderChatHistory();
-}
 
 // Function to update online status in friends list
 function updateOnlineStatus() {
