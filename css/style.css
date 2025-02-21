@@ -205,11 +205,13 @@ body {
 
 .world-status {
   color: lime;
-  flex-shrink: 0;
+}
+
+.world-status:not(.offline) {
 }
 
 .world-status.offline {
-  color: red;
+  color: #ff0000 !important;
 }
 
 .list-buttons {

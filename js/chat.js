@@ -37,18 +37,29 @@ room.party.subscribe((peers) => {
 // Function to update online status in friends list
 function updateOnlineStatus() {
   const friendEntries = document.querySelectorAll('.friends-list .list-entry');
+  const currentWorld = getCurrentWorld();
+
   friendEntries.forEach(entry => {
     const username = entry.querySelector('.player-name').textContent;
     const statusElement = entry.querySelector('.world-status');
+    
     if (onlineUsers.has(username)) {
-      // Keep the world name if it exists, otherwise use default
+      // Only update world name if it's not already set or if status was previously offline
       if (!statusElement.textContent || statusElement.textContent === 'Offline') {
         statusElement.textContent = 'World-1'; // Default world
       }
       statusElement.classList.remove('offline');
+      
+      // Update color based on world comparison
+      if (statusElement.textContent === currentWorld) {
+        statusElement.style.color = '#00ff00'; // Green for same world
+      } else {
+        statusElement.style.color = '#ffff00'; // Yellow for different world
+      }
     } else {
       statusElement.textContent = 'Offline';
       statusElement.classList.add('offline');
+      statusElement.style.color = '#ff0000'; // Red for offline
     }
   });
 }
