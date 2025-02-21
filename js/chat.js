@@ -23,7 +23,7 @@ const publicChatHistory = [
   }
 ];
 
-// Improved private message history tracking
+// Track private message history with better structure
 const privateMessageHistory = [];
 
 // Track online users and their worlds
@@ -108,25 +108,30 @@ room.onmessage = (event) => {
   }
 };
 
-// Update handlePrivateMessage to store all private messages
+// Update handlePrivateMessage to better handle all cases
 function handlePrivateMessage(data) {
-  // Create private message object
   const msgObj = {
-    direction: data.recipient === room.party.client.username ? 'from' : 'to',
+    direction: data.recipient === room.party.client.username ? 'from' : 'to', 
     sender: data.username,
-    recipient: data.recipient, 
+    recipient: data.recipient,
     message: data.message,
-    timestamp: Date.now(),
+    timestamp: Date.now()
   };
 
-  // Add to history
-  privateMessageHistory.push(msgObj);
+  // Add to history if not already present (prevent duplicates)
+  if (!privateMessageHistory.find(msg => 
+    msg.sender === msgObj.sender && 
+    msg.recipient === msgObj.recipient &&
+    msg.message === msgObj.message &&
+    msg.timestamp === msgObj.timestamp
+  )) {
+    privateMessageHistory.push(msgObj);
+  }
 
-  // Rerender all private messages
   renderAllPrivateMessages();
 }
 
-// Re-render all private messages based on current split-chat mode
+// Update renderAllPrivateMessages to handle both directions properly
 function renderAllPrivateMessages() {
   const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
   const chatContent = document.querySelector('.chat-content');
