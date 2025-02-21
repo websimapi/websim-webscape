@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="css/skills.css" />
     <link rel="stylesheet" href="css/music.css" />
     <link rel="stylesheet" href="css/spellbook.css" />
+    <link rel="stylesheet" href="css/worlds.css" />
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -358,7 +359,7 @@
         </div>
 
         <div id="bottom-icons">
-          <div class="bottom-icon">
+          <div class="bottom-icon worlds">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
               <!-- Main globe circle -->
               <circle cx="12" cy="12" r="10" fill="#2a52be" stroke="#000" stroke-width="1"/>
@@ -469,6 +470,10 @@ Out</div>
           </div>
         </div>
       </div>
+    </div>
+
+    <div id="world-switcher" class="hidden">
+      <!-- World list will be populated dynamically -->
     </div>
 
     <script src="js/chat.js"></script>

@@ -1,0 +1,54 @@
+/* World Switcher Menu styling */
+#world-switcher {
+  position: relative;
+  width: calc(100% - 8px);
+  background: #382418;
+  padding: 4px;
+  display: none;
+  margin-top: 4px;
+  height: calc(100% - 276px);
+}
+
+#world-switcher.shown {
+  display: block;
+}
+
+.world-list {
+  background: #474745;
+  border: 2px solid #5a473a;
+  height: 100%;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.world-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  margin: 2px 0;
+  cursor: pointer;
+  border: 1px solid #000;
+  background: #2a1f1a;
+  font-size: 12px;
+}
+
+.world-entry:hover {
+  background: #3a2f2a;
+}
+
+.world-entry.available {
+  color: #00ff00;
+}
+
+.world-entry.selected {
+  color: #00ffff;
+}
+
+.world-name {
+  font-weight: bold;
+}
+
+.world-players {
+  opacity: 0.8;
+}

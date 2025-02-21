@@ -10,6 +10,7 @@ import { initializeSkillsMenu } from './features/skillsMenu.js';
 import { initializeMusicMenu } from './features/musicMenu.js';
 import { initializeSpellbook } from './features/spellbook.js';
 import { initializeCompass } from './features/compass.js';
+import { initializeWorldSwitcher } from './features/worldSwitcher.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize all features
@@ -23,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeMusicMenu();
   initializeSpellbook();
   initializeCompass();
+  initializeWorldSwitcher();
 
   // Set default menu selection to logout button
   const defaultButton = document.querySelector('.bottom-icon:nth-child(4)');
