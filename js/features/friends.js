@@ -3,6 +3,30 @@ import { showContextMenu, hideContextMenu } from '../ui/contextMenu.js';
 import { setupOverlay } from '../ui/overlays.js';
 import { toggleMenu } from './menuManager.js';
 
+// Initialize WebSocket connection
+const room = new WebsimSocket();
+
+// Track user world selections
+let userWorlds = new Map();
+
+// Create a record in the collection to store user's world selection
+async function selectWorld(worldId) {
+  await room.collection('world_selection').create({
+    world_id: worldId
+  });
+}
+
+// Query world selections from the collection
+async function getWorldSelections() {
+  const selections = await room.collection('world_selection').getList();
+  // Group by username, taking most recent selection for each user
+  const latestSelections = new Map();
+  for (const selection of selections) {
+    latestSelections.set(selection.username, selection.world_id);
+  }
+  return latestSelections;
+}
+
 function initializeFriendsList() {
   const friendsButton = document.querySelector('.bottom-icon:nth-child(2)');
   const friendsList = document.querySelector('.friends-list');
@@ -48,6 +72,49 @@ function initializeFriendsList() {
     return [];
   }
 
+  // Subscribe to world selection changes
+  room.collection('world_selection').subscribe(async (selections) => {
+    userWorlds.clear();
+    // Update userWorlds map with latest selections
+    for (const selection of selections) {
+      userWorlds.set(selection.username, selection.world_id);
+    }
+    // Update friend status displays
+    updateFriendStatuses();
+  });
+
+  // Function to update friend statuses based on world selections
+  function updateFriendStatuses() {
+    const friendEntries = friendsListContainer.querySelectorAll('.list-entry');
+    const onlinePeers = new Set(Object.values(room.party.peers).map(p => p.username));
+    
+    friendEntries.forEach(entry => {
+      const username = entry.querySelector('.player-name').textContent;
+      const statusElement = entry.querySelector('.world-status');
+      
+      if (onlinePeers.has(username)) {
+        const worldId = userWorlds.get(username);
+        if (worldId) {
+          statusElement.textContent = `World-${worldId}`;
+          statusElement.classList.remove('offline');
+        } else {
+          statusElement.textContent = 'World-1';  // Default world if no selection found 
+          statusElement.classList.remove('offline');
+        }
+      } else {
+        statusElement.textContent = 'Offline';
+        statusElement.classList.add('offline');
+      }
+    });
+  }
+
+  // Listen for world changes in the UI
+  window.addEventListener('message', async (event) => {
+    if (event.data.type === 'world-selected') {
+      await selectWorld(event.data.worldId);
+    }
+  });
+
   // Populate friends list from local storage on initialization
   const storedFriends = loadFriendsList();
   storedFriends.forEach(friend => {
@@ -87,6 +154,7 @@ function initializeFriendsList() {
       `;
       friendsListContainer.appendChild(newFriend);
       saveFriendsList();
+      updateFriendStatuses();
     } else if (overlay === delFriendOverlay) {
       const friendEntries = friendsListContainer.querySelectorAll('.list-entry');
       friendEntries.forEach(entry => {
@@ -120,7 +188,7 @@ function initializeFriendsList() {
     }
   });
 
-  // Handle friend list clicks – Message action and removal via context menu
+  // Handle friend list clicks
   friendsListContainer.addEventListener('click', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
@@ -141,27 +209,11 @@ function initializeFriendsList() {
     }
   });
 
-  // UPDATED: In two mouse mode, right-click now opens the dropdown menu of options.
-  friendsListContainer.addEventListener('contextmenu', (e) => {
-    const playerNameElement = e.target.closest('.player-name');
-    if (playerNameElement) {
-      e.preventDefault();
-      const username = playerNameElement.textContent;
-      showContextMenu(e, username, 
-        () => {
-          if (typeof showMessageOverlay === 'function') {
-            showMessageOverlay(username);
-          } else {
-            console.warn('Messaging function is not available.');
-          }
-        },
-        () => {
-          playerNameElement.closest('.list-entry').remove();
-          saveFriendsList();
-        }
-      );
-    }
-  });
+  // Initial status update
+  updateFriendStatuses();
+  
+  // Regular status updates
+  setInterval(updateFriendStatuses, 3000);
 }
 
 export { initializeFriendsList };
