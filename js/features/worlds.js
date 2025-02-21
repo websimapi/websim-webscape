@@ -28,7 +28,7 @@ function initializeWorlds() {
       </div>
       <div class="worlds-list">
         ${worlds.map(world => `
-          <div class="world-entry" data-url="${world.url}" data-world="${world.name}">
+          <div class="world-entry" data-url="${world.url}">
             <div class="world-name">${world.name}</div>
             <div class="world-info">
               <span class="world-location">${world.location}</span>
@@ -54,17 +54,9 @@ function initializeWorlds() {
     const worldEntry = e.target.closest('.world-entry');
     if (worldEntry) {
       const url = worldEntry.dataset.url;
-      const worldName = worldEntry.dataset.world;
       const gameFrame = document.querySelector('#game-screen iframe');
       if (gameFrame && url !== gameFrame.src) {
         gameFrame.src = url;
-        
-        // Broadcast world change
-        const room = new WebsimSocket();
-        room.send({
-          type: 'world-update',
-          world: worldName
-        });
         
         // Update selection visuals
         document.querySelectorAll('.world-entry').forEach(entry => {
