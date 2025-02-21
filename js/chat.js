@@ -293,44 +293,66 @@ function renderAllPrivateMessages() {
   const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
   const chatContent = document.querySelector('.chat-content');
   const splitContainer = document.getElementById('split-private-chat');
-
-  // Remove existing private messages
-  const existingPrivate = chatContent.querySelectorAll('.chat-message.private-message');
+  
+  // Remove existing private messages from both containers
+  const existingPrivate = chatContent.querySelectorAll('.private-message');
   existingPrivate.forEach(elem => elem.remove());
   
   if (splitContainer) {
     splitContainer.innerHTML = '';
   }
 
-  // Re-insert all private messages based on timestamp order
+  // Sort messages by timestamp
   const sortedMessages = [...privateMessageHistory].sort((a, b) => b.timestamp - a.timestamp);
 
-  sortedMessages.forEach(msg => {
-    const msgDiv = document.createElement('div');
-    msgDiv.className = 'chat-message private-message';
-    msgDiv.setAttribute('data-timestamp', msg.timestamp);
+  if (splitPrivate && splitContainer) {
+    // Split chat mode: messages go to split container
+    sortedMessages.forEach(msg => {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-message private-message';
+      msgDiv.setAttribute('data-timestamp', msg.timestamp);
 
-    // Format message based on direction
-    if (msg.direction === 'from') {
-      msgDiv.innerHTML = `From ${msg.sender}: ${msg.message}`;
-    } else {
-      msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
-    }
+      if (msg.direction === 'from') {
+        msgDiv.innerHTML = `From ${msg.sender}: ${msg.message}`;
+      } else {
+        msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
+      }
 
-    // Handle split chat mode
-    if (splitPrivate) {
-      if (splitContainer) {
-        const clone = msgDiv.cloneNode(true);
-        splitContainer.appendChild(clone);
-        // Keep only last 5 messages in split view
-        while (splitContainer.childElementCount > 5) {
-          splitContainer.removeChild(splitContainer.firstChild);
+      splitContainer.appendChild(msgDiv);
+      // Keep only last 5 messages in split view
+      while (splitContainer.childElementCount > 5) {
+        splitContainer.removeChild(splitContainer.firstChild);
+      }
+    });
+  } else {
+    // Combined mode: integrate private messages with public/global chat
+    sortedMessages.forEach(msg => {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-message private-message';
+      msgDiv.setAttribute('data-timestamp', msg.timestamp);
+
+      if (msg.direction === 'from') {
+        msgDiv.innerHTML = `From ${msg.sender}: ${msg.message}`;
+      } else {
+        msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
+      }
+
+      // Insert maintaining chronological order
+      let inserted = false;
+      const messages = chatContent.children;
+      for (let i = 0; i < messages.length; i++) {
+        const timestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
+        if (timestamp <= msg.timestamp) {
+          chatContent.insertBefore(msgDiv, messages[i]);
+          inserted = true;
+          break;
         }
       }
-    } else {
-      insertIntoChatContent(msgDiv);
-    }
-  });
+      if (!inserted) {
+        chatContent.appendChild(msgDiv);
+      }
+    });
+  }
 }
 
 messageInput.addEventListener('keypress', async (e) => {
