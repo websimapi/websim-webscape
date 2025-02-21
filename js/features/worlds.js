@@ -95,15 +95,15 @@ function initializeWorlds() {
         
         gameFrame.src = url;
         
-        // Immediately update friend list world colors
-        updateFriendWorldColors();
-        
         // Broadcast world change to other users
         room.send({
           type: 'world-change',
           world: worldName,
           username: room.party.client.username
         });
+        
+        // Update friend list world colors
+        updateFriendWorldColors();
         
         // Update selection visuals
         document.querySelectorAll('.world-entry').forEach(entry => {
@@ -137,6 +137,19 @@ function initializeWorlds() {
   // Update friend list colors when receiving world change events
   room.onmessage = (event) => {
     if (event.data.type === 'world-change') {
+      // First update the world name in friends list for the user who changed worlds
+      const friendEntries = document.querySelectorAll('.friends-list .list-entry');
+      friendEntries.forEach(entry => {
+        const username = entry.querySelector('.player-name').textContent;
+        const statusElement = entry.querySelector('.world-status');
+        if (username === event.data.username) {
+          if (statusElement && !statusElement.classList.contains('offline')) {
+            statusElement.textContent = event.data.world;
+          }
+        }
+      });
+      
+      // Then update all friend list colors based on new world information
       updateFriendWorldColors();
     }
   };
