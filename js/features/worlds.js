@@ -24,6 +24,13 @@ function getCurrentWorld() {
   return world ? world.name : 'World-1'; // Default to World-1 if not found
 }
 
+function clearPublicChat() {
+  const chatContent = document.querySelector('.chat-content');
+  // Remove only public chat messages, keeping private messages and system messages
+  const publicMessages = chatContent.querySelectorAll('.chat-message.user:not(.private-message)');
+  publicMessages.forEach(msg => msg.remove());
+}
+
 function initializeWorlds() {
   const worldsButton = document.querySelector('.bottom-icon:first-child');
   const worldsMenu = document.createElement('div');
@@ -66,6 +73,9 @@ function initializeWorlds() {
       const worldName = worldEntry.dataset.world;
       const gameFrame = document.querySelector('#game-screen iframe');
       if (gameFrame && url !== gameFrame.src) {
+        // Clear public chat messages before switching worlds
+        clearPublicChat();
+        
         gameFrame.src = url;
         
         // Broadcast world change to other users
