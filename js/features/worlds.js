@@ -1,4 +1,5 @@
 import { toggleMenu } from './menuManager.js';
+import { clearPublicChat } from '../chat.js';
 
 // Initialize WebSocket connection
 const room = new WebsimSocket();
@@ -22,13 +23,6 @@ function getCurrentWorld() {
   const currentUrl = document.querySelector('#game-screen iframe').src;
   const world = worlds.find(w => w.url === currentUrl);
   return world ? world.name : 'World-1'; // Default to World-1 if not found
-}
-
-function clearPublicChat() {
-  publicChatHistory.length = 0; // Clear public chat history
-  if (chatMode === 'public') {
-    renderChatHistory(); // Only re-render if in public mode
-  }
 }
 
 // Update friend list world status colors

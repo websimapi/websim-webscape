@@ -169,7 +169,15 @@ function renderAllPrivateMessages() {
 }
 window.renderPrivateMessages = renderAllPrivateMessages;
 
-// Export the switchChatMode function so it can be used in other files
+// Function to clear public chat
+export function clearPublicChat() {
+  publicChatHistory.length = 0; // Clear public chat history
+  if (chatMode === 'public') {
+    renderChatHistory(); // Only re-render if in public mode
+  }
+}
+
+// Function to switch chat modes (public/global)
 export function switchChatMode(mode) {
   chatMode = mode;
   const tabs = document.querySelectorAll('.chat-tab');
@@ -294,14 +302,6 @@ room.onmessage = (event) => {
     originalOnMessage(event);
   }
 };
-
-// Function to clear chat for world switch
-function clearPublicChat() {
-  publicChatHistory.length = 0; // Clear public chat history
-  if (chatMode === 'public') {
-    renderChatHistory(); // Only re-render if in public mode
-  }
-}
 
 // Create a reusable chat context menu element.
 const chatContextMenu = document.createElement('div');
