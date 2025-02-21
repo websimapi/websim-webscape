@@ -241,74 +241,6 @@ function renderAllPrivateMessages() {
   });
 }
 
-// Update renderChatHistory to use stored world information
-function renderChatHistory() {
-  const chatContent = document.querySelector('.chat-content');
-  chatContent.innerHTML = ''; // Clear current messages
-  
-  const history = chatMode === 'global' ? globalChatHistory : publicChatHistory;
-  // Sort messages in ascending order by timestamp (oldest first)
-  const sortedHistory = [...history].sort((a, b) => b.timestamp - a.timestamp);
-
-  sortedHistory.forEach(msg => {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'chat-message user';
-    messageDiv.setAttribute('data-timestamp', msg.timestamp);
-    
-    // Add data-system attribute for styling if it's a system message
-    if (msg.world === 'System') {
-      messageDiv.setAttribute('data-system', 'true');
-    }
-    
-    // Get the user's current world (may be different from when message was sent)
-    const currentUserWorld = userWorlds.get(msg.username) || msg.world;
-    
-    // Special handling for system messages
-    if (msg.world === 'System') {
-      messageDiv.className = 'chat-message system';
-      if (chatMode === 'global') {
-        messageDiv.innerHTML = `
-          <span class="world-indicator">System</span>
-          <span class="message">${msg.username}</span>
-        `;
-      } else {
-        // In public chat, just show the message directly
-        messageDiv.innerHTML = msg.message;
-      }
-    } else {
-      if (chatMode === 'global') {
-        // Place world indicator before username for global chat
-        messageDiv.innerHTML = `
-          <span class="world-indicator">${currentUserWorld}</span>
-          <span class="username">${msg.username}</span>
-          <span class="separator">: </span>
-          ${msg.message}
-        `;
-      } else {
-        messageDiv.innerHTML = `
-          <span class="username">${msg.username}</span>
-          <span class="separator">: </span>
-          ${msg.message}
-        `;
-      }
-
-      // Add username interaction handlers
-      const usernameSpan = messageDiv.querySelector('.username');
-      if (usernameSpan && msg.username !== room.party.client.username) {
-        usernameSpan.addEventListener('click', (e) => showChatContextMenu(e, msg.username));
-        usernameSpan.addEventListener('mouseover', (e) => showUsernameHoverTooltip(e, msg.username));
-        usernameSpan.addEventListener('mouseout', hideUsernameHoverTooltip);
-        usernameSpan.addEventListener('contextmenu', (e) => {
-          e.preventDefault();
-          showChatContextMenu(e, msg.username);
-        });
-      }
-    }
-    
-    chatContent.appendChild(messageDiv);
-  });
-}
-
 // Create message overlay using the same markup as the Add Friend overlay
 const messageOverlay = document.createElement('div');
 messageOverlay.id = 'message-overlay';
@@ -376,7 +308,7 @@ function insertIntoSplitChat(msgDiv) {
   }
 }
 
-// Update message input handler to store messages consistently 
+// Update messageInput handler to store messages consistently 
 messageInput.addEventListener('keypress', async (e) => {
   if (e.key === 'Enter' && messageInput.value.trim()) {
     const message = messageInput.value.trim();
@@ -414,6 +346,74 @@ messageInput.addEventListener('keypress', async (e) => {
     }
   }
 });
+
+// Update renderChatHistory to use stored world information
+function renderChatHistory() {
+  const chatContent = document.querySelector('.chat-content');
+  chatContent.innerHTML = ''; // Clear current messages
+  
+  const history = chatMode === 'global' ? globalChatHistory : publicChatHistory;
+  // Sort messages in ascending order by timestamp (oldest first)
+  const sortedHistory = [...history].sort((a, b) => b.timestamp - a.timestamp);
+
+  sortedHistory.forEach(msg => {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message user';
+    messageDiv.setAttribute('data-timestamp', msg.timestamp);
+    
+    // Add data-system attribute for styling if it's a system message
+    if (msg.world === 'System') {
+      messageDiv.setAttribute('data-system', 'true');
+    }
+    
+    // Get the user's current world (may be different from when message was sent)
+    const currentUserWorld = userWorlds.get(msg.username) || msg.world;
+    
+    // Special handling for system messages
+    if (msg.world === 'System') {
+      messageDiv.className = 'chat-message system';
+      if (chatMode === 'global') {
+        messageDiv.innerHTML = `
+          <span class="world-indicator">System</span>
+          <span class="message">${msg.username}</span>
+        `;
+      } else {
+        // In public chat, just show the message directly
+        messageDiv.innerHTML = msg.message;
+      }
+    } else {
+      if (chatMode === 'global') {
+        // Place world indicator before username for global chat
+        messageDiv.innerHTML = `
+          <span class="world-indicator">${currentUserWorld}</span>
+          <span class="username">${msg.username}</span>
+          <span class="separator">: </span>
+          ${msg.message}
+        `;
+      } else {
+        messageDiv.innerHTML = `
+          <span class="username">${msg.username}</span>
+          <span class="separator">: </span>
+          ${msg.message}
+        `;
+      }
+
+      // Add username interaction handlers
+      const usernameSpan = messageDiv.querySelector('.username');
+      if (usernameSpan && msg.username !== room.party.client.username) {
+        usernameSpan.addEventListener('click', (e) => showChatContextMenu(e, msg.username));
+        usernameSpan.addEventListener('mouseover', (e) => showUsernameHoverTooltip(e, msg.username));
+        usernameSpan.addEventListener('mouseout', hideUsernameHoverTooltip);
+        usernameSpan.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          showChatContextMenu(e, msg.username);
+        });
+      }
+    }
+    
+    chatContent.appendChild(messageDiv);
+  });
+}
 
 // Function to clear public chat
 export function clearPublicChat() {
