@@ -6,38 +6,33 @@ import { toggleMenu } from './menuManager.js';
 // Initialize WebSocket connection
 const room = new WebsimSocket();
 
-// Track user world selections
-let userWorlds = new Map();
+// Track world selection states
+let selectedWorld = null;
 
-// Create a record in the collection to store user's world selection
-async function selectWorld(worldId) {
-  try {
-    await room.collection('world_selection').create({
-      world_id: worldId
+// Get current user's selected world
+function getCurrentWorld() {
+  const iframe = document.querySelector('#game-screen iframe');
+  return iframe ? iframe.src : null;
+}
+
+// Listen for world changes
+function listenForWorldChanges() {
+  const worldEntries = document.querySelectorAll('.world-entry');
+  worldEntries.forEach(entry => {
+    entry.addEventListener('click', () => {
+      const url = entry.dataset.url;
+      selectedWorld = url;
+      // Broadcast world change to all peers
+      room.send({
+        type: 'world_change',
+        world: url
+      });
     });
-  } catch (err) {
-    console.error('Error saving world selection:', err);
-  }
+  });
 }
 
-// Query world selections from the collection
-async function updateWorldSelections() {
-  try {
-    const selections = await room.collection('world_selection').getList();
-    // Group by username, taking most recent selection for each user
-    const latest = new Map();
-    for (const selection of selections) {
-      if (selection && selection.username) {
-        latest.set(selection.username, selection.world_id);
-      }
-    }
-    userWorlds = latest;
-    return latest;
-  } catch (err) {
-    console.error('Error getting world selections:', err);
-    return new Map();
-  }
-}
+// Track users' worlds
+const userWorlds = new Map();
 
 function initializeFriendsList() {
   const friendsButton = document.querySelector('.bottom-icon:nth-child(2)');
@@ -50,11 +45,20 @@ function initializeFriendsList() {
   const delFriendInput = delFriendOverlay.querySelector('.del-friend-input');
   const friendsListContainer = document.querySelector('.friends-list .list-container');
 
+  // Set initial world and broadcast it
+  selectedWorld = getCurrentWorld();
+  if (selectedWorld) {
+    room.send({
+      type: 'world_change',
+      world: selectedWorld
+    });
+  }
+
   // Setup tooltips
   addTooltip(addFriendButton, 'Add friend');
   addTooltip(delFriendButton, 'Delete friend');
 
-  // Setup friends list toggle with menu management 
+  // Setup friends list toggle with menu management
   friendsButton.addEventListener('click', () => {
     toggleMenu(friendsButton, '.friends-list');
   });
@@ -84,45 +88,52 @@ function initializeFriendsList() {
     return [];
   }
 
-  // Subscribe to world selection changes
-  room.collection('world_selection').subscribe(async () => {
-    await updateWorldSelections();
-    updateFriendStatuses();
-  });
-
-  // Function to update friend statuses based on world selections
-  function updateFriendStatuses() {
-    if (!friendsListContainer) return;
-
+  // Function to update friend's world status
+  function updateFriendWorldStatus(username, world) {
     const friendEntries = friendsListContainer.querySelectorAll('.list-entry');
-    const onlinePeers = new Set(Object.values(room.party.peers).map(p => p.username));
-    
     friendEntries.forEach(entry => {
-      const username = entry.querySelector('.player-name').textContent;
-      const statusElement = entry.querySelector('.world-status');
-      
-      if (!statusElement) return;
-
-      if (onlinePeers.has(username)) {
-        const worldId = userWorlds.get(username);
-        if (worldId) {
-          statusElement.textContent = `World-${worldId}`;
+      const playerName = entry.querySelector('.player-name').textContent;
+      if (playerName === username) {
+        const statusElement = entry.querySelector('.world-status');
+        if (world) {
+          statusElement.textContent = world.includes('world-1') ? 'World-1' : 'World-3';
           statusElement.classList.remove('offline');
         } else {
-          statusElement.textContent = 'World-1'; // Default world if no selection found
-          statusElement.classList.remove('offline');
+          statusElement.textContent = 'Offline';
+          statusElement.classList.add('offline');
         }
-      } else {
-        statusElement.textContent = 'Offline';
-        statusElement.classList.add('offline');
       }
     });
   }
 
-  // Listen for world changes in the UI
-  window.addEventListener('message', async (event) => {
-    if (event.data && event.data.type === 'world-selected') {
-      await selectWorld(event.data.worldId);
+  // Handle user world changes
+  room.onmessage = (event) => {
+    if (event.data.type === 'world_change') {
+      const { clientId, username, world } = event.data;
+      userWorlds.set(username, world);
+      updateFriendWorldStatus(username, world);
+    }
+  };
+
+  // Subscribe to peer updates
+  room.party.subscribe((peers) => {
+    // Handle disconnections
+    for (const username of userWorlds.keys()) {
+      if (!Object.values(peers).find(peer => peer.username === username)) {
+        userWorlds.delete(username);
+        updateFriendWorldStatus(username, null);
+      }
+    }
+
+    // Request world status from new peers
+    for (const clientId in peers) {
+      const username = peers[clientId].username;
+      if (!userWorlds.has(username) && username !== room.party.client.username) {
+        room.send({
+          type: 'request_world',
+          targetUsername: username
+        });
+      }
     }
   });
 
@@ -165,7 +176,11 @@ function initializeFriendsList() {
       `;
       friendsListContainer.appendChild(newFriend);
       saveFriendsList();
-      updateFriendStatuses();
+      
+      // Request world status for newly added friend
+      if (userWorlds.has(name)) {
+        updateFriendWorldStatus(name, userWorlds.get(name));
+      }
     } else if (overlay === delFriendOverlay) {
       const friendEntries = friendsListContainer.querySelectorAll('.list-entry');
       friendEntries.forEach(entry => {
@@ -199,7 +214,7 @@ function initializeFriendsList() {
     }
   });
 
-  // Handle friend list clicks 
+  // Handle friend list clicks and context menu
   friendsListContainer.addEventListener('click', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
@@ -220,13 +235,27 @@ function initializeFriendsList() {
     }
   });
 
-  // Initial world selection update and status update
-  updateWorldSelections().then(() => {
-    updateFriendStatuses();
-  });
-  
-  // Regular status updates
-  setInterval(updateFriendStatuses, 3000);
+  // Start listening for world changes
+  listenForWorldChanges();
+
+  // Handle response to world status requests
+  room.onmessage = (event) => {
+    switch (event.data.type) {
+      case 'world_change':
+        const { username, world } = event.data;
+        userWorlds.set(username, world);
+        updateFriendWorldStatus(username, world);
+        break;
+      case 'request_world':
+        if (event.data.targetUsername === room.party.client.username) {
+          room.send({
+            type: 'world_change',
+            world: selectedWorld
+          });
+        }
+        break;
+    }
+  };
 }
 
 export { initializeFriendsList };
