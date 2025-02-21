@@ -152,6 +152,11 @@ function renderChatHistory() {
     messageDiv.className = 'chat-message user';
     messageDiv.setAttribute('data-timestamp', msg.timestamp);
     
+    // Add data-system attribute for styling if it's a system message
+    if (msg.world === 'System') {
+      messageDiv.setAttribute('data-system', 'true');
+    }
+    
     // Get the user's current world (may be different from when message was sent)
     const currentUserWorld = userWorlds.get(msg.username) || msg.world;
     

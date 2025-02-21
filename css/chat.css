@@ -161,6 +161,14 @@
   display: inline-block;
 }
 
+.chat-message .world-indicator:first-child:contains("System") {
+  color: #800000;
+}
+
+.chat-message[data-system="true"] .world-indicator {
+  color: #800000;
+}
+
 /* Updated Split Private Chat Container */
 #split-private-chat {
   position: absolute;
