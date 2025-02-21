@@ -32,7 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Global click handler to close context menu only
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('.context-menu') && !e.target.closest('.player-name')) {
+    const target = e.target instanceof Element ? e.target : null;
+    if (!target || (!target.closest('.context-menu') && !target.closest('.player-name'))) {
       hideContextMenu();
     }
   });

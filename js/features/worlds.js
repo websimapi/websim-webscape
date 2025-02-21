@@ -47,7 +47,8 @@ function initializeWorlds() {
 
   const worldsList = worldsMenu.querySelector('.worlds-list');
   worldsList.addEventListener('click', (e) => {
-    const worldEntry = e.target.closest('.world-entry');
+    const target = e.target instanceof Element ? e.target : null;
+    const worldEntry = target ? target.closest('.world-entry') : null;
     if (worldEntry) {
       const url = worldEntry.dataset.url;
       const gameFrame = document.querySelector('#game-screen iframe');

@@ -101,7 +101,8 @@ function initializeFriendsList() {
 
   // Setup friend list hover effects
   friendsListContainer.addEventListener('mouseover', (e) => {
-    const playerNameElement = e.target.closest('.player-name');
+    const target = e.target instanceof Element ? e.target : null;
+    const playerNameElement = target ? target.closest('.player-name') : null;
     if (playerNameElement) {
       const username = playerNameElement.textContent;
       tooltip.style.display = 'block';
@@ -115,14 +116,16 @@ function initializeFriendsList() {
   });
 
   friendsListContainer.addEventListener('mouseout', (e) => {
-    if (e.target.closest('.player-name')) {
+    const target = e.target instanceof Element ? e.target : null;
+    if (target && target.closest('.player-name')) {
       tooltip.style.display = 'none';
     }
   });
 
   // Handle friend list clicks – Message action and removal via context menu
   friendsListContainer.addEventListener('click', (e) => {
-    const playerNameElement = e.target.closest('.player-name');
+    const target = e.target instanceof Element ? e.target : null;
+    const playerNameElement = target ? target.closest('.player-name') : null;
     if (playerNameElement) {
       const username = playerNameElement.textContent;
       showContextMenu(e, username, 
@@ -134,7 +137,8 @@ function initializeFriendsList() {
           }
         },
         () => {
-          playerNameElement.closest('.list-entry').remove();
+          const listEntry = playerNameElement.closest('.list-entry');
+          if (listEntry) listEntry.remove();
           saveFriendsList();
         }
       );
@@ -143,7 +147,8 @@ function initializeFriendsList() {
 
   // UPDATED: In two mouse mode, right-click now opens the dropdown menu of options.
   friendsListContainer.addEventListener('contextmenu', (e) => {
-    const playerNameElement = e.target.closest('.player-name');
+    const target = e.target instanceof Element ? e.target : null;
+    const playerNameElement = target ? target.closest('.player-name') : null;
     if (playerNameElement) {
       e.preventDefault();
       const username = playerNameElement.textContent;
@@ -156,7 +161,8 @@ function initializeFriendsList() {
           }
         },
         () => {
-          playerNameElement.closest('.list-entry').remove();
+          const listEntry = playerNameElement.closest('.list-entry');
+          if (listEntry) listEntry.remove();
           saveFriendsList();
         }
       );
