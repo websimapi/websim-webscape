@@ -50,10 +50,10 @@ class WebSimDebugger {
    * Wrap a function with debug logging
    */
   wrapFunction(originalFunc, funcName, moduleName) {
-    const debugger = this;
+    const debuggerInstance = this;
     
     return function(...args) {
-      if (!debugger.enabled) return originalFunc.apply(this, args);
+      if (!debuggerInstance.enabled) return originalFunc.apply(this, args);
 
       const callId = Math.random().toString(36).substr(2, 9);
       const startTime = performance.now();
@@ -61,20 +61,20 @@ class WebSimDebugger {
       // Log function entry
       console.groupCollapsed(
         `%c→ ${moduleName}.${funcName}()`,
-        debugger.logStyles.functionEntry
+        debuggerInstance.logStyles.functionEntry
       );
       
       // Log parameters if they exist
       if (args.length) {
         console.log(
           '%cParameters:',
-          debugger.logStyles.paramValue,
+          debuggerInstance.logStyles.paramValue,
           ...args
         );
       }
 
       // Track function call
-      debugger.functionCalls.set(callId, {
+      debuggerInstance.functionCalls.set(callId, {
         name: `${moduleName}.${funcName}`,
         startTime,
         args
@@ -88,24 +88,24 @@ class WebSimDebugger {
         if (result instanceof Promise) {
           return result
             .then(asyncResult => {
-              debugger.logFunctionExit(callId, asyncResult);
+              debuggerInstance.logFunctionExit(callId, asyncResult);
               console.groupEnd();
               return asyncResult;
             })
             .catch(error => {
-              debugger.logError(callId, error);
+              debuggerInstance.logError(callId, error);
               console.groupEnd();
               throw error;
             });
         }
 
         // Handle synchronous returns
-        debugger.logFunctionExit(callId, result);
+        debuggerInstance.logFunctionExit(callId, result);
         console.groupEnd();
         return result;
 
       } catch (error) {
-        debugger.logError(callId, error);
+        debuggerInstance.logError(callId, error);
         console.groupEnd();
         throw error;
       }
@@ -193,4 +193,5 @@ websimDebugger.trackModule({ initializeMusicMenu }, 'MusicMenu');
 websimDebugger.trackModule({ initializeInventory }, 'Inventory');
 */
 
-export const debugger = window.websimDebugger;
+// Export using a different name (wsDebugger) to avoid using the reserved word "debugger"
+export const wsDebugger = window.websimDebugger;

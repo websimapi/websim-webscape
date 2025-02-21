@@ -11,9 +11,8 @@ import { initializeMusicMenu } from './features/musicMenu.js';
 import { initializeSpellbook } from './features/spellbook.js';
 import { initializeCompass } from './features/compass.js';
 import { initializeWorlds } from './features/worlds.js';
-import { debugger } from './debug.js';
+import { wsDebugger } from './debug.js';
 
-// Track all initialization functions
 const modules = {
   FriendsList: { initializeFriendsList },
   IgnoreList: { initializeIgnoreList },
@@ -31,11 +30,11 @@ const modules = {
 document.addEventListener('DOMContentLoaded', () => {
   // Enable debugging in development
   if (process.env.NODE_ENV !== 'production') {
-    debugger.toggle(true);
+    wsDebugger.toggle(true);
     
     // Track all modules
     Object.entries(modules).forEach(([name, module]) => {
-      debugger.trackModule(module, name);
+      wsDebugger.trackModule(module, name);
     });
   }
 
@@ -66,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Close context menu on scroll
   document.addEventListener('scroll', hideContextMenu);
 
-  // FIX: In Two mouse mode, prevent the browser's default context menu
+  //! FIX: In Two mouse mode, prevent the browser's default context menu
   document.addEventListener('contextmenu', (e) => {
     if (window.mouseMode === "Two") {
       e.preventDefault();
