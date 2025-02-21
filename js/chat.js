@@ -169,8 +169,8 @@ let chatMode = 'public'; // Can be 'public' or 'global'
 const globalChatHistory = [];
 const publicChatHistory = [];
 
-// Function to switch chat modes
-function switchChatMode(mode) {
+// Export the switchChatMode function so it can be used in other files
+export function switchChatMode(mode) {
   chatMode = mode;
   const tabs = document.querySelectorAll('.chat-tab');
   tabs.forEach(tab => {
