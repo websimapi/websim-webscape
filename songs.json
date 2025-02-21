@@ -1,0 +1,46 @@
+{
+  "tracks": [
+    {
+      "name": "Ambient Venture",
+      "path": "/ambient_venture.ogg",
+      "duration": 125,
+      "unlocked": true,
+      "fadeOutStart": 115
+    },
+    {
+      "name": "Shadow Warden", 
+      "path": "/shadow_warden.ogg",
+      "duration": 125,
+      "unlocked": true,
+      "fadeOutStart": 115
+    },
+    {
+      "name": "No Thing",
+      "path": "/no_thing.ogg", 
+      "duration": 95,
+      "unlocked": true,
+      "fadeOutStart": 85
+    },
+    {
+      "name": "Aurora's Lullaby",
+      "path": "/lurora's_lullaby.ogg",
+      "duration": 115,
+      "unlocked": true,
+      "fadeOutStart": 105
+    },
+    {
+      "name": "Pig Pipe",
+      "path": "/pig_pipe.ogg",
+      "duration": 125,
+      "unlocked": true,
+      "fadeOutStart": 115
+    },
+    {
+      "name": "Edge of Time",
+      "path": "/edge_of_time.ogg",
+      "duration": 95,
+      "unlocked": true,
+      "fadeOutStart": 85
+    }
+  ]
+}

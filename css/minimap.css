@@ -13,43 +13,58 @@
   left: 4px;
   width: 40px;
   height: 40px;
-  background: rgba(0, 0, 0, 0.6);
+  background: radial-gradient(circle at center, #c00000 0%, #4B0000 100%);
   border: 1px solid #5a473a;
   border-radius: 50%;
   z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.1s ease-out;
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  overflow: visible;
 }
 
 #compass-n, #compass-s, #compass-e, #compass-w {
   position: absolute;
-  color: white;
-  font-size: 12px;
-}
-
-/* Move compass letters 1px to the right */
-#compass-n, #compass-s {
-  left: calc(51% + 1px);
-  transform: translateX(-50%);
-}
-
-#compass-e, #compass-w {
-  top: 50%;
-  transform: translateY(-50%);
+  color: #000;
+  font-size: 10px;
+  line-height: 1;
+  text-align: center;
+  width: 12px;
+  height: 12px;
+  font-weight: bold;
+  user-select: none;
+  pointer-events: none;
+  text-shadow: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #compass-n {
   top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 #compass-s {
   bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 #compass-e {
-  right: 3px;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 #compass-w {
-  left: 4px;
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 /* Minimap styling */

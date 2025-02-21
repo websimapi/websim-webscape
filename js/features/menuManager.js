@@ -2,18 +2,22 @@
 let activeButton = null;
 let activePanel = null;
 
-// List of menu items with their corresponding panels, updated to include game options and quest journal.
+// Updated list of menu items with their corresponding panels
 const menuItems = {
   'friends-button': '.friends-list',
-  'ignore-button': '.ignore-list',
+  'ignore-button': '.ignore-list', 
   'inventory-button': '#inventory',
   'logout-button': '#logout-popup',
   'game-options-button': '#game-options',
-  'quest': '#quest-journal'
+  'skills': '#skills-menu',
+  'quest': '#quest-journal',
+  'music': '#music-menu',
+  'spellbook': '#spellbook',
+  'worlds': '#worlds-menu' // Add worlds menu to the list
 };
 
 function hideAllPanels() {
-  // Hide all panels defined in the menuItems mapping.
+  // Hide all panels defined in the menuItems mapping
   Object.values(menuItems).forEach(panelSelector => {
     const panel = document.querySelector(panelSelector);
     if (panel) {
@@ -36,24 +40,32 @@ function toggleMenu(button, panelSelector) {
   
   // If clicking the same button that's already active
   if (button === activeButton) {
-    // Keep current selection but ensure only this button remains selected
+    // Toggle visibility
+    if (panel.classList.contains('hidden') || !panel.classList.contains('shown')) {
+      hideAllPanels();
+      button.classList.add('selected');
+      panel.classList.remove('hidden');
+      if (panelSelector.startsWith('#') || panelSelector.includes('friends') || 
+          panelSelector.includes('ignore') || panelSelector.includes('worlds')) {
+        panel.classList.add('shown');
+      }
+    } else {
+      hideAllPanels();
+      activeButton = null;
+      activePanel = null;
+      return;
+    }
+  } else {
+    // Hide all other panels first
     hideAllPanels();
+
+    // Show the selected panel and mark button as selected
     button.classList.add('selected');
     panel.classList.remove('hidden');
-    if (panelSelector.includes('friends') || panelSelector.includes('ignore') || panelSelector.includes('game-options') || panelSelector.includes('quest')) {
+    if (panelSelector.startsWith('#') || panelSelector.includes('friends') || 
+        panelSelector.includes('ignore') || panelSelector.includes('worlds')) {
       panel.classList.add('shown');
     }
-    return;
-  }
-
-  // Hide all other panels first
-  hideAllPanels();
-
-  // Show the selected panel and mark button as selected
-  button.classList.add('selected');
-  panel.classList.remove('hidden');
-  if (panelSelector.includes('friends') || panelSelector.includes('ignore') || panelSelector.includes('game-options') || panelSelector.includes('quest')) {
-    panel.classList.add('shown');
   }
 
   activeButton = button;

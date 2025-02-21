@@ -7,6 +7,18 @@
   position: relative;
 }
 
+/* Chat content area */
+.chat-content {
+  padding: 8px;
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.3;
+  height: calc(100% - 65px); 
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
 /* Chat input area styling */
 .chat-input-area {
   position: absolute;
@@ -18,6 +30,7 @@
   border-top: 1px solid #666;
   display: flex;
   align-items: center;
+  z-index: 1; 
 }
 
 .chat-username {
@@ -40,18 +53,6 @@
 
 .chat-input:focus {
   outline: none;
-}
-
-/* Chat content area */
-.chat-content {
-  padding: 8px;
-  color: #fff;
-  font-size: 13px;
-  line-height: 1.3;
-  height: calc(100% - 60px); 
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column-reverse;
 }
 
 /* Chat tabs */
@@ -81,6 +82,10 @@
   background: linear-gradient(to bottom, #5a473a, #483428);
 }
 
+.chat-tab.selected {
+  background: linear-gradient(to bottom, #800040, #600030);
+}
+
 /* Message styling */
 .chat-message {
   margin-top: 0px;
@@ -100,6 +105,11 @@
   color: #000;
 }
 
+/* Private message styling */
+.chat-message.private-message {
+  color: #800080;
+}
+
 /* Make usernames clickable */
 .chat-message .username {
   cursor: pointer;
@@ -110,7 +120,7 @@
   text-decoration: none;
 }
 
-/* Update context menu styling to ensure visibility and containment */
+/* Context Menu Styling */
 .context-menu {
   position: fixed; 
   background: #474745;
@@ -136,4 +146,99 @@
 
 .context-menu-option:hover {
   background: #5a473a;
+}
+
+/* World status styling */
+.world-status:not(.offline) {
+  color: #00ff00;
+}
+
+/* World indicator for global chat */
+.world-indicator {
+  color: #00ff00;
+  font-size: 11px;
+  margin-right: 4px;
+  display: inline-block;
+}
+
+/* Updated Split Private Chat Container */
+#split-private-chat {
+  position: absolute;
+  bottom: 5px;
+  left: 0;  
+  max-width: 40%;
+  height: 60px;
+  overflow-y: auto;
+  background: transparent;
+  padding: 2px 8px;
+  border: none;
+  border-radius: 0;
+  font-size: 10px;
+  color: cyan;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+/* New rule: When split chat is toggled off, hide the split chat container */
+#split-private-chat.hidden {
+  display: none !important;
+}
+
+/* New rule for split private messages (if explicitly applied) */
+.split-private-message {
+  font-size: 10px;
+  color: cyan;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #382418;
+  border: 1px solid #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #5a473a;
+  border: 1px solid #000;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6a574a;
+}
+
+::-webkit-scrollbar-corner {
+  background: #382418;
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #5a473a #382418;
+}
+
+/* Ensure all scrollable containers show scrollbars */
+.list-container,
+.quest-journal-content,
+.chat-content,
+.skills-content {
+  scrollbar-width: thin;
+  scrollbar-color: #5a473a #382418;
+}
+
+/* 
+  NEW OVERRIDE:
+  When private messages are displayed in the split chat container,
+  override their text color to be cyan.
+*/
+#split-private-chat .chat-message.private-message {
+  color: cyan;
 }

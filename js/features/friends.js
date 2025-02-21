@@ -27,6 +27,39 @@ function initializeFriendsList() {
   setupOverlay(addFriendOverlay, addFriendInput);
   setupOverlay(delFriendOverlay, delFriendInput);
 
+  // --- Local Storage Persistence Functions ---
+  function saveFriendsList() {
+    const friendEntries = friendsListContainer.querySelectorAll('.list-entry');
+    const friendsData = Array.from(friendEntries).map(entry => {
+      return { name: entry.querySelector('.player-name').textContent };
+    });
+    localStorage.setItem('friendsList', JSON.stringify(friendsData));
+  }
+
+  function loadFriendsList() {
+    const stored = localStorage.getItem('friendsList');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (err) {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  // Populate friends list from local storage on initialization
+  const storedFriends = loadFriendsList();
+  storedFriends.forEach(friend => {
+    const newFriend = document.createElement('div');
+    newFriend.className = 'list-entry';
+    newFriend.innerHTML = `
+      <span class="player-name">${friend.name}</span>
+      <span class="world-status offline">Offline</span>
+    `;
+    friendsListContainer.appendChild(newFriend);
+  });
+
   // Add Friend button click handler
   addFriendButton.addEventListener('click', () => {
     addFriendOverlay.classList.add('shown');
@@ -53,6 +86,7 @@ function initializeFriendsList() {
         <span class="world-status offline">Offline</span>
       `;
       friendsListContainer.appendChild(newFriend);
+      saveFriendsList();
     } else if (overlay === delFriendOverlay) {
       const friendEntries = friendsListContainer.querySelectorAll('.list-entry');
       friendEntries.forEach(entry => {
@@ -61,6 +95,7 @@ function initializeFriendsList() {
           entry.remove();
         }
       });
+      saveFriendsList();
     }
   });
 
@@ -85,17 +120,44 @@ function initializeFriendsList() {
     }
   });
 
-  // Handle friend list clicks
+  // Handle friend list clicks – Message action and removal via context menu
   friendsListContainer.addEventListener('click', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
       const username = playerNameElement.textContent;
       showContextMenu(e, username, 
         () => {
-          // TODO: Implement messaging
+          if (typeof showMessageOverlay === 'function') {
+            showMessageOverlay(username);
+          } else {
+            console.warn('Messaging function is not available.');
+          }
         },
         () => {
           playerNameElement.closest('.list-entry').remove();
+          saveFriendsList();
+        }
+      );
+    }
+  });
+
+  // UPDATED: In two mouse mode, right-click now opens the dropdown menu of options.
+  friendsListContainer.addEventListener('contextmenu', (e) => {
+    const playerNameElement = e.target.closest('.player-name');
+    if (playerNameElement) {
+      e.preventDefault();
+      const username = playerNameElement.textContent;
+      showContextMenu(e, username, 
+        () => {
+          if (typeof showMessageOverlay === 'function') {
+            showMessageOverlay(username);
+          } else {
+            console.warn('Messaging function is not available.');
+          }
+        },
+        () => {
+          playerNameElement.closest('.list-entry').remove();
+          saveFriendsList();
         }
       );
     }

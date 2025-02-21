@@ -1,0 +1,125 @@
+#skills-menu {
+  position: relative;
+  width: calc(100% - 8px);
+  background: #382418;
+  padding: 4px;
+  display: none;
+  margin-top: 4px;
+  height: calc(100% - 276px);
+}
+
+#skills-menu.shown {
+  display: block;
+}
+
+.skills-content {
+  background: #474745;
+  border: 2px solid #5a473a;
+  height: calc(100% - 4px);
+  display: flex;
+  flex-direction: column;
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  padding: 0;
+  margin: 0;
+}
+
+.skill-slot {
+  width: calc(100% - 3px);
+  height: 24px;
+  background: #474745;
+  border: 1px solid #000;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  padding: 0 1px;
+  justify-content: center;
+  gap: 8px;
+}
+
+.skill-slot:hover {
+  background: #483428;
+}
+
+.skill-icon {
+  font-size: 14px;
+  margin-right: 0px;
+}
+
+.skill-level {
+  font-size: 10px;
+  color: #ffff00;
+  padding-right: 1px;
+  display: flex;
+  align-items: center;
+  margin-left: 1px;
+}
+
+.skill-level-numerator {
+  font-size: 12px;
+  transform: translateY(-3px);
+}
+
+.skill-level-slash {
+  font-size: 24px;
+  margin: 0;
+  transform: rotate(25deg) translateY(-1px) scaleY(1.2);
+  display: inline-block;
+  color: #666666;
+}
+
+.skill-level-denominator {
+  font-size: 12px;
+  transform: translateY(3px);
+}
+
+.stats-summary {
+  background: #000;
+  margin-top: 2px;
+  height: 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  font-size: 12px;
+  color: #ffff00;
+  text-align: center;
+}
+
+.stats-item {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  width: 100%; 
+  box-sizing: border-box; 
+}
+
+.stats-item:first-child {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 8px;
+}
+
+.stats-item:not(:first-child) {
+  grid-column: 2;
+  text-align: left;
+  padding-left: 8px;
+}
+
+.stats-item.hover-state {
+  grid-column: 1 / span 2 !important; 
+  padding-left: 8px;
+  text-align: left;
+  justify-content: flex-start;
+  width: 100%;
+  white-space: pre-line; 
+}

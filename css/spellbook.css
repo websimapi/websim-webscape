@@ -1,0 +1,69 @@
+/* Spellbook UI styling */
+#spellbook {
+  position: relative;
+  width: calc(100% - 8px);
+  background: #382418;
+  padding: 4px;
+  display: none;
+  margin-top: 4px;
+  height: calc(100% - 246px); /* Increased space for slots */
+}
+
+#spellbook.shown {
+  display: block;
+}
+
+.spellbook-content {
+  background: #474745;
+  border: 2px solid #5a473a;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 2px;
+  box-sizing: border-box;
+}
+
+.spellbook-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 1px;
+  padding: 1px;
+  background: #382418;
+  border: 1px solid #000;
+  max-height: calc(100% - 34px); /* Adjusted to allow more space for grid */
+  overflow: hidden;
+}
+
+.spell-slot {
+  width: 100%;
+  aspect-ratio: 1;
+  background: #2a1f1a;
+  border: 1px solid #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  max-width: 18px;
+  max-height: 18px;
+  margin: 0.5px;
+}
+
+.spell-slot:hover {
+  background: #3a2f2a;
+  border-color: #4a3f3a;
+}
+
+/* Description box styles */
+.spellbook-description {
+  height: 28px;
+  background: #000;
+  margin-top: auto;
+  padding: 4px;
+  color: #dda0dd;
+  font-size: 11px;
+  border: 1px solid #5a473a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
