@@ -1,5 +1,20 @@
-// Initialize WebSocket connection
-const room = new WebsimSocket();
+// Initialize WebSocket connection with error handling
+let room;
+try {
+  room = new WebsimSocket();
+} catch (e) {
+  console.error('Error initializing WebSocket:', e);
+  // Provide fallback or show error message
+  room = {
+    party: {
+      client: { username: 'Guest' },
+      peers: {},
+      subscribe: () => {}
+    },
+    send: () => {},
+    onmessage: () => {}
+  };
+}
 
 // Global array to store private message history
 const privateMessageHistory = [];

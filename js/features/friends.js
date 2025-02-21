@@ -1,3 +1,8 @@
+import { addTooltip, tooltip } from '../ui/tooltips.js';
+import { showContextMenu, hideContextMenu } from '../ui/contextMenu.js';
+import { setupOverlay } from '../ui/overlays.js';
+import { toggleMenu } from './menuManager.js';
+
 function initializeFriendsList() {
   const friendsButton = document.querySelector('.bottom-icon:nth-child(2)');
   const friendsList = document.querySelector('.friends-list');
@@ -10,17 +15,17 @@ function initializeFriendsList() {
   const friendsListContainer = document.querySelector('.friends-list .list-container');
 
   // Setup tooltips
-  window.addTooltip(addFriendButton, 'Add friend');
-  window.addTooltip(delFriendButton, 'Delete friend');
+  addTooltip(addFriendButton, 'Add friend');
+  addTooltip(delFriendButton, 'Delete friend');
 
   // Setup friends list toggle with menu management
   friendsButton.addEventListener('click', () => {
-    window.toggleMenu(friendsButton, '.friends-list');
+    toggleMenu(friendsButton, '.friends-list');
   });
 
   // Setup overlays
-  window.setupOverlay(addFriendOverlay, addFriendInput);
-  window.setupOverlay(delFriendOverlay, delFriendInput);
+  setupOverlay(addFriendOverlay, addFriendInput);
+  setupOverlay(delFriendOverlay, delFriendInput);
 
   // --- Local Storage Persistence Functions ---
   function saveFriendsList() {
@@ -99,19 +104,19 @@ function initializeFriendsList() {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
       const username = playerNameElement.textContent;
-      window.tooltip.style.display = 'block';
-      window.tooltip.textContent = `Message ${username} / 1 more option`;
+      tooltip.style.display = 'block';
+      tooltip.textContent = `Message ${username} / 1 more option`;
       
       const gameScreen = document.getElementById('game-screen');
       const gameRect = gameScreen.getBoundingClientRect();
-      window.tooltip.style.left = `${gameRect.left + 5}px`;
-      window.tooltip.style.top = `${gameRect.top + 5}px`;
+      tooltip.style.left = `${gameRect.left + 5}px`;
+      tooltip.style.top = `${gameRect.top + 5}px`;
     }
   });
 
   friendsListContainer.addEventListener('mouseout', (e) => {
     if (e.target.closest('.player-name')) {
-      window.tooltip.style.display = 'none';
+      tooltip.style.display = 'none';
     }
   });
 
@@ -120,10 +125,10 @@ function initializeFriendsList() {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
       const username = playerNameElement.textContent;
-      window.showContextMenu(e, username, 
+      showContextMenu(e, username, 
         () => {
-          if (typeof window.showMessageOverlay === 'function') {
-            window.showMessageOverlay(username);
+          if (typeof showMessageOverlay === 'function') {
+            showMessageOverlay(username);
           } else {
             console.warn('Messaging function is not available.');
           }
@@ -142,10 +147,10 @@ function initializeFriendsList() {
     if (playerNameElement) {
       e.preventDefault();
       const username = playerNameElement.textContent;
-      window.showContextMenu(e, username, 
+      showContextMenu(e, username, 
         () => {
-          if (typeof window.showMessageOverlay === 'function') {
-            window.showMessageOverlay(username);
+          if (typeof showMessageOverlay === 'function') {
+            showMessageOverlay(username);
           } else {
             console.warn('Messaging function is not available.');
           }
@@ -159,4 +164,4 @@ function initializeFriendsList() {
   });
 }
 
-window.initializeFriendsList = initializeFriendsList;
+export { initializeFriendsList };

@@ -23,6 +23,11 @@ function initializeCompass() {
   
   // Listen for camera direction updates from the iframe
   window.addEventListener('message', (event) => {
+    // Check if the origin is from a valid websim.ai subdomain
+    if (!event.origin.endsWith('websim.ai')) {
+      return;
+    }
+
     if (event.data.type === 'cameraDirection') {
       // Get the new target angle (negative because we want to rotate opposite to camera)
       const targetAngle = -Math.round(event.data.direction);
@@ -39,11 +44,17 @@ function initializeCompass() {
     }
   });
 
-  // Request camera direction updates
+  // Request camera direction updates with proper origin handling
   function requestCameraDirection() {
     const iframe = document.querySelector('#game-screen iframe');
     if (iframe && iframe.contentWindow) {
-      iframe.contentWindow.postMessage('getCameraDirection', '*');
+      try {
+        // Get the iframe's origin
+        const targetOrigin = new URL(iframe.src).origin;
+        iframe.contentWindow.postMessage('getCameraDirection', targetOrigin);
+      } catch (e) {
+        console.warn('Error requesting camera direction:', e);
+      }
     }
   }
 
