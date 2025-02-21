@@ -18,7 +18,14 @@
     <div id="client-wrapper">
       <div id="left-column">
         <div id="game-screen">
-          <!-- Game content would be rendered here -->
+          <!-- Seamless iframe for game world -->
+          <iframe 
+            src="https://world-1--api.on.websim.ai/?pin_sidebar=false" 
+            style="width: 100%; height: 100%; border: none;"
+            allow="fullscreen"
+            loading="eager"
+            title="Game World"
+          ></iframe>
           <div id="split-private-chat"></div>
         </div>
         <div id="chat-window">

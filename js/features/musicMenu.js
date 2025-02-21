@@ -13,7 +13,9 @@ let fadeOutListener = null;
 let autoPlayTimeout = null;
 let musicPlayToken = 0; // Incremented every time a new track is requested
 let targetVolume = 1; // Default target volume (100%)
+let trackData = null; // Will store the loaded track metadata
 
+// Initialize tracks from hardcoded data first
 const tracks = [
   {
     name: 'Ambient Venture',
@@ -41,6 +43,30 @@ const tracks = [
     unlocked: true
   }
 ];
+
+// Try to load track metadata from JSON
+async function loadTrackMetadata() {
+  try {
+    const response = await fetch('/songs.json');
+    if (!response.ok) throw new Error('Failed to load song metadata');
+    trackData = await response.json();
+    
+    // Merge metadata with existing tracks
+    if (trackData && trackData.tracks) {
+      trackData.tracks.forEach((metadata) => {
+        const existingTrack = tracks.find(t => t.name === metadata.name);
+        if (existingTrack) {
+          Object.assign(existingTrack, metadata);
+        }
+      });
+    }
+  } catch (err) {
+    console.log('Could not load song metadata, falling back to audio duration detection');
+  }
+}
+
+// Call this when initializing
+loadTrackMetadata();
 
 function loadMusicSettings() {
   const storedMode = localStorage.getItem('musicMode');
@@ -158,21 +184,35 @@ async function playTrack(track, trackElement, trackList) {
     trackDisplay.textContent = `Playing: ${currentTrack}`;
     
     try {
-      const duration = await getDuration(track.path);
+      // Try to get duration from metadata first, fall back to audio duration
+      let duration;
+      if (trackData) {
+        const metadata = trackData.tracks.find(t => t.name === track.name);
+        duration = metadata ? metadata.duration : await getDuration(track.path);
+      } else {
+        duration = await getDuration(track.path);
+      }
+
       if (token !== musicPlayToken) return;
       await currentAudio.play();
       await fadeInAudio(currentAudio, 10, token);
       
       if (duration > 10) {
-        // Setup fade out for both manual and auto modes
-        const startFadeTime = duration - 10;
+        // Get fadeOutStart from metadata if available
+        let fadeOutStart = duration - 10; // Default
+        if (trackData) {
+          const metadata = trackData.tracks.find(t => t.name === track.name);
+          if (metadata && metadata.fadeOutStart) {
+            fadeOutStart = metadata.fadeOutStart;
+          }
+        }
         
         if (fadeOutListener) {
           currentAudio.removeEventListener('timeupdate', fadeOutListener);
         }
         
         fadeOutListener = () => {
-          if (currentAudio.currentTime >= startFadeTime) {
+          if (currentAudio.currentTime >= fadeOutStart) {
             const remainingTime = duration - currentAudio.currentTime;
             const fadeRatio = remainingTime / 10;
             currentAudio.volume = Math.max(0, targetVolume * fadeRatio);

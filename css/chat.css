@@ -157,7 +157,7 @@
   max-width: 40%;
   height: 60px;
   overflow-y: auto;
-  background: rgba(0, 0, 0, 0.7);
+  background: transparent;
   padding: 2px 8px;
   border: none;
   border-radius: 0;

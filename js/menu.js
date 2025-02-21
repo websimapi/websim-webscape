@@ -9,6 +9,7 @@ import { hideAllPanels } from './features/menuManager.js';
 import { initializeSkillsMenu } from './features/skillsMenu.js';
 import { initializeMusicMenu } from './features/musicMenu.js';
 import { initializeSpellbook } from './features/spellbook.js';
+import { initializeCompass } from './features/compass.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize all features
@@ -21,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeSkillsMenu();
   initializeMusicMenu();
   initializeSpellbook();
+  initializeCompass();
 
   // Set default menu selection to logout button
   const defaultButton = document.querySelector('.bottom-icon:nth-child(4)');
@@ -36,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Close context menu on scroll
   document.addEventListener('scroll', hideContextMenu);
 
-  // FIX: In Two mouse mode, prevent the browser’s default context menu
+  // FIX: In Two mouse mode, prevent the browser's default context menu
   document.addEventListener('contextmenu', (e) => {
     if (window.mouseMode === "Two") {
       e.preventDefault();
