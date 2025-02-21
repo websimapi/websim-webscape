@@ -6,7 +6,7 @@
   padding: 4px;
   display: none;
   margin-top: 4px;
-  height: calc(100% - 276px); /* Adjusted for better fit */
+  height: calc(100% - 276px); /* Adjusted height to better fit overall layout */
 }
 
 #spellbook.shown {
@@ -19,7 +19,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 1px; /* Reduced padding */
+  padding: 1px; /* Reduced padding from 2px to 1px */
   box-sizing: border-box;
 }
 
@@ -30,7 +30,7 @@
   padding: 1px;
   background: #382418;
   border: 1px solid #000;
-  max-height: calc(100% - 32px); /* Slightly reduced space for grid */
+  max-height: calc(100% - 24px); /* Reduced from 34px to 24px to account for smaller description box */
   overflow: hidden;
 }
 
@@ -55,10 +55,10 @@
 
 /* Description box styles */
 .spellbook-description {
-  height: 26px; /* Slightly reduced height */
+  height: 20px; /* Reduced from 28px to 20px */
   background: #000;
   margin-top: auto;
-  padding: 3px; /* Reduced padding */
+  padding: 2px; /* Reduced padding from 4px to 2px */
   color: #dda0dd;
   font-size: 11px;
   border: 1px solid #5a473a;
