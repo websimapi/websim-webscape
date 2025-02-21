@@ -1,13 +1,20 @@
 // Initialize WebSocket connection
 const room = new WebsimSocket();
 
-// Global array to store private message history
+// Add chat mode tracking 
+let chatMode = 'public'; // Can be 'public' or 'global'
+
+// Track chat history separately for global and public
+const globalChatHistory = [];
+const publicChatHistory = [];
+
+// Track private message history
 const privateMessageHistory = [];
 
 // Track online users
 let onlineUsers = new Set();
 
-// Track current world
+// Function to get the current world
 function getCurrentWorld() {
   const currentUrl = document.querySelector('#game-screen iframe').src;
   const worldsMatch = currentUrl.match(/world-(\d+)/);
@@ -161,13 +168,6 @@ function renderAllPrivateMessages() {
   });
 }
 window.renderPrivateMessages = renderAllPrivateMessages;
-
-// Add chat mode tracking
-let chatMode = 'public'; // Can be 'public' or 'global'
-
-// Track chat history separately for global and public
-const globalChatHistory = [];
-const publicChatHistory = [];
 
 // Export the switchChatMode function so it can be used in other files
 export function switchChatMode(mode) {
