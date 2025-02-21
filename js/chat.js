@@ -24,23 +24,25 @@ function getCurrentWorld() {
   return worldsMatch ? `World-${worldsMatch[1]}` : 'World-1';
 }
 
-// When a user switches worlds the world indicator in every global chat message from that user must update.
-// We do this by updating the stored user world in our userWorlds map AND iterating over globalChatHistory to 
-// update each message’s "world" property. Then if we’re displaying global chat messages we re-render them.
+// Update all displayed global chat messages for a user when they change worlds
 function updateUserWorldDisplay(username, newWorld) {
   // Update the stored world for this user
   userWorlds.set(username, newWorld);
 
-  // Update every global chat history entry for this user with the new world
-  globalChatHistory.forEach(msg => {
-    if (msg.username === username) {
-      msg.world = newWorld;
-    }
-  });
-
-  // If we're in global chat mode, re-render the chat history to reflect updated world indicators
+  // Only update display if we're in global chat mode
   if (chatMode === 'global') {
-    renderChatHistory();
+    const chatContent = document.querySelector('.chat-content');
+    const userMessages = chatContent.querySelectorAll('.chat-message.user');
+    
+    userMessages.forEach(messageDiv => {
+      const messageUsername = messageDiv.querySelector('.username').textContent;
+      if (messageUsername === username) {
+        const worldIndicator = messageDiv.querySelector('.world-indicator');
+        if (worldIndicator) {
+          worldIndicator.textContent = newWorld;
+        }
+      }
+    });
   }
 }
 
@@ -80,8 +82,11 @@ room.onmessage = (event) => {
       Date.now()
     );
   } else if (event.data.type === 'world-change') {
-    // Update the user's world when they change worlds – this now updates the stored global chat history too.
+    // Update the user's world in our tracking
     updateUserWorldDisplay(event.data.username, event.data.world);
+    
+    // Force re-render of chat to update world indicators for this user's messages
+    renderChatHistory();
   }
   // Call original handler for other message types
   if (originalOnMessage) {
@@ -121,14 +126,13 @@ function handleChatMessage(message, username, world, timestamp) {
   renderChatHistory();
 }
 
-// Update renderChatHistory to use stored world information
+// Update message rendering to always use the latest known world for a user
 function renderChatHistory() {
   const chatContent = document.querySelector('.chat-content');
   chatContent.innerHTML = ''; // Clear current messages
   
   const history = chatMode === 'global' ? globalChatHistory : publicChatHistory;
-  // Sort messages in descending order by timestamp (newest first);
-  // CSS "column-reverse" will display them in ascending order visually (oldest on top).
+  // Sort messages in ascending order by timestamp (oldest first)
   const sortedHistory = [...history].sort((a, b) => b.timestamp - a.timestamp);
 
   sortedHistory.forEach(msg => {
@@ -239,15 +243,18 @@ function insertIntoSplitChat(msgDiv) {
 }
 
 // Re-render all private messages based on current split-chat mode.
+// When split chat is off, private messages are merged into main chat; when on, they go into the split chat container.
 function renderAllPrivateMessages() {
   const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
   const chatContent = document.querySelector('.chat-content');
+  // Remove any existing private messages from main chat
   const existingPrivate = chatContent.querySelectorAll('.chat-message.private-message');
   existingPrivate.forEach(elem => elem.remove());
   const splitContainer = document.getElementById('split-private-chat');
   if (splitContainer) {
     splitContainer.innerHTML = '';
   }
+  // Re-insert all private messages from history in the order they were received
   privateMessageHistory.forEach(msg => {
     const msgDiv = document.createElement('div');
     msgDiv.className = 'chat-message private-message';
@@ -298,10 +305,13 @@ function updateOnlineStatus() {
     const statusElement = entry.querySelector('.world-status');
     
     if (onlineUsers.has(username)) {
+      // Only update world name if it's not already set or if status was previously offline
       if (!statusElement.textContent || statusElement.textContent === 'Offline') {
         statusElement.textContent = userWorlds.get(username) || 'World-1'; // Default world
       }
       statusElement.classList.remove('offline');
+      
+      // Update color based on world comparison
       if (statusElement.textContent === currentWorld) {
         statusElement.style.color = '#00ff00'; // Green for same world
       } else {
@@ -450,6 +460,7 @@ messageInput.addEventListener('keypress', async (e) => {
         recipient: recipient
       });
       
+      // Save outgoing private message to history and insert into chat/split container
       const msgObj = {
         direction: 'to',
         recipient: recipient,
@@ -471,7 +482,7 @@ messageInput.addEventListener('keypress', async (e) => {
       const chatContent = document.querySelector('.chat-content');
       const messageDiv = document.createElement('div');
       messageDiv.className = 'chat-message system';
-      const timestamp = Date.now();
+      const timestamp = Date.now(); // Fix: set timestamp for proper insertion order
       messageDiv.setAttribute('data-timestamp', timestamp);
       messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
       insertIntoChatContent(messageDiv);

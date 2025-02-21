@@ -89,7 +89,7 @@ function initializeWorlds() {
         
         gameFrame.src = url;
         
-        // Broadcast world change to other users
+        // Broadcast world change to other users to update chat and friends list
         room.send({
           type: 'world-change',
           world: worldName,
