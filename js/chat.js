@@ -99,19 +99,6 @@ room.onmessage = (event) => {
   } else if (event.data.type === 'world-change') {
     // Update the user's world when they change worlds
     updateUserWorldDisplay(event.data.username, event.data.world);
-  } else if (event.data.type === 'private-message') {
-    // Handle incoming private messages
-    if (event.data.recipient === room.party.client.username) {
-      const msgObj = {
-        direction: 'from',
-        sender: event.data.username,
-        message: event.data.message,
-        timestamp: Date.now()
-      };
-      
-      privateMessageHistory.push(msgObj);
-      addPrivateMessage(msgObj);
-    }
   }
   // Call original handler for other message types
   if (originalOnMessage) {
@@ -149,26 +136,6 @@ function handleChatMessage(message, username, world, timestamp) {
   }
 
   renderChatHistory();
-}
-
-// Function to add message to UI elements
-function addPrivateMessage(msgObj) {
-  const msgDiv = document.createElement('div');
-  msgDiv.className = 'chat-message private-message';
-  msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
-  
-  if (msgObj.direction === 'to') {
-    msgDiv.innerHTML = `To ${msgObj.recipient}: ${msgObj.message}`;
-  } else {
-    msgDiv.innerHTML = `From ${msgObj.sender}: ${msgObj.message}`;
-  }
-  
-  const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-  if (splitPrivate) {
-    insertIntoSplitChat(msgDiv);
-  } else {
-    insertIntoChatContent(msgDiv);
-  }
 }
 
 // Update renderChatHistory to use stored world information
@@ -521,8 +488,7 @@ messageInput.addEventListener('keypress', async (e) => {
       room.send({
         type: 'private-message',
         message: message,
-        recipient: recipient,
-        username: room.party.client.username
+        recipient: recipient
       });
       
       // Save outgoing private message to history and insert into chat/split container
@@ -533,19 +499,27 @@ messageInput.addEventListener('keypress', async (e) => {
         timestamp: Date.now()
       };
       privateMessageHistory.push(msgObj);
-      addPrivateMessage(msgObj);
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-message private-message';
+      msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
+      msgDiv.innerHTML = `To ${recipient}: ${message}`;
+      const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+      if (splitPrivate) {
+        insertIntoSplitChat(msgDiv);
+      } else {
+        insertIntoChatContent(msgDiv);
+      }
     } else {
       const chatContent = document.querySelector('.chat-content');
       const messageDiv = document.createElement('div');
       messageDiv.className = 'chat-message system';
-      const timestamp = Date.now();
+      const timestamp = Date.now(); // Fix: set timestamp for proper insertion order
       messageDiv.setAttribute('data-timestamp', timestamp);
       messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
       insertIntoChatContent(messageDiv);
     }
     
     messageOverlay.classList.remove('shown');
-    messageInput.value = '';
   }
 });
 
