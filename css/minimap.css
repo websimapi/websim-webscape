@@ -33,6 +33,11 @@
   width: 12px;
   height: 12px;
   font-weight: bold;
+  transform-origin: center center;
+  pointer-events: none;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  will-change: transform;
 }
 
 #compass-n {
