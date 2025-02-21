@@ -17,7 +17,7 @@ const globalChatHistory = [
 const publicChatHistory = [
   {
     message: "Welcome to Webscape!",
-    username: "", // Empty username for system messages in public chat
+    username: "", // Empty username for system messages in public chat 
     world: "System",
     timestamp: Date.now() - 1000
   }
@@ -306,7 +306,14 @@ window.renderPrivateMessages = renderAllPrivateMessages;
 
 // Function to clear public chat
 export function clearPublicChat() {
-  publicChatHistory.length = 0; // Clear public chat history
+  // Keep only the Welcome message
+  const welcomeMessage = publicChatHistory.find(msg => 
+    msg.message === "Welcome to Webscape!" && msg.world === "System"
+  );
+  publicChatHistory.length = 0; // Clear the array
+  if (welcomeMessage) {
+    publicChatHistory.push(welcomeMessage); // Add back the welcome message
+  }
   if (chatMode === 'public') {
     renderChatHistory(); // Only re-render if in public mode
   }
