@@ -1,5 +1,5 @@
 import { toggleMenu } from './menuManager.js';
-import { createDebugger } from '../debug.js';
+import { createDebugger, enableDebug } from '../debug.js';
 
 // Initialize debugger for worlds feature
 const debug = createDebugger('worlds');
