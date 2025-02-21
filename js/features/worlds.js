@@ -43,12 +43,12 @@ function initializeWorlds() {
   const minimapSection = document.getElementById('minimap-section');
   minimapSection.insertAdjacentElement('afterend', worldsMenu);
 
-  // Setup menu toggle with error handling
+  // Setup menu toggle
   worldsButton.addEventListener('click', () => {
     toggleMenu(worldsButton, '#worlds-menu');
   });
 
-  // Handle world switching with error handling
+  // Handle world switching
   const worldsList = worldsMenu.querySelector('.worlds-list');
   worldsList.addEventListener('click', (e) => {
     const worldEntry = e.target.closest('.world-entry');
@@ -56,34 +56,26 @@ function initializeWorlds() {
       const url = worldEntry.dataset.url;
       const gameFrame = document.querySelector('#game-screen iframe');
       if (gameFrame && url !== gameFrame.src) {
-        try {
-          gameFrame.src = url;
-          
-          // Update selection visuals
-          document.querySelectorAll('.world-entry').forEach(entry => {
-            entry.classList.remove('selected');
-          });
-          worldEntry.classList.add('selected');
+        gameFrame.src = url;
+        
+        // Update selection visuals
+        document.querySelectorAll('.world-entry').forEach(entry => {
+          entry.classList.remove('selected');
+        });
+        worldEntry.classList.add('selected');
 
-          // Hide menu after selection
-          worldsMenu.classList.add('hidden');
-          worldsButton.classList.remove('selected');
-        } catch (err) {
-          console.error('Error switching worlds:', err);
-        }
+        // Hide menu after selection
+        worldsMenu.classList.add('hidden');
+        worldsButton.classList.remove('selected');
       }
     }
   });
 
-  // Highlight current world with error handling
-  try {
-    const currentUrl = document.querySelector('#game-screen iframe').src;
-    const currentWorld = worldsMenu.querySelector(`[data-url="${currentUrl}"]`);
-    if (currentWorld) {
-      currentWorld.classList.add('selected');
-    }
-  } catch (err) {
-    console.warn('Error highlighting current world:', err);
+  // Highlight current world
+  const currentUrl = document.querySelector('#game-screen iframe').src;
+  const currentWorld = worldsMenu.querySelector(`[data-url="${currentUrl}"]`);
+  if (currentWorld) {
+    currentWorld.classList.add('selected');
   }
 }
 
