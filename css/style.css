@@ -586,6 +586,7 @@ body {
   padding: 4px;
   display: none;
   margin-top: 4px;
+  height: calc(100% - 276px);
 }
 
 #worlds-menu.shown {

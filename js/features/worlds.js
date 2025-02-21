@@ -18,8 +18,7 @@ const worlds = [
 ];
 
 function initializeWorlds() {
-  // Use the new Connected Worlds button (with class "connected-worlds")
-  const worldsButton = document.querySelector('.bottom-icon.connected-worlds');
+  const worldsButton = document.querySelector('.bottom-icon:first-child');
   const worldsMenu = document.createElement('div');
   worldsMenu.id = 'worlds-menu';
   worldsMenu.className = 'hidden';
@@ -43,10 +42,9 @@ function initializeWorlds() {
     </div>
   `;
 
-  // Insert the worlds menu just before the bottom-icons container so it appears in between UI rows
-  const rightPanel = document.getElementById('right-panel');
-  const bottomIcons = document.getElementById('bottom-icons');
-  rightPanel.insertBefore(worldsMenu, bottomIcons);
+  // Add worlds menu to the right panel after minimap section
+  const minimapSection = document.getElementById('minimap-section');
+  minimapSection.insertAdjacentElement('afterend', worldsMenu);
 
   // Setup menu toggle
   worldsButton.addEventListener('click', () => {
