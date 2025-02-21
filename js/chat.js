@@ -4,9 +4,9 @@ const room = new WebsimSocket();
 // Add chat mode tracking 
 let chatMode = 'public'; // Can be 'public' or 'global'
 
-// Track chat history separately for global and public
-const globalChatHistory = [];
-const publicChatHistory = [];
+// Track chat history separately for global and public - making these available for export
+export const globalChatHistory = [];
+export const publicChatHistory = [];
 
 // Track private message history
 const privateMessageHistory = [];

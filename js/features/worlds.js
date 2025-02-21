@@ -1,5 +1,6 @@
 import { toggleMenu } from './menuManager.js';
 import { clearPublicChat } from '../chat.js';
+import { globalChatHistory } from '../chat.js';
 
 // Initialize WebSocket connection
 const room = new WebsimSocket();
