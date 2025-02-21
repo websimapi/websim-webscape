@@ -86,19 +86,42 @@ room.party.subscribe((peers) => {
 // Update room.onmessage handler to handle world changes
 const originalOnMessage = room.onmessage;
 room.onmessage = (event) => {
-  if (event.data.type === 'chat' && event.data.clientId !== room.party.client.id) {
+  const data = event.data;
+  if (data.type === 'private-message' && data.recipient === room.party.client.username) {
+    // Save incoming private message to history
+    const msgObj = {
+      direction: 'from',
+      sender: data.username,
+      message: data.message,
+      timestamp: Date.now()
+    };
+    privateMessageHistory.push(msgObj);
+    
+    // Create and display message element
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'chat-message private-message';
+    msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
+    msgDiv.innerHTML = `From ${data.username}: ${data.message}`;
+    
+    const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+    if (splitPrivate) {
+      insertIntoSplitChat(msgDiv);
+    } else {
+      insertIntoChatContent(msgDiv);
+    }
+  } else if (data.type === 'chat' && data.clientId !== room.party.client.id) {
     // Store the sender's world when receiving a message
-    userWorlds.set(event.data.username, event.data.world);
+    userWorlds.set(data.username, data.world);
     
     handleChatMessage(
-      event.data.message,
-      event.data.username,
-      event.data.world,
+      data.message,
+      data.username,
+      data.world,
       Date.now()
     );
-  } else if (event.data.type === 'world-change') {
+  } else if (data.type === 'world-change') {
     // Update the user's world when they change worlds
-    updateUserWorldDisplay(event.data.username, event.data.world);
+    updateUserWorldDisplay(data.username, data.world);
   }
   // Call original handler for other message types
   if (originalOnMessage) {
@@ -242,37 +265,6 @@ function setupOverlay(overlay, input) {
 
 setupOverlay(messageOverlay, messageInput);
 
-/* --- Helper functions for sorted message insertion --- */
-function insertIntoChatContent(msgDiv) {
-  const chatContent = document.querySelector('.chat-content');
-  const newTimestamp = parseFloat(msgDiv.getAttribute('data-timestamp'));
-  let inserted = false;
-  // The chat container uses flex-direction: column-reverse so the DOM order should be descending (newest first)
-  for (let i = 0; i < chatContent.children.length; i++) {
-    const child = chatContent.children[i];
-    const childTimestamp = parseFloat(child.getAttribute('data-timestamp') || "0");
-    if (childTimestamp <= newTimestamp) {
-      chatContent.insertBefore(msgDiv, child);
-      inserted = true;
-      break;
-    }
-  }
-  if (!inserted) {
-    chatContent.appendChild(msgDiv);
-  }
-}
-
-function insertIntoSplitChat(msgDiv) {
-  const splitContainer = document.getElementById('split-private-chat');
-  if (splitContainer) {
-    splitContainer.appendChild(msgDiv);
-    // Limit history to last 5 messages
-    while (splitContainer.childElementCount > 5) {
-      splitContainer.removeChild(splitContainer.firstElementChild);
-    }
-  }
-}
-
 // Re-render all private messages based on current split-chat mode.
 // When split chat is off, private messages are merged into main chat; when on, they go into the split chat container.
 function renderAllPrivateMessages() {
@@ -303,6 +295,86 @@ function renderAllPrivateMessages() {
   });
 }
 window.renderPrivateMessages = renderAllPrivateMessages;
+
+// Helper functions for inserting messages consistently
+function insertIntoChatContent(msgDiv) {
+  const chatContent = document.querySelector('.chat-content');
+  const newTimestamp = parseFloat(msgDiv.getAttribute('data-timestamp'));
+  let inserted = false;
+  // Insert in chronological order (newest first since we use flex-direction: column-reverse)
+  for (let i = 0; i < chatContent.children.length; i++) {
+    const child = chatContent.children[i];
+    const childTimestamp = parseFloat(child.getAttribute('data-timestamp') || "0");
+    if (childTimestamp <= newTimestamp) {
+      chatContent.insertBefore(msgDiv, child);
+      inserted = true;
+      break;
+    }
+  }
+  if (!inserted) {
+    chatContent.appendChild(msgDiv);
+  }
+}
+
+function insertIntoSplitChat(msgDiv) {
+  const splitContainer = document.getElementById('split-private-chat');
+  if (splitContainer) {
+    splitContainer.appendChild(msgDiv);
+    // Limit history to last 5 messages
+    while (splitContainer.childElementCount > 5) {
+      splitContainer.removeChild(splitContainer.firstElementChild);
+    }
+  }
+}
+
+// Update the message overlay handler to store messages in history
+messageInput.addEventListener('keypress', async (e) => {
+  if (e.key === 'Enter' && messageInput.value.trim()) {
+    const message = messageInput.value.trim();
+    const recipient = messageUsernameSpan.textContent;
+    
+    if (onlineUsers.has(recipient)) {
+      room.send({
+        type: 'private-message',
+        message: message,
+        recipient: recipient
+      });
+      
+      // Save outgoing private message to history
+      const msgObj = {
+        direction: 'to',
+        recipient: recipient,
+        message: message,
+        timestamp: Date.now()
+      };
+      privateMessageHistory.push(msgObj);
+      
+      // Create and display message element
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-message private-message';
+      msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
+      msgDiv.innerHTML = `To ${recipient}: ${message}`;
+      
+      const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+      if (splitPrivate) {
+        insertIntoSplitChat(msgDiv);
+      } else {
+        insertIntoChatContent(msgDiv);
+      }
+    } else {
+      const chatContent = document.querySelector('.chat-content');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'chat-message system';
+      const timestamp = Date.now();
+      messageDiv.setAttribute('data-timestamp', timestamp);
+      messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
+      insertIntoChatContent(messageDiv);
+    }
+    
+    messageOverlay.classList.remove('shown');
+    messageInput.value = '';
+  }
+});
 
 // Function to clear public chat
 export function clearPublicChat() {
@@ -485,49 +557,5 @@ function showUsernameHoverTooltip(e, username) {
 function hideUsernameHoverTooltip() {
   chatUsernameTooltip.style.display = 'none';
 }
-
-messageInput.addEventListener('keypress', async (e) => {
-  if (e.key === 'Enter' && messageInput.value.trim()) {
-    const message = messageInput.value.trim();
-    const recipient = messageUsernameSpan.textContent;
-    
-    if (onlineUsers.has(recipient)) {
-      room.send({
-        type: 'private-message',
-        message: message,
-        recipient: recipient
-      });
-      
-      // Save outgoing private message to history and insert into chat/split container
-      const msgObj = {
-        direction: 'to',
-        recipient: recipient,
-        message: message,
-        timestamp: Date.now()
-      };
-      privateMessageHistory.push(msgObj);
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'chat-message private-message';
-      msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
-      msgDiv.innerHTML = `To ${recipient}: ${message}`;
-      const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-      if (splitPrivate) {
-        insertIntoSplitChat(msgDiv);
-      } else {
-        insertIntoChatContent(msgDiv);
-      }
-    } else {
-      const chatContent = document.querySelector('.chat-content');
-      const messageDiv = document.createElement('div');
-      messageDiv.className = 'chat-message system';
-      const timestamp = Date.now(); // Fix: set timestamp for proper insertion order
-      messageDiv.setAttribute('data-timestamp', timestamp);
-      messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
-      insertIntoChatContent(messageDiv);
-    }
-    
-    messageOverlay.classList.remove('shown');
-  }
-});
 
 setInterval(updateOnlineStatus, 3000);
