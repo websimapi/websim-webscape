@@ -34,6 +34,13 @@
       "duration": 125,
       "unlocked": true,
       "fadeOutStart": 115
+    },
+    {
+      "name": "Edge of Time",
+      "path": "/edge_of_time.ogg",
+      "duration": 95,
+      "unlocked": true,
+      "fadeOutStart": 85
     }
   ]
 }

@@ -41,6 +41,11 @@ const tracks = [
     name: "Pig Pipe",
     path: "/pig_pipe.ogg", 
     unlocked: true
+  },
+  {
+    name: "Edge of Time",
+    path: "/edge_of_time.ogg",
+    unlocked: true
   }
 ];
 
