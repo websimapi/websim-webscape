@@ -606,10 +606,11 @@ body {
   border-bottom: 2px solid #5a473a;
 }
 
-.worlds-header h3.title {
+.worlds-header .title {
+  color: #00ffff;
+  font-size: 12px;
   margin: 0;
-  font-size: 14px;
-  color: cyan;
+  padding: 0;
 }
 
 .worlds-header .subtitle {
@@ -660,13 +661,4 @@ body {
 .world-location {
   color: #fff;
   text-align: right;
-  font-size: 12px;
-}
-
-/* Fix for Firefox:
-   Ensure that any SVG inside an interactive icon (the .icon and .bottom-icon elements)
-   does not capture pointer events – so clicks always register on the parent element. */
-.icon svg,
-.bottom-icon svg {
-  pointer-events: none;
 }

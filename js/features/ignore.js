@@ -100,8 +100,7 @@ function initializeIgnoreList() {
 
   // Setup ignore list hover effects
   ignoreListContainer.addEventListener('mouseover', (e) => {
-    const target = e.target instanceof Element ? e.target : null;
-    const playerNameElement = target ? target.closest('.player-name') : null;
+    const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
       const username = playerNameElement.textContent;
       tooltip.style.display = 'block';
@@ -115,19 +114,16 @@ function initializeIgnoreList() {
   });
 
   ignoreListContainer.addEventListener('mouseout', (e) => {
-    const target = e.target instanceof Element ? e.target : null;
-    if (target && target.closest('.player-name')) {
+    if (e.target.closest('.player-name')) {
       tooltip.style.display = 'none';
     }
   });
 
   // Handle ignore list clicks - direct remove action
   ignoreListContainer.addEventListener('click', (e) => {
-    const target = e.target instanceof Element ? e.target : null;
-    const playerNameElement = target ? target.closest('.player-name') : null;
+    const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
-      const listEntry = playerNameElement.closest('.list-entry');
-      if (listEntry) listEntry.remove();
+      playerNameElement.closest('.list-entry').remove();
       saveIgnoreList();
     }
   });
