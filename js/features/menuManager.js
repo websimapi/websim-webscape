@@ -50,7 +50,8 @@ function toggleMenu(button, panelSelector) {
       panelSelector.includes('quest') ||
       panelSelector.includes('skills') ||
       panelSelector.includes('music') ||
-      panelSelector.includes('spellbook') // Add spellbook to the shown class check
+      panelSelector.includes('spellbook') ||
+      panelSelector.includes('world')
     ) {
       panel.classList.add('shown');
     }
@@ -72,7 +73,8 @@ function toggleMenu(button, panelSelector) {
     panelSelector.includes('quest') ||
     panelSelector.includes('skills') ||
     panelSelector.includes('music') ||
-    panelSelector.includes('spellbook') // Add spellbook to the shown class check
+    panelSelector.includes('spellbook') ||
+    panelSelector.includes('world')
   ) {
     panel.classList.add('shown');
   }
