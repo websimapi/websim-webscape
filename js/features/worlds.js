@@ -5,13 +5,13 @@ const worlds = [
     id: 1,
     name: "World-1",
     url: "https://world-1--api.on.websim.ai/?pin_sidebar=false",
-    location: "US East"
+    location: "Test world one"
   },
   {
     id: 2, 
     name: "World-2",
     url: "https://world-2--api.on.websim.ai/?pin_sidebar=false",
-    location: "US West"
+    location: "Test world two"
   }
 ];
 

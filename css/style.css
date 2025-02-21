@@ -630,6 +630,9 @@ body {
   cursor: pointer;
   border-bottom: 1px solid #5a473a;
   transition: background-color 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .world-entry:hover {
@@ -643,12 +646,11 @@ body {
 .world-name {
   color: #00ff00;
   font-size: 12px;
-  margin-bottom: 2px;
 }
 
 .world-info {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
   font-size: 10px;
 }
 
@@ -658,4 +660,5 @@ body {
 
 .world-location {
   color: #fff;
+  text-align: right;
 }
