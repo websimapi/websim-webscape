@@ -31,6 +31,23 @@ function clearPublicChat() {
   publicMessages.forEach(msg => msg.remove());
 }
 
+// Update friend list world status colors
+function updateFriendWorldColors() {
+  const currentWorld = getCurrentWorld();
+  const friendEntries = document.querySelectorAll('.friends-list .list-entry');
+  
+  friendEntries.forEach(entry => {
+    const statusElement = entry.querySelector('.world-status');
+    if (!statusElement.classList.contains('offline')) {
+      if (statusElement.textContent === currentWorld) {
+        statusElement.style.color = '#00ff00'; // Green for same world
+      } else {
+        statusElement.style.color = '#ffff00'; // Yellow for different world
+      }
+    }
+  });
+}
+
 function initializeWorlds() {
   const worldsButton = document.querySelector('.bottom-icon:first-child');
   const worldsMenu = document.createElement('div');
@@ -78,6 +95,9 @@ function initializeWorlds() {
         
         gameFrame.src = url;
         
+        // Immediately update friend list world colors
+        updateFriendWorldColors();
+        
         // Broadcast world change to other users
         room.send({
           type: 'world-change',
@@ -113,6 +133,13 @@ function initializeWorlds() {
       username: room.party.client.username
     });
   });
+
+  // Update friend list colors when receiving world change events
+  room.onmessage = (event) => {
+    if (event.data.type === 'world-change') {
+      updateFriendWorldColors();
+    }
+  };
 }
 
 export { initializeWorlds, getCurrentWorld };
