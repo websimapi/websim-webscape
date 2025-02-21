@@ -103,7 +103,7 @@ function handleChatMessage(message, username, world, timestamp) {
     timestamp
   };
 
-  // Store in appropriate history
+  // Store in appropriate history based on chat mode
   if (chatMode === 'global') {
     globalChatHistory.push(msgObj);
     // Limit history size
@@ -129,8 +129,8 @@ function renderChatHistory() {
   chatContent.innerHTML = ''; // Clear current messages
   
   const history = chatMode === 'global' ? globalChatHistory : publicChatHistory;
-  // Sort messages in ascending order by timestamp (oldest first)
-  const sortedHistory = [...history].sort((a, b) => a.timestamp - b.timestamp);
+  // Sort messages in ascending order by timestamp (newest first)
+  const sortedHistory = [...history].sort((a, b) => b.timestamp - a.timestamp);
 
   sortedHistory.forEach(msg => {
     const messageDiv = document.createElement('div');
@@ -193,104 +193,6 @@ export function switchChatMode(mode) {
   });
   renderChatHistory();
 }
-
-// Create message overlay using the same markup as the Add Friend overlay
-const messageOverlay = document.createElement('div');
-messageOverlay.id = 'message-overlay';
-messageOverlay.className = 'add-friend-overlay';
-messageOverlay.innerHTML = `
-  <div class="add-friend-container">
-    <div class="add-friend-text">Enter message to send to <span class="message-username"></span></div>
-    <input type="text" class="add-friend-input" maxlength="80">
-  </div>
-`;
-document.querySelector('#chat-window').appendChild(messageOverlay);
-
-const messageInput = messageOverlay.querySelector('.add-friend-input');
-const messageUsernameSpan = messageOverlay.querySelector('.message-username');
-
-function showMessageOverlay(username) {
-  messageUsernameSpan.textContent = username;
-  messageOverlay.classList.add('shown');
-  messageInput.value = '';
-  messageInput.focus();
-}
-
-// Export the showMessageOverlay globally so it can be used elsewhere
-window.showMessageOverlay = showMessageOverlay;
-
-function setupOverlay(overlay, input) {
-  const chatWindow = document.getElementById('chat-window');
-  chatWindow.addEventListener('click', (e) => {
-    if (!overlay.contains(e.target) && !input.contains(e.target)) {
-      overlay.classList.remove('shown');
-    }
-  });
-}
-
-setupOverlay(messageOverlay, messageInput);
-
-/* --- Helper functions for sorted message insertion --- */
-function insertIntoChatContent(msgDiv) {
-  const chatContent = document.querySelector('.chat-content');
-  const newTimestamp = parseFloat(msgDiv.getAttribute('data-timestamp'));
-  let inserted = false;
-  // The chat container uses flex-direction: column-reverse so the DOM order should be descending (newest first)
-  for (let i = 0; i < chatContent.children.length; i++) {
-    const child = chatContent.children[i];
-    const childTimestamp = parseFloat(child.getAttribute('data-timestamp') || "0");
-    if (childTimestamp <= newTimestamp) {
-      chatContent.insertBefore(msgDiv, child);
-      inserted = true;
-      break;
-    }
-  }
-  if (!inserted) {
-    chatContent.appendChild(msgDiv);
-  }
-}
-
-function insertIntoSplitChat(msgDiv) {
-  const splitContainer = document.getElementById('split-private-chat');
-  if (splitContainer) {
-    splitContainer.appendChild(msgDiv);
-    // Limit history to last 5 messages
-    while (splitContainer.childElementCount > 5) {
-      splitContainer.removeChild(splitContainer.firstElementChild);
-    }
-  }
-}
-
-// Re-render all private messages based on current split-chat mode.
-// When split chat is off, private messages are merged into main chat; when on, they go into the split chat container.
-function renderAllPrivateMessages() {
-  const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-  const chatContent = document.querySelector('.chat-content');
-  // Remove any existing private messages from main chat
-  const existingPrivate = chatContent.querySelectorAll('.chat-message.private-message');
-  existingPrivate.forEach(elem => elem.remove());
-  const splitContainer = document.getElementById('split-private-chat');
-  if (splitContainer) {
-    splitContainer.innerHTML = '';
-  }
-  // Re-insert all private messages from history in the order they were received
-  privateMessageHistory.forEach(msg => {
-    const msgDiv = document.createElement('div');
-    msgDiv.className = 'chat-message private-message';
-    msgDiv.setAttribute('data-timestamp', msg.timestamp);
-    if (msg.direction === 'to') {
-      msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
-    } else {
-      msgDiv.innerHTML = `From ${msg.sender}: ${msg.message}`;
-    }
-    if (splitPrivate) {
-      insertIntoSplitChat(msgDiv);
-    } else {
-      insertIntoChatContent(msgDiv);
-    }
-  });
-}
-window.renderPrivateMessages = renderAllPrivateMessages;
 
 // Function to update online status in friends list
 function updateOnlineStatus() {
@@ -444,6 +346,104 @@ function showUsernameHoverTooltip(e, username) {
 function hideUsernameHoverTooltip() {
   chatUsernameTooltip.style.display = 'none';
 }
+
+// Create message overlay using the same markup as the Add Friend overlay
+const messageOverlay = document.createElement('div');
+messageOverlay.id = 'message-overlay';
+messageOverlay.className = 'add-friend-overlay';
+messageOverlay.innerHTML = `
+  <div class="add-friend-container">
+    <div class="add-friend-text">Enter message to send to <span class="message-username"></span></div>
+    <input type="text" class="add-friend-input" maxlength="80">
+  </div>
+`;
+document.querySelector('#chat-window').appendChild(messageOverlay);
+
+const messageInput = messageOverlay.querySelector('.add-friend-input');
+const messageUsernameSpan = messageOverlay.querySelector('.message-username');
+
+function showMessageOverlay(username) {
+  messageUsernameSpan.textContent = username;
+  messageOverlay.classList.add('shown');
+  messageInput.value = '';
+  messageInput.focus();
+}
+
+// Export the showMessageOverlay globally so it can be used elsewhere
+window.showMessageOverlay = showMessageOverlay;
+
+function setupOverlay(overlay, input) {
+  const chatWindow = document.getElementById('chat-window');
+  chatWindow.addEventListener('click', (e) => {
+    if (!overlay.contains(e.target) && !input.contains(e.target)) {
+      overlay.classList.remove('shown');
+    }
+  });
+}
+
+setupOverlay(messageOverlay, messageInput);
+
+/* --- Helper functions for sorted message insertion --- */
+function insertIntoChatContent(msgDiv) {
+  const chatContent = document.querySelector('.chat-content');
+  const newTimestamp = parseFloat(msgDiv.getAttribute('data-timestamp'));
+  let inserted = false;
+  // The chat container uses flex-direction: column-reverse so the DOM order should be descending (newest first)
+  for (let i = 0; i < chatContent.children.length; i++) {
+    const child = chatContent.children[i];
+    const childTimestamp = parseFloat(child.getAttribute('data-timestamp') || "0");
+    if (childTimestamp <= newTimestamp) {
+      chatContent.insertBefore(msgDiv, child);
+      inserted = true;
+      break;
+    }
+  }
+  if (!inserted) {
+    chatContent.appendChild(msgDiv);
+  }
+}
+
+function insertIntoSplitChat(msgDiv) {
+  const splitContainer = document.getElementById('split-private-chat');
+  if (splitContainer) {
+    splitContainer.appendChild(msgDiv);
+    // Limit history to last 5 messages
+    while (splitContainer.childElementCount > 5) {
+      splitContainer.removeChild(splitContainer.firstElementChild);
+    }
+  }
+}
+
+// Re-render all private messages based on current split-chat mode.
+// When split chat is off, private messages are merged into main chat; when on, they go into the split chat container.
+function renderAllPrivateMessages() {
+  const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+  const chatContent = document.querySelector('.chat-content');
+  // Remove any existing private messages from main chat
+  const existingPrivate = chatContent.querySelectorAll('.chat-message.private-message');
+  existingPrivate.forEach(elem => elem.remove());
+  const splitContainer = document.getElementById('split-private-chat');
+  if (splitContainer) {
+    splitContainer.innerHTML = '';
+  }
+  // Re-insert all private messages from history in the order they were received
+  privateMessageHistory.forEach(msg => {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'chat-message private-message';
+    msgDiv.setAttribute('data-timestamp', msg.timestamp);
+    if (msg.direction === 'to') {
+      msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
+    } else {
+      msgDiv.innerHTML = `From ${msg.sender}: ${msg.message}`;
+    }
+    if (splitPrivate) {
+      insertIntoSplitChat(msgDiv);
+    } else {
+      insertIntoChatContent(msgDiv);
+    }
+  });
+}
+window.renderPrivateMessages = renderAllPrivateMessages;
 
 messageInput.addEventListener('keypress', async (e) => {
   if (e.key === 'Enter' && messageInput.value.trim()) {
