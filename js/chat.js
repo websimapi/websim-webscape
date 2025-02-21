@@ -86,41 +86,44 @@ room.party.subscribe((peers) => {
 // Update room.onmessage handler to handle world changes
 const originalOnMessage = room.onmessage;
 room.onmessage = (event) => {
-  if (event.data.type === 'chat' && event.data.clientId !== room.party.client.id) {
+  const data = event.data;
+  
+  if (data.type === 'private-message') {
+    // Handle incoming private message
+    if (data.recipient === room.party.client.username) {
+      const msgObj = {
+        direction: 'from',
+        sender: data.username,
+        message: data.message,
+        timestamp: Date.now()
+      };
+      privateMessageHistory.push(msgObj);
+      
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-message private-message';
+      msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
+      msgDiv.innerHTML = `From ${data.username}: ${data.message}`;
+      
+      const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+      if (splitPrivate) {
+        insertIntoSplitChat(msgDiv.cloneNode(true));
+      } else {
+        insertIntoChatContent(msgDiv);
+      }
+    }
+  } else if (data.type === 'world-change') {
+    // Handle world change events
+    updateUserWorldDisplay(data.username, data.world);
+  } else if (data.type === 'chat' && data.clientId !== room.party.client.id) {
     // Store the sender's world when receiving a message
-    userWorlds.set(event.data.username, event.data.world);
+    userWorlds.set(data.username, data.world);
     
     handleChatMessage(
-      event.data.message,
-      event.data.username,
-      event.data.world,
+      data.message,
+      data.username,
+      data.world,
       Date.now()
     );
-  } else if (event.data.type === 'world-change') {
-    // Update the user's world when they change worlds
-    updateUserWorldDisplay(event.data.username, event.data.world);
-  } else if (event.data.type === 'private-message' && event.data.recipient === room.party.client.username) {
-    // Save incoming private message to history
-    const msgObj = {
-      direction: 'from',
-      sender: event.data.username,
-      message: event.data.message,
-      timestamp: Date.now()
-    };
-    privateMessageHistory.push(msgObj);
-    
-    // Create and insert message div
-    const msgDiv = document.createElement('div');
-    msgDiv.className = 'chat-message private-message';
-    msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
-    msgDiv.innerHTML = `From ${event.data.username}: ${event.data.message}`;
-    
-    const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-    if (splitPrivate) {
-      insertIntoSplitChat(msgDiv.cloneNode(true));
-    } else {
-      insertIntoChatContent(msgDiv);
-    }
   }
   // Call original handler for other message types
   if (originalOnMessage) {
@@ -307,31 +310,26 @@ function renderAllPrivateMessages() {
   if (splitContainer) {
     splitContainer.innerHTML = '';
   }
-  
   // Re-insert all private messages from history in the order they were received
   privateMessageHistory.forEach(msg => {
     const msgDiv = document.createElement('div');
     msgDiv.className = 'chat-message private-message';
     msgDiv.setAttribute('data-timestamp', msg.timestamp);
     
-    // Updated to handle both directions properly
+    // Handle both 'to' and 'from' messages
     if (msg.direction === 'to') {
       msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
     } else if (msg.direction === 'from') {
       msgDiv.innerHTML = `From ${msg.sender}: ${msg.message}`;
     }
     
-    // Clone the message for split container to ensure both views have their own elements
-    const msgClone = msgDiv.cloneNode(true);
-    
     if (splitPrivate) {
-      insertIntoSplitChat(msgClone);
+      insertIntoSplitChat(msgDiv.cloneNode(true));
     } else {
       insertIntoChatContent(msgDiv);
     }
   });
 }
-
 window.renderPrivateMessages = renderAllPrivateMessages;
 
 // Function to clear public chat
@@ -528,7 +526,7 @@ messageInput.addEventListener('keypress', async (e) => {
         recipient: recipient
       });
       
-      // Save outgoing private message to history
+      // Save outgoing private message to history and insert into chat/split container
       const msgObj = {
         direction: 'to',
         recipient: recipient,
@@ -536,16 +534,13 @@ messageInput.addEventListener('keypress', async (e) => {
         timestamp: Date.now()
       };
       privateMessageHistory.push(msgObj);
-      
-      // Create and insert message div
       const msgDiv = document.createElement('div');
       msgDiv.className = 'chat-message private-message';
       msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
       msgDiv.innerHTML = `To ${recipient}: ${message}`;
-      
       const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
       if (splitPrivate) {
-        insertIntoSplitChat(msgDiv.cloneNode(true));
+        insertIntoSplitChat(msgDiv);
       } else {
         insertIntoChatContent(msgDiv);
       }
@@ -560,7 +555,6 @@ messageInput.addEventListener('keypress', async (e) => {
     }
     
     messageOverlay.classList.remove('shown');
-    messageInput.value = '';
   }
 });
 
