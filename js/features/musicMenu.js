@@ -75,7 +75,8 @@ loadTrackMetadata();
 
 function loadMusicSettings() {
   const storedMode = localStorage.getItem('musicMode');
-  return storedMode === 'auto';
+  // Default to auto mode if no setting exists
+  return storedMode === null ? true : storedMode === 'auto';
 }
 
 function saveMusicSettings(isAuto) {
