@@ -33,10 +33,18 @@ function hideAllPanels() {
   allButtons.forEach(button => {
     button.classList.remove('selected');
   });
+
+  // Reset active states
+  activeButton = null;
+  activePanel = null;
 }
 
 function toggleMenu(button, panelSelector) {
+  // Fix for Firefox event handling
+  if (!button || !panelSelector) return;
+
   const panel = document.querySelector(panelSelector);
+  if (!panel) return;
   
   // If clicking the same button that's already active
   if (button === activeButton) {
@@ -51,8 +59,6 @@ function toggleMenu(button, panelSelector) {
       }
     } else {
       hideAllPanels();
-      activeButton = null;
-      activePanel = null;
       return;
     }
   } else {
@@ -70,6 +76,25 @@ function toggleMenu(button, panelSelector) {
 
   activeButton = button;
   activePanel = panel;
+
+  // Prevent event bubbling
+  event?.stopPropagation();
 }
+
+// Add global click handler to close menus when clicking outside
+document.addEventListener('click', (event) => {
+  if (!event.target.closest('.bottom-icon') && 
+      !event.target.closest('.icon') && 
+      !event.target.closest('.friends-list') && 
+      !event.target.closest('.ignore-list') && 
+      !event.target.closest('#quest-journal') && 
+      !event.target.closest('#game-options') && 
+      !event.target.closest('#music-menu') && 
+      !event.target.closest('#skills-menu') && 
+      !event.target.closest('#spellbook') && 
+      !event.target.closest('#worlds-menu')) {
+    hideAllPanels();
+  }
+}, true);
 
 export { hideAllPanels, toggleMenu };

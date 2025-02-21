@@ -3,37 +3,6 @@ import { showContextMenu, hideContextMenu } from '../ui/contextMenu.js';
 import { setupOverlay } from '../ui/overlays.js';
 import { toggleMenu } from './menuManager.js';
 
-// Initialize WebSocket connection
-const room = new WebsimSocket();
-
-// Track world selection states
-let selectedWorld = null;
-
-// Get current user's selected world
-function getCurrentWorld() {
-  const iframe = document.querySelector('#game-screen iframe');
-  return iframe ? iframe.src : null;
-}
-
-// Listen for world changes
-function listenForWorldChanges() {
-  const worldEntries = document.querySelectorAll('.world-entry');
-  worldEntries.forEach(entry => {
-    entry.addEventListener('click', () => {
-      const url = entry.dataset.url;
-      selectedWorld = url;
-      // Broadcast world change to all peers
-      room.send({
-        type: 'world_change',
-        world: url
-      });
-    });
-  });
-}
-
-// Track users' worlds
-const userWorlds = new Map();
-
 function initializeFriendsList() {
   const friendsButton = document.querySelector('.bottom-icon:nth-child(2)');
   const friendsList = document.querySelector('.friends-list');
@@ -44,15 +13,6 @@ function initializeFriendsList() {
   const addFriendInput = addFriendOverlay.querySelector('.add-friend-input');
   const delFriendInput = delFriendOverlay.querySelector('.del-friend-input');
   const friendsListContainer = document.querySelector('.friends-list .list-container');
-
-  // Set initial world and broadcast it
-  selectedWorld = getCurrentWorld();
-  if (selectedWorld) {
-    room.send({
-      type: 'world_change',
-      world: selectedWorld
-    });
-  }
 
   // Setup tooltips
   addTooltip(addFriendButton, 'Add friend');
@@ -87,55 +47,6 @@ function initializeFriendsList() {
     }
     return [];
   }
-
-  // Function to update friend's world status
-  function updateFriendWorldStatus(username, world) {
-    const friendEntries = friendsListContainer.querySelectorAll('.list-entry');
-    friendEntries.forEach(entry => {
-      const playerName = entry.querySelector('.player-name').textContent;
-      if (playerName === username) {
-        const statusElement = entry.querySelector('.world-status');
-        if (world) {
-          statusElement.textContent = world.includes('world-1') ? 'World-1' : 'World-3';
-          statusElement.classList.remove('offline');
-        } else {
-          statusElement.textContent = 'Offline';
-          statusElement.classList.add('offline');
-        }
-      }
-    });
-  }
-
-  // Handle user world changes
-  room.onmessage = (event) => {
-    if (event.data.type === 'world_change') {
-      const { clientId, username, world } = event.data;
-      userWorlds.set(username, world);
-      updateFriendWorldStatus(username, world);
-    }
-  };
-
-  // Subscribe to peer updates
-  room.party.subscribe((peers) => {
-    // Handle disconnections
-    for (const username of userWorlds.keys()) {
-      if (!Object.values(peers).find(peer => peer.username === username)) {
-        userWorlds.delete(username);
-        updateFriendWorldStatus(username, null);
-      }
-    }
-
-    // Request world status from new peers
-    for (const clientId in peers) {
-      const username = peers[clientId].username;
-      if (!userWorlds.has(username) && username !== room.party.client.username) {
-        room.send({
-          type: 'request_world',
-          targetUsername: username
-        });
-      }
-    }
-  });
 
   // Populate friends list from local storage on initialization
   const storedFriends = loadFriendsList();
@@ -176,11 +87,6 @@ function initializeFriendsList() {
       `;
       friendsListContainer.appendChild(newFriend);
       saveFriendsList();
-      
-      // Request world status for newly added friend
-      if (userWorlds.has(name)) {
-        updateFriendWorldStatus(name, userWorlds.get(name));
-      }
     } else if (overlay === delFriendOverlay) {
       const friendEntries = friendsListContainer.querySelectorAll('.list-entry');
       friendEntries.forEach(entry => {
@@ -214,7 +120,7 @@ function initializeFriendsList() {
     }
   });
 
-  // Handle friend list clicks and context menu
+  // Handle friend list clicks – Message action and removal via context menu
   friendsListContainer.addEventListener('click', (e) => {
     const playerNameElement = e.target.closest('.player-name');
     if (playerNameElement) {
@@ -235,27 +141,27 @@ function initializeFriendsList() {
     }
   });
 
-  // Start listening for world changes
-  listenForWorldChanges();
-
-  // Handle response to world status requests
-  room.onmessage = (event) => {
-    switch (event.data.type) {
-      case 'world_change':
-        const { username, world } = event.data;
-        userWorlds.set(username, world);
-        updateFriendWorldStatus(username, world);
-        break;
-      case 'request_world':
-        if (event.data.targetUsername === room.party.client.username) {
-          room.send({
-            type: 'world_change',
-            world: selectedWorld
-          });
+  // UPDATED: In two mouse mode, right-click now opens the dropdown menu of options.
+  friendsListContainer.addEventListener('contextmenu', (e) => {
+    const playerNameElement = e.target.closest('.player-name');
+    if (playerNameElement) {
+      e.preventDefault();
+      const username = playerNameElement.textContent;
+      showContextMenu(e, username, 
+        () => {
+          if (typeof showMessageOverlay === 'function') {
+            showMessageOverlay(username);
+          } else {
+            console.warn('Messaging function is not available.');
+          }
+        },
+        () => {
+          playerNameElement.closest('.list-entry').remove();
+          saveFriendsList();
         }
-        break;
+      );
     }
-  };
+  });
 }
 
 export { initializeFriendsList };

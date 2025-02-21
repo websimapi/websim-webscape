@@ -1,8 +1,5 @@
 import { toggleMenu } from './menuManager.js';
 
-// Initialize WebSocket connection for world changes
-const room = new WebsimSocket();
-
 const worlds = [
   {
     id: 1,
@@ -61,12 +58,6 @@ function initializeWorlds() {
       if (gameFrame && url !== gameFrame.src) {
         gameFrame.src = url;
         
-        // Broadcast world change to peers
-        room.send({
-          type: 'world_change',
-          world: url
-        });
-        
         // Update selection visuals
         document.querySelectorAll('.world-entry').forEach(entry => {
           entry.classList.remove('selected');
@@ -80,16 +71,11 @@ function initializeWorlds() {
     }
   });
 
-  // Highlight current world on initial load
+  // Highlight current world
   const currentUrl = document.querySelector('#game-screen iframe').src;
   const currentWorld = worldsMenu.querySelector(`[data-url="${currentUrl}"]`);
   if (currentWorld) {
     currentWorld.classList.add('selected');
-    // Broadcast initial world to peers
-    room.send({
-      type: 'world_change',
-      world: currentUrl
-    });
   }
 }
 

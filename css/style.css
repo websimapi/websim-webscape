@@ -69,6 +69,12 @@ body {
   font-size: 14.4px;
   font-weight: bold;
   text-shadow: 1px 1px 1px #000;
+  /* Add explicit min dimensions for Firefox */
+  min-width: 28px;
+  min-height: 28px;
+  box-sizing: border-box;
+  /* Fix pointer events for Firefox */
+  pointer-events: auto;
 }
 
 /* Ensure buttons in minimap-icons maintain equal spacing */
@@ -79,6 +85,9 @@ body {
   background: #382418;
   border-top: 2px solid #000;
   height: 36px;
+  /* Add explicit dimensions for Firefox */
+  min-height: 36px;
+  box-sizing: border-box;
 }
 
 /* Adjust spacing between minimap icons */
@@ -96,6 +105,9 @@ body {
   background: #382418;
   border-top: 2px solid #000;
   margin-top: auto;
+  /* Add explicit dimensions for Firefox */
+  min-height: 36px;
+  box-sizing: border-box;
 }
 
 /* Adjust spacing between bottom icons */
@@ -115,6 +127,7 @@ body {
   width: 28px;
   height: 28px;
   padding: 0;
+  text-align: center;
 }
 
 /* Logout popup styling */
@@ -174,6 +187,8 @@ body {
   padding: 4px;
   display: none;
   margin-top: 4px;
+  /* Ensure proper z-index stacking */
+  z-index: 1;
 }
 
 .friends-list.shown, .ignore-list.shown {
@@ -391,6 +406,8 @@ body {
   font-family: 'RuneScape UF', 'RuneScape', sans-serif;
   display: none;
   margin-top: 4px;
+  /* Ensure proper z-index stacking */
+  z-index: 1;
 }
 
 #game-options.shown {
@@ -476,6 +493,8 @@ body {
   display: none;
   margin-top: 4px;
   height: calc(100% - 276px);
+  /* Ensure proper z-index stacking */
+  z-index: 1;
 }
 
 #quest-journal.shown {
@@ -587,6 +606,8 @@ body {
   display: none;
   margin-top: 4px;
   height: calc(100% - 276px);
+  /* Ensure proper z-index stacking */
+  z-index: 1;
 }
 
 #worlds-menu.shown {
@@ -661,4 +682,12 @@ body {
 .world-location {
   color: #fff;
   text-align: right;
+}
+
+/* Fix Firefox SVG rendering */
+.icon svg, .bottom-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
 }
