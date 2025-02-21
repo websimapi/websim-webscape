@@ -7,7 +7,7 @@ import { initializeQuestJournal } from './features/questJournal.js';
 import { hideContextMenu } from './ui/contextMenu.js';
 import { hideAllPanels } from './features/menuManager.js';
 import { initializeSkillsMenu } from './features/skillsMenu.js';
-import { initializeMusicMenu } from './features/musicMenu.js';
+import { initializeMusicMenu, setMusicVolume } from './features/musicMenu.js';
 import { initializeSpellbook } from './features/spellbook.js';
 import { initializeCompass } from './features/compass.js';
 import { initializeWorlds } from './features/worlds.js';
@@ -46,4 +46,14 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
     }
   });
+});
+
+// Resume (or create) an AudioContext on the first user gesture to satisfy autoplay rules.
+document.addEventListener('click', () => {
+  if (!window.myAudioContext) {
+    window.myAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (window.myAudioContext.state === 'suspended') {
+    window.myAudioContext.resume();
+  }
 });

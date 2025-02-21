@@ -1,6 +1,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <base href="./" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RuneScape 2004</title>
     <link rel="stylesheet" href="css/style.css" />
@@ -13,6 +14,32 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Dummy WebsimSocket definition to catch extension errors -->
+    <script type="module">
+      if (typeof WebsimSocket !== 'function') {
+        class DummyWebsimSocket {
+          constructor() {
+            this.party = { 
+              client: { id: 'dummy', username: 'dummy', avatarUrl: '' }, 
+              subscribe: () => {}, 
+              peers: {} 
+            };
+          }
+          send(data) {
+            console.log('DummyWebsimSocket send:', data);
+          }
+          collection() {
+            return {
+              create: async () => {},
+              getList: () => [],
+              filter: () => ({ getList: () => [], subscribe: () => {} }),
+              subscribe: () => {}
+            };
+          }
+        }
+        window.WebsimSocket = DummyWebsimSocket;
+      }
+    </script>
   </head>
   <body>
     <div id="client-wrapper">
@@ -450,6 +477,15 @@ Out</div>
               <path d="M18 16v4M16 18h4" stroke="#fff" stroke-width="1.5"/>
             </svg>
           </div>
+          <!-- New Connected Worlds button -->
+          <div class="bottom-icon worlds">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
+              <circle cx="12" cy="12" r="10" fill="#00ffff" stroke="#000" stroke-width="1" />
+              <path d="M8 12h8" stroke="#000" stroke-width="1" />
+              <path d="M12 8v8" stroke="#000" stroke-width="1" />
+              <text x="12" y="16" text-anchor="middle" font-size="10" fill="#000">CW</text>
+            </svg>
+          </div>
           <div class="bottom-icon music">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: auto;">
               <!-- Piano body -->
@@ -471,9 +507,9 @@ Out</div>
       </div>
     </div>
 
-    <script src="js/chat.js"></script>
-    <script src="js/inventory.js"></script>
-    <script src="js/menu.js" type="module"></script>
+    <script src="./js/chat.js"></script>
+    <script src="./js/inventory.js"></script>
+    <script src="./js/menu.js" type="module"></script>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
