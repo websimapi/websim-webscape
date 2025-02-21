@@ -1,8 +1,6 @@
-// Track currently active menu button and panel
 let activeButton = null;
 let activePanel = null;
 
-// Updated list of menu items with their corresponding panels
 const menuItems = {
   'friends-button': '.friends-list',
   'ignore-button': '.ignore-list', 
@@ -12,11 +10,11 @@ const menuItems = {
   'skills': '#skills-menu',
   'quest': '#quest-journal',
   'music': '#music-menu',
-  'spellbook': '#spellbook' // Ensure spellbook is included
+  'spellbook': '#spellbook',
+  'worlds': '#worlds-menu' // Added worlds menu to the list
 };
 
 function hideAllPanels() {
-  // Hide all panels defined in the menuItems mapping
   Object.values(menuItems).forEach(panelSelector => {
     const panel = document.querySelector(panelSelector);
     if (panel) {
@@ -27,7 +25,6 @@ function hideAllPanels() {
     }
   });
 
-  // Remove selected state from all buttons
   const allButtons = document.querySelectorAll('.bottom-icon, .icon');
   allButtons.forEach(button => {
     button.classList.remove('selected');
@@ -37,9 +34,7 @@ function hideAllPanels() {
 function toggleMenu(button, panelSelector) {
   const panel = document.querySelector(panelSelector);
   
-  // If clicking the same button that's already active
   if (button === activeButton) {
-    // Keep current selection but ensure only this button remains selected
     hideAllPanels();
     button.classList.add('selected');
     panel.classList.remove('hidden');
@@ -51,7 +46,7 @@ function toggleMenu(button, panelSelector) {
       panelSelector.includes('skills') ||
       panelSelector.includes('music') ||
       panelSelector.includes('spellbook') ||
-      panelSelector.includes('world')
+      panelSelector.includes('worlds')
     ) {
       panel.classList.add('shown');
     }
@@ -60,10 +55,8 @@ function toggleMenu(button, panelSelector) {
     return;
   }
 
-  // Hide all other panels first
   hideAllPanels();
 
-  // Show the selected panel and mark button as selected
   button.classList.add('selected');
   panel.classList.remove('hidden');
   if (
@@ -74,7 +67,7 @@ function toggleMenu(button, panelSelector) {
     panelSelector.includes('skills') ||
     panelSelector.includes('music') ||
     panelSelector.includes('spellbook') ||
-    panelSelector.includes('world')
+    panelSelector.includes('worlds')
   ) {
     panel.classList.add('shown');
   }

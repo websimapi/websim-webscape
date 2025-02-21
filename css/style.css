@@ -71,7 +71,7 @@ body {
   text-shadow: 1px 1px 1px #000;
 }
 
-/* Minimap-icons styling */
+/* Ensure buttons in minimap-icons maintain equal spacing */
 .minimap-icons {
   display: flex;
   justify-content: space-between;
@@ -79,26 +79,6 @@ body {
   background: #382418;
   border-top: 2px solid #000;
   height: 36px;
-}
-
-/* Bottom Icons Container updated for two rows with a worlds menu placeholder in between */
-#bottom-icons {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: auto;
-}
-.icons-row {
-  display: flex;
-  justify-content: space-around;
-}
-#worlds-menu-container {
-  position: relative;
-}
-
-/* Ensure buttons in minimap-icons maintain equal spacing */
-.minimap-icons .icon {
-  margin: 0 2px;
 }
 
 /* Adjust spacing between minimap icons */
@@ -598,7 +578,7 @@ body {
   scrollbar-color: #5a473a #382418;
 }
 
-/* World Selector Menu */
+/* World Selector Menu - Updated positioning */
 #worlds-menu {
   position: relative;
   width: calc(100% - 8px);
