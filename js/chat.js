@@ -99,8 +99,6 @@ room.onmessage = (event) => {
   } else if (event.data.type === 'world-change') {
     // Update the user's world when they change worlds
     updateUserWorldDisplay(event.data.username, event.data.world);
-  } else if (event.data.type === 'private-message') {
-    handlePrivateMessage(event.data);
   }
   // Call original handler for other message types
   if (originalOnMessage) {
@@ -280,35 +278,32 @@ function insertIntoSplitChat(msgDiv) {
 function renderAllPrivateMessages() {
   const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
   const chatContent = document.querySelector('.chat-content');
+  
   // Remove any existing private messages from main chat
   const existingPrivate = chatContent.querySelectorAll('.chat-message.private-message');
   existingPrivate.forEach(elem => elem.remove());
+  
   const splitContainer = document.getElementById('split-private-chat');
   if (splitContainer) {
     splitContainer.innerHTML = '';
   }
-
-  // Sort private messages by timestamp in descending order (newest first) 
-  // to match chat display order
-  const sortedMessages = [...privateMessageHistory].sort((a, b) => b.timestamp - a.timestamp);
-
-  // Re-insert all private messages from history in the proper order
-  sortedMessages.forEach(msg => {
+  
+  // Re-insert all private messages from history in the correct order (newest to oldest)
+  const sortedPrivateHistory = [...privateMessageHistory].sort((a, b) => b.timestamp - a.timestamp);
+  
+  sortedPrivateHistory.forEach(msg => {
     const msgDiv = document.createElement('div');
     msgDiv.className = 'chat-message private-message';
     msgDiv.setAttribute('data-timestamp', msg.timestamp);
-
-    // Format message based on direction
     if (msg.direction === 'to') {
       msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
     } else {
       msgDiv.innerHTML = `From ${msg.sender}: ${msg.message}`;
     }
-
     if (splitPrivate) {
-      insertIntoSplitChat(msgDiv.cloneNode(true));
+      insertIntoSplitChat(msgDiv);
     } else {
-      insertIntoChatContent(msgDiv.cloneNode(true));
+      insertIntoChatContent(msgDiv);
     }
   });
 }
@@ -508,60 +503,36 @@ messageInput.addEventListener('keypress', async (e) => {
         recipient: recipient
       });
       
-      // Save outgoing private message to history with complete info
+      // Save outgoing private message to history and insert into chat/split container
       const msgObj = {
         direction: 'to',
-        sender: room.party.client.username,
         recipient: recipient,
         message: message,
         timestamp: Date.now()
       };
       privateMessageHistory.push(msgObj);
-
-      // Re-render all private messages to update both split and main chat
-      renderAllPrivateMessages();
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-message private-message';
+      msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
+      msgDiv.innerHTML = `To ${recipient}: ${message}`;
+      const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+      if (splitPrivate) {
+        insertIntoSplitChat(msgDiv);
+      } else {
+        insertIntoChatContent(msgDiv);
+      }
     } else {
       const chatContent = document.querySelector('.chat-content');
       const messageDiv = document.createElement('div');
       messageDiv.className = 'chat-message system';
-      const timestamp = Date.now();
+      const timestamp = Date.now(); // Fix: set timestamp for proper insertion order
       messageDiv.setAttribute('data-timestamp', timestamp);
       messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
       insertIntoChatContent(messageDiv);
     }
     
     messageOverlay.classList.remove('shown');
-    messageInput.value = '';
   }
-});
-
-// Handle incoming private messages
-function handlePrivateMessage(data) {
-  // Store message in history with complete info
-  const msgObj = {
-    direction: 'from',
-    sender: data.username,
-    recipient: room.party.client.username,
-    message: data.message,
-    timestamp: Date.now()
-  };
-  privateMessageHistory.push(msgObj);
-
-  // Re-render all private messages to update both split and main chat
-  renderAllPrivateMessages();
-}
-
-document.addEventListener('overlay-submit', (e) => {
-  // ... previous overlay submit handling
-  
-  if (e.detail.overlay === addIgnoreOverlay) {
-    // ... ignore list handling
-  } else if (e.detail.overlay === delIgnoreOverlay) {
-    // ... ignore list handling
-  }
-  
-  // Re-render private messages whenever split chat setting changes
-  renderAllPrivateMessages();
 });
 
 setInterval(updateOnlineStatus, 3000);

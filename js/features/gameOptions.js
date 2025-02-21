@@ -90,7 +90,6 @@ function initializeGameOptions() {
             splitContainer.classList.add('hidden');
           }
         }
-        // Render all private messages whenever split chat setting changes
         if (window.renderPrivateMessages) {
           window.renderPrivateMessages();
         }

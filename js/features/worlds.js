@@ -105,6 +105,11 @@ function initializeWorlds() {
         });
         worldEntry.classList.add('selected');
 
+        // Re-render private messages to maintain split chat state
+        if (window.renderPrivateMessages) {
+          window.renderPrivateMessages();
+        }
+
         // Hide menu after selection
         worldsMenu.classList.add('hidden');
         worldsButton.classList.remove('selected');
