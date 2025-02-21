@@ -550,7 +550,6 @@ function hideUsernameHoverTooltip() {
   chatUsernameTooltip.style.display = 'none';
 }
 
-// Create message overlay using the same markup as the Add Friend overlay
 const messageOverlay = document.createElement('div');
 messageOverlay.id = 'message-overlay';
 messageOverlay.className = 'add-friend-overlay';
