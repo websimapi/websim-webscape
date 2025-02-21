@@ -38,8 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Close context menu on scroll
-  // Updated for Firefox compatibility: use window instead of document.
-  window.addEventListener('scroll', hideContextMenu);
+  document.addEventListener('scroll', hideContextMenu);
 
   // FIX: In Two mouse mode, prevent the browser's default context menu
   document.addEventListener('contextmenu', (e) => {

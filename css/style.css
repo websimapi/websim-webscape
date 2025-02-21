@@ -587,6 +587,8 @@ body {
   display: none;
   margin-top: 4px;
   height: calc(100% - 276px);
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 #worlds-menu.shown {
@@ -599,6 +601,8 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .worlds-header {
@@ -618,12 +622,13 @@ body {
   font-size: 11px;
   margin: 4px 0 0 0;
   padding: 0;
-  text-align: right;
 }
 
 .worlds-list {
   flex: 1;
   overflow-y: auto;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .world-entry {
@@ -634,6 +639,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  -moz-user-select: none;
+  user-select: none;
 }
 
 .world-entry:hover {
@@ -662,9 +669,4 @@ body {
 .world-location {
   color: #fff;
   text-align: right;
-}
-
-/* Global UI tweaks for Firefox flex compatibility */
-#right-panel > * {
-  min-height: 0;
 }

@@ -48,9 +48,10 @@ function initializeWorlds() {
     toggleMenu(worldsButton, '#worlds-menu');
   });
 
-  // Handle world switching
+  // Handle world switching - Use mousedown for better Firefox compatibility
   const worldsList = worldsMenu.querySelector('.worlds-list');
-  worldsList.addEventListener('click', (e) => {
+  worldsList.addEventListener('mousedown', (e) => {
+    e.preventDefault(); // Prevent text selection
     const worldEntry = e.target.closest('.world-entry');
     if (worldEntry) {
       const url = worldEntry.dataset.url;
@@ -70,6 +71,26 @@ function initializeWorlds() {
       }
     }
   });
+
+  // Style workarounds for Firefox
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = `
+    @-moz-document url-prefix() {
+      #worlds-menu {
+        position: relative;
+        margin-top: 4px;
+      }
+      
+      .world-entry {
+        -moz-user-select: none;
+      }
+      
+      .worlds-content {
+        height: 100%;
+      }
+    }
+  `;
+  document.head.appendChild(styleSheet);
 
   // Highlight current world
   const currentUrl = document.querySelector('#game-screen iframe').src;

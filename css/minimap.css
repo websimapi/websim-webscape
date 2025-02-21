@@ -20,11 +20,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  -moz-transition: -moz-transform 0.1s ease-out;
   transition: transform 0.1s ease-out;
-  -moz-transform: rotate(0deg);
-  transform: rotate(0deg);
-  -moz-transform-origin: center center;
   transform-origin: center center;
 }
 
