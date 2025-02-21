@@ -5,14 +5,12 @@ const worlds = [
     id: 1,
     name: "World-1",
     url: "https://world-1--api.on.websim.ai/?pin_sidebar=false",
-    population: "Loading...",
     location: "US East"
   },
   {
     id: 2, 
     name: "World-2",
     url: "https://world-2--api.on.websim.ai/?pin_sidebar=false",
-    population: "Loading...",
     location: "US West"
   }
 ];
@@ -33,7 +31,6 @@ function initializeWorlds() {
           <div class="world-entry" data-url="${world.url}">
             <div class="world-name">${world.name}</div>
             <div class="world-info">
-              <span class="world-population">${world.population}</span>
               <span class="world-location">${world.location}</span>
             </div>
           </div>
