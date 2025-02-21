@@ -234,7 +234,6 @@ function handlePrivateMessage(data) {
   }
 }
 
-// Update renderChatHistory to use stored world information
 function renderChatHistory() {
   const chatContent = document.querySelector('.chat-content');
   chatContent.innerHTML = ''; // Clear current messages
@@ -410,7 +409,19 @@ function renderAllPrivateMessages() {
         }
       }
     } else {
-      insertIntoChatContent(msgDiv);
+      let inserted = false;
+      const messages = chatContent.children;
+      for (let i = 0; i < messages.length; i++) {
+        const timestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
+        if (timestamp <= parseFloat(msgDiv.getAttribute('data-timestamp'))) {
+          chatContent.insertBefore(msgDiv, messages[i]);
+          inserted = true;
+          break;
+        }
+      }
+      if (!inserted) {
+        chatContent.appendChild(msgDiv);
+      }
     }
   });
 }
@@ -427,14 +438,17 @@ messageInput.addEventListener('keypress', async (e) => {
         recipient: recipient
       });
       
-      // Save outgoing message without clearing history
+      // Add to private message history
       const msgObj = {
         direction: 'to',
+        sender: room.party.client.username,
         recipient: recipient,
         message: message,
         timestamp: Date.now()
       };
       privateMessageHistory.push(msgObj);
+      
+      // Render all private messages to maintain history
       renderAllPrivateMessages();
       
       messageOverlay.classList.remove('shown');
@@ -445,7 +459,20 @@ messageInput.addEventListener('keypress', async (e) => {
       messageDiv.className = 'chat-message system';
       messageDiv.setAttribute('data-timestamp', Date.now());
       messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
-      insertIntoChatContent(messageDiv);
+      
+      let inserted = false;
+      const messages = chatContent.children;
+      for (let i = 0; i < messages.length; i++) {
+        const timestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
+        if (timestamp <= parseFloat(messageDiv.getAttribute('data-timestamp'))) {
+          chatContent.insertBefore(messageDiv, messages[i]);
+          inserted = true;
+          break;
+        }
+      }
+      if (!inserted) {
+        chatContent.appendChild(messageDiv);
+      }
       
       messageOverlay.classList.remove('shown');
       messageInput.value = '';
