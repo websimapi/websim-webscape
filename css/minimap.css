@@ -28,42 +28,41 @@
 
 #compass-n, #compass-s, #compass-e, #compass-w {
   position: absolute;
-  color: white;
+  color: #000;
   font-size: 10px;
   line-height: 1;
   text-align: center;
   width: 12px;
   height: 12px;
   font-weight: bold;
-  transform-origin: center center;
+  user-select: none;
+  pointer-events: none;
+  text-shadow: none;
   display: flex;
   justify-content: center;
   align-items: center;
-  user-select: none;
-  pointer-events: none;
-  text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
 }
 
 #compass-n {
-  top: 4px;
+  top: 2px;
   left: 50%;
   transform: translateX(-50%);
 }
 
 #compass-s {
-  bottom: 4px;
+  bottom: 2px;
   left: 50%;
   transform: translateX(-50%);
 }
 
 #compass-e {
-  right: 4px;
+  right: 2px;
   top: 50%;
   transform: translateY(-50%);
 }
 
 #compass-w {
-  left: 4px;
+  left: 2px;
   top: 50%;
   transform: translateY(-50%);
 }
