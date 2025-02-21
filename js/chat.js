@@ -34,7 +34,10 @@ function updateOnlineStatus() {
     const username = entry.querySelector('.player-name').textContent;
     const statusElement = entry.querySelector('.world-status');
     if (onlineUsers.has(username)) {
-      statusElement.textContent = 'World-1';
+      // Keep the world name if it exists, otherwise use default
+      if (!statusElement.textContent || statusElement.textContent === 'Offline') {
+        statusElement.textContent = 'World-1'; // Default world
+      }
       statusElement.classList.remove('offline');
     } else {
       statusElement.textContent = 'Offline';
@@ -311,6 +314,21 @@ const chatUsernameElements = document.querySelectorAll('.chat-message .username'
 room.onmessage = (event) => {
   const chatContent = document.querySelector('.chat-content');
   switch (event.data.type) {
+    case 'world-change': {
+      // Update friend list entries for the user who changed worlds
+      const friendEntries = document.querySelectorAll('.friends-list .list-entry');
+      friendEntries.forEach(entry => {
+        const username = entry.querySelector('.player-name').textContent;
+        const statusElement = entry.querySelector('.world-status');
+        if (username === event.data.username) {
+          if (onlineUsers.has(username)) {
+            statusElement.textContent = event.data.world;
+            statusElement.classList.remove('offline');
+          }
+        }
+      });
+      break;
+    }
     case 'chat': {
       // For public chat messages from others
       if (event.data.clientId !== room.party.client.id) {

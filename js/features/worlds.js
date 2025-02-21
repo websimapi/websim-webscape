@@ -1,5 +1,8 @@
 import { toggleMenu } from './menuManager.js';
 
+// Initialize WebSocket connection
+const room = new WebsimSocket();
+
 const worlds = [
   {
     id: 1,
@@ -15,6 +18,12 @@ const worlds = [
   }
 ];
 
+function getCurrentWorld() {
+  const currentUrl = document.querySelector('#game-screen iframe').src;
+  const world = worlds.find(w => w.url === currentUrl);
+  return world ? world.name : 'World-1'; // Default to World-1 if not found
+}
+
 function initializeWorlds() {
   const worldsButton = document.querySelector('.bottom-icon:first-child');
   const worldsMenu = document.createElement('div');
@@ -28,7 +37,7 @@ function initializeWorlds() {
       </div>
       <div class="worlds-list">
         ${worlds.map(world => `
-          <div class="world-entry" data-url="${world.url}">
+          <div class="world-entry" data-url="${world.url}" data-world="${world.name}">
             <div class="world-name">${world.name}</div>
             <div class="world-info">
               <span class="world-location">${world.location}</span>
@@ -54,9 +63,17 @@ function initializeWorlds() {
     const worldEntry = e.target.closest('.world-entry');
     if (worldEntry) {
       const url = worldEntry.dataset.url;
+      const worldName = worldEntry.dataset.world;
       const gameFrame = document.querySelector('#game-screen iframe');
       if (gameFrame && url !== gameFrame.src) {
         gameFrame.src = url;
+        
+        // Broadcast world change to other users
+        room.send({
+          type: 'world-change',
+          world: worldName,
+          username: room.party.client.username
+        });
         
         // Update selection visuals
         document.querySelectorAll('.world-entry').forEach(entry => {
@@ -77,6 +94,15 @@ function initializeWorlds() {
   if (currentWorld) {
     currentWorld.classList.add('selected');
   }
+
+  // Send initial world info when connecting
+  room.party.subscribe(() => {
+    room.send({
+      type: 'world-change',
+      world: getCurrentWorld(),
+      username: room.party.client.username
+    });
+  });
 }
 
-export { initializeWorlds };
+export { initializeWorlds, getCurrentWorld };
