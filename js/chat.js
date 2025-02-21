@@ -30,6 +30,7 @@ room.party.subscribe((peers) => {
   userWorlds.clear();
   for (const clientId in peers) {
     onlineUsers.add(peers[clientId].username);
+    // Don't set world here - wait for world-change messages
   }
   
   // Update online status in friends list
@@ -53,14 +54,21 @@ function updateOnlineStatus() {
     const statusElement = entry.querySelector('.world-status');
     
     if (onlineUsers.has(username)) {
-      const userWorld = userWorlds.get(username) || currentWorld;
-      statusElement.textContent = userWorld;
-      statusElement.classList.remove('offline');
-      
-      if (userWorld === currentWorld) {
-        statusElement.style.color = '#00ff00'; // Green for same world
+      const userWorld = userWorlds.get(username);
+      if (userWorld) {
+        statusElement.textContent = userWorld;
+        statusElement.classList.remove('offline');
+        
+        // Update color based on world comparison
+        if (userWorld === currentWorld) {
+          statusElement.style.color = '#00ff00'; // Green for same world
+        } else {
+          statusElement.style.color = '#ffff00'; // Yellow for different world
+        }
       } else {
-        statusElement.style.color = '#ffff00'; // Yellow for different world
+        statusElement.textContent = 'Online';
+        statusElement.classList.remove('offline');
+        statusElement.style.color = '#ffff00'; // Yellow until we get their world info
       }
     } else {
       statusElement.textContent = 'Offline';
@@ -349,6 +357,8 @@ room.onmessage = (event) => {
       
       // Update friend list entries for the user who changed worlds
       const friendEntries = document.querySelectorAll('.friends-list .list-entry');
+      const currentWorld = getCurrentWorld();
+      
       friendEntries.forEach(entry => {
         const username = entry.querySelector('.player-name').textContent;
         const statusElement = entry.querySelector('.world-status');
@@ -358,7 +368,6 @@ room.onmessage = (event) => {
             statusElement.classList.remove('offline');
             
             // Update color based on world comparison
-            const currentWorld = getCurrentWorld();
             if (event.data.world === currentWorld) {
               statusElement.style.color = '#00ff00'; // Green for same world
             } else {
