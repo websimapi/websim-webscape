@@ -1,4 +1,11 @@
 import { toggleMenu } from './menuManager.js';
+import { createDebugger } from '../debug.js';
+
+// Initialize debugger for worlds feature
+const debug = createDebugger('worlds');
+
+// Enable debugging for worlds feature 
+enableDebug('worlds');
 
 const worlds = [
   {
@@ -16,6 +23,8 @@ const worlds = [
 ];
 
 function initializeWorlds() {
+  debug.enter('initializeWorlds');
+
   const worldsButton = document.querySelector('.bottom-icon:first-child');
   const worldsMenu = document.createElement('div');
   worldsMenu.id = 'worlds-menu';
@@ -43,8 +52,11 @@ function initializeWorlds() {
   const minimapSection = document.getElementById('minimap-section');
   minimapSection.insertAdjacentElement('afterend', worldsMenu);
 
+  debug.info('World selector menu created and inserted into DOM');
+
   // Setup menu toggle
   worldsButton.addEventListener('click', () => {
+    debug.event('worldsButton clicked');
     toggleMenu(worldsButton, '#worlds-menu');
   });
 
@@ -55,7 +67,19 @@ function initializeWorlds() {
     if (worldEntry) {
       const url = worldEntry.dataset.url;
       const gameFrame = document.querySelector('#game-screen iframe');
+      
+      debug.info('World switch requested', {
+        from: gameFrame.src,
+        to: url,
+        worldEntry: worldEntry.textContent.trim()
+      });
+
       if (gameFrame && url !== gameFrame.src) {
+        debug.event('Switching world', {
+          fromUrl: gameFrame.src,
+          toUrl: url
+        });
+
         gameFrame.src = url;
         
         // Update selection visuals
@@ -67,6 +91,10 @@ function initializeWorlds() {
         // Hide menu after selection
         worldsMenu.classList.add('hidden');
         worldsButton.classList.remove('selected');
+
+        debug.info('World switch completed');
+      } else {
+        debug.info('World switch skipped - already on selected world');
       }
     }
   });
@@ -76,7 +104,13 @@ function initializeWorlds() {
   const currentWorld = worldsMenu.querySelector(`[data-url="${currentUrl}"]`);
   if (currentWorld) {
     currentWorld.classList.add('selected');
+    debug.info('Current world highlighted', {
+      url: currentUrl,
+      world: currentWorld.textContent.trim()
+    });
   }
+
+  debug.exit('initializeWorlds');
 }
 
 export { initializeWorlds };
