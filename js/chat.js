@@ -83,7 +83,7 @@ room.party.subscribe((peers) => {
   updateOnlineStatus();
 });
 
-// Update room.onmessage handler to handle world changes and private messages
+// Update room.onmessage handler to handle world changes
 const originalOnMessage = room.onmessage;
 room.onmessage = (event) => {
   if (event.data.type === 'chat' && event.data.clientId !== room.party.client.id) {
@@ -99,9 +99,6 @@ room.onmessage = (event) => {
   } else if (event.data.type === 'world-change') {
     // Update the user's world when they change worlds
     updateUserWorldDisplay(event.data.username, event.data.world);
-  } else if (event.data.type === 'private-message') {
-    // Handle incoming private messages
-    handlePrivateMessage(event.data);
   }
   // Call original handler for other message types
   if (originalOnMessage) {
@@ -147,7 +144,7 @@ function renderChatHistory() {
   chatContent.innerHTML = ''; // Clear current messages
   
   const history = chatMode === 'global' ? globalChatHistory : publicChatHistory;
-  // Sort messages in descending order by timestamp (newest first)
+  // Sort messages in ascending order by timestamp (oldest first)
   const sortedHistory = [...history].sort((a, b) => b.timestamp - a.timestamp);
 
   sortedHistory.forEach(msg => {
@@ -177,6 +174,7 @@ function renderChatHistory() {
       }
     } else {
       if (chatMode === 'global') {
+        // Place world indicator before username for global chat
         messageDiv.innerHTML = `
           <span class="world-indicator">${currentUserWorld}</span>
           <span class="username">${msg.username}</span>
@@ -532,27 +530,4 @@ messageInput.addEventListener('keypress', async (e) => {
   }
 });
 
-// Modified handlePrivateMessage to store incoming messages in memory/history
-function handlePrivateMessage(data) {
-  // Store the incoming private message in history
-  const timestamp = Date.now();
-  const msgObj = { direction: 'from', sender: data.username, message: data.message, timestamp };
-  privateMessageHistory.push(msgObj);
-
-  const msgDiv = document.createElement('div');
-  msgDiv.className = 'chat-message private-message';
-  msgDiv.setAttribute('data-timestamp', timestamp);
-  
-  if (data.recipient === room.party.client.username) {
-    msgDiv.innerHTML = `From ${data.username}: ${data.message}`;
-  } else {
-    msgDiv.innerHTML = `To ${data.recipient}: ${data.message}`;
-  }
-  
-  const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-  if (splitPrivate) {
-    insertIntoSplitChat(msgDiv);
-  } else {
-    insertIntoChatContent(msgDiv);
-  }
-}
+setInterval(updateOnlineStatus, 3000);
