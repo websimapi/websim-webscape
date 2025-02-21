@@ -16,9 +16,7 @@ const worlds = [
 ];
 
 function initializeWorlds() {
-  // Select the worlds button by its dedicated class (.worlds)
-  const worldsButton = document.querySelector('.bottom-icon.worlds');
-  // Create the worlds menu container
+  const worldsButton = document.querySelector('.bottom-icon:first-child');
   const worldsMenu = document.createElement('div');
   worldsMenu.id = 'worlds-menu';
   worldsMenu.className = 'hidden';
@@ -26,12 +24,13 @@ function initializeWorlds() {
     <div class="worlds-content">
       <div class="worlds-header">
         <h3 class="title">World Selector</h3>
+        <p class="subtitle">Click world to switch</p>
       </div>
       <div class="worlds-list">
         ${worlds.map(world => `
           <div class="world-entry" data-url="${world.url}">
-            <div class="world-entry-content">
-              <span class="world-name">${world.name}</span>
+            <div class="world-name">${world.name}</div>
+            <div class="world-info">
               <span class="world-location">${world.location}</span>
             </div>
           </div>
@@ -40,17 +39,16 @@ function initializeWorlds() {
     </div>
   `;
 
-  // Insert the worlds menu into the right panel ABOVE the bottom icons
-  const rightPanel = document.getElementById('right-panel');
-  const bottomIcons = document.getElementById('bottom-icons');
-  rightPanel.insertBefore(worldsMenu, bottomIcons);
+  // Add worlds menu to the right panel after minimap section
+  const minimapSection = document.getElementById('minimap-section');
+  minimapSection.insertAdjacentElement('afterend', worldsMenu);
 
-  // Setup menu toggle using the common toggleMenu function
+  // Setup menu toggle
   worldsButton.addEventListener('click', () => {
     toggleMenu(worldsButton, '#worlds-menu');
   });
 
-  // Handle world switching when an entry is clicked
+  // Handle world switching
   const worldsList = worldsMenu.querySelector('.worlds-list');
   worldsList.addEventListener('click', (e) => {
     const worldEntry = e.target.closest('.world-entry');
@@ -66,14 +64,14 @@ function initializeWorlds() {
         });
         worldEntry.classList.add('selected');
 
-        // Hide the worlds menu after selection
+        // Hide menu after selection
         worldsMenu.classList.add('hidden');
         worldsButton.classList.remove('selected');
       }
     }
   });
 
-  // Highlight the current world based on the iframe's src
+  // Highlight current world
   const currentUrl = document.querySelector('#game-screen iframe').src;
   const currentWorld = worldsMenu.querySelector(`[data-url="${currentUrl}"]`);
   if (currentWorld) {
