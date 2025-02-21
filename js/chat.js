@@ -83,7 +83,7 @@ room.party.subscribe((peers) => {
   updateOnlineStatus();
 });
 
-// Update room.onmessage handler to handle world changes
+// Update room.onmessage handler to handle all message types
 const originalOnMessage = room.onmessage;
 room.onmessage = (event) => {
   if (event.data.type === 'chat' && event.data.clientId !== room.party.client.id) {
@@ -99,6 +99,27 @@ room.onmessage = (event) => {
   } else if (event.data.type === 'world-change') {
     // Update the user's world when they change worlds
     updateUserWorldDisplay(event.data.username, event.data.world);
+  } else if (event.data.type === 'private-message' && event.data.recipient === room.party.client.username) {
+    // Handle incoming private message
+    const msgObj = {
+      direction: 'from',
+      sender: event.data.username,
+      message: event.data.message,
+      timestamp: Date.now()
+    };
+    privateMessageHistory.push(msgObj);
+
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'chat-message private-message';
+    msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
+    msgDiv.innerHTML = `From ${event.data.username}: ${event.data.message}`;
+
+    const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+    if (splitPrivate) {
+      insertIntoSplitChat(msgDiv);
+    } else {
+      insertIntoChatContent(msgDiv);
+    }
   }
   // Call original handler for other message types
   if (originalOnMessage) {
