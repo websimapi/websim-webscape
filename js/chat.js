@@ -98,7 +98,42 @@ room.onmessage = (event) => {
         timestamp: Date.now(),
       };
       privateMessageHistory.push(msgObj);
-      renderAllPrivateMessages();
+      
+      // Create message element
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-message private-message';
+      msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
+      msgDiv.innerHTML = `From ${msgObj.sender}: ${msgObj.message}`;
+      
+      // Handle split chat mode
+      const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+      const splitContainer = document.getElementById('split-private-chat');
+      const chatContent = document.querySelector('.chat-content');
+      
+      if (splitPrivate && splitContainer) {
+        // Add to split chat container
+        const clone = msgDiv.cloneNode(true);
+        splitContainer.appendChild(clone);
+        // Keep only last 5 messages in split view
+        while (splitContainer.childElementCount > 5) {
+          splitContainer.removeChild(splitContainer.firstChild);
+        }
+      } else {
+        // Insert into main chat maintaining timestamp order
+        let inserted = false;
+        const messages = chatContent.children;
+        for (let i = 0; i < messages.length; i++) {
+          const existingTimestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
+          if (existingTimestamp <= msgObj.timestamp) {
+            chatContent.insertBefore(msgDiv, messages[i]);
+            inserted = true;
+            break;
+          }
+        }
+        if (!inserted) {
+          chatContent.appendChild(msgDiv);
+        }
+      }
     }
   } else if (data.type === 'world-change') {
     // Handle world change events
@@ -329,16 +364,16 @@ function renderAllPrivateMessages() {
   const chatContent = document.querySelector('.chat-content');
   const splitContainer = document.getElementById('split-private-chat');
 
-  // Remove existing private messages
-  const existingPrivate = chatContent.querySelectorAll('.chat-message.private-message');
+  // Remove existing private messages from their current location
+  const existingPrivate = document.querySelectorAll('.chat-message.private-message');
   existingPrivate.forEach(elem => elem.remove());
   
   if (splitContainer) {
     splitContainer.innerHTML = '';
   }
 
-  // Re-insert all private messages based on timestamp order
-  const sortedMessages = [...privateMessageHistory].sort((a, b) => a.timestamp - b.timestamp);
+  // Sort messages by timestamp, newest first
+  const sortedMessages = [...privateMessageHistory].sort((a, b) => b.timestamp - a.timestamp);
 
   sortedMessages.forEach(msg => {
     const msgDiv = document.createElement('div');
@@ -352,14 +387,30 @@ function renderAllPrivateMessages() {
       msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
     }
 
-    // Handle split chat mode
     if (splitPrivate) {
       if (splitContainer) {
         const clone = msgDiv.cloneNode(true);
-        insertIntoSplitChat(clone);
+        splitContainer.appendChild(clone);
+        // Keep only last 5 messages in split view
+        while (splitContainer.childElementCount > 5) {
+          splitContainer.removeChild(splitContainer.firstChild);
+        }
       }
     } else {
-      insertIntoChatContent(msgDiv.cloneNode(true));
+      // Insert into main chat maintaining timestamp order
+      let inserted = false;
+      const messages = chatContent.children;
+      for (let i = 0; i < messages.length; i++) {
+        const existingTimestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
+        if (existingTimestamp <= msg.timestamp) {
+          chatContent.insertBefore(msgDiv, messages[i]);
+          inserted = true;
+          break;
+        }
+      }
+      if (!inserted) {
+        chatContent.appendChild(msgDiv);
+      }
     }
   });
 }
