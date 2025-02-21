@@ -1,5 +1,3 @@
-import { DebugLogger, DOMDebug } from '../debug.js';
-
 // Track currently active menu button and panel
 let activeButton = null;
 let activePanel = null;
@@ -15,28 +13,18 @@ const menuItems = {
   'quest': '#quest-journal',
   'music': '#music-menu',
   'spellbook': '#spellbook',
-  'worlds': '#worlds-menu'
+  'worlds': '#worlds-menu' // Add worlds menu to the list
 };
 
 function hideAllPanels() {
-  DebugLogger.debug('MENUS', 'Hiding all panels', {
-    activeButtonId: activeButton?.id || 'none',
-    activePanelId: activePanel?.id || 'none'
-  });
-
   // Hide all panels defined in the menuItems mapping
-  Object.entries(menuItems).forEach(([buttonKey, panelSelector]) => {
+  Object.values(menuItems).forEach(panelSelector => {
     const panel = document.querySelector(panelSelector);
     if (panel) {
       panel.classList.add('hidden');
       if (panel.classList.contains('shown')) {
         panel.classList.remove('shown');
       }
-      DebugLogger.debug('MENUS', `Hidden panel: ${panelSelector}`, {
-        classes: Array.from(panel.classList)
-      });
-    } else {
-      DebugLogger.warn('MENUS', `Panel not found: ${panelSelector}`);
     }
   });
 
@@ -44,34 +32,16 @@ function hideAllPanels() {
   const allButtons = document.querySelectorAll('.bottom-icon, .icon');
   allButtons.forEach(button => {
     button.classList.remove('selected');
-    DebugLogger.debug('MENUS', 'Removed selected state from button', {
-      buttonId: button.id || 'unnamed-button',
-      classes: Array.from(button.classList)
-    });
   });
 }
 
 function toggleMenu(button, panelSelector) {
-  DebugLogger.info('MENUS', 'Toggle menu requested', {
-    buttonId: button.id || 'unnamed-button',
-    panelSelector,
-    currentActiveButton: activeButton?.id || 'none',
-    currentActivePanel: activePanel?.id || 'none'
-  });
-
-  const panel = DOMDebug.checkElement(panelSelector, 'Menu Panel');
-  if (!panel) {
-    DebugLogger.error('MENUS', `Panel not found for selector: ${panelSelector}`);
-    return;
-  }
+  const panel = document.querySelector(panelSelector);
   
   // If clicking the same button that's already active
   if (button === activeButton) {
-    DebugLogger.debug('MENUS', 'Toggling currently active menu');
-    
     // Toggle visibility
     if (panel.classList.contains('hidden') || !panel.classList.contains('shown')) {
-      DebugLogger.debug('MENUS', 'Showing previously hidden panel');
       hideAllPanels();
       button.classList.add('selected');
       panel.classList.remove('hidden');
@@ -80,15 +50,12 @@ function toggleMenu(button, panelSelector) {
         panel.classList.add('shown');
       }
     } else {
-      DebugLogger.debug('MENUS', 'Hiding currently shown panel');
       hideAllPanels();
       activeButton = null;
       activePanel = null;
       return;
     }
   } else {
-    DebugLogger.debug('MENUS', 'Switching to different menu');
-    
     // Hide all other panels first
     hideAllPanels();
 
@@ -99,24 +66,10 @@ function toggleMenu(button, panelSelector) {
         panelSelector.includes('ignore') || panelSelector.includes('worlds')) {
       panel.classList.add('shown');
     }
-
-    DebugLogger.debug('MENUS', 'New panel shown', {
-      buttonClasses: Array.from(button.classList),
-      panelClasses: Array.from(panel.classList)
-    });
   }
 
   activeButton = button;
   activePanel = panel;
-
-  DebugLogger.info('MENUS', 'Menu toggle completed', {
-    activeButtonId: activeButton?.id || 'unnamed-button',
-    activePanelId: activePanel?.id || 'none',
-    panelClasses: Array.from(panel.classList)
-  });
-
-  // Check final state
-  DOMDebug.checkMenuState(panelSelector, 'After Toggle');
 }
 
 export { hideAllPanels, toggleMenu };
