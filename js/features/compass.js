@@ -23,7 +23,7 @@ function initializeCompass() {
   
   // Listen for camera direction updates from the iframe
   window.addEventListener('message', (event) => {
-    if (event.data.type === 'cameraDirection') {
+    if (event.data && event.data.type === 'cameraDirection') {
       // Get the new target angle (negative because we want to rotate opposite to camera)
       const targetAngle = -Math.round(event.data.direction);
       
@@ -32,23 +32,35 @@ function initializeCompass() {
       
       // Update the compass rotation using the calculated difference
       const newAngle = previousAngle + rotationDiff;
-      compassContainer.style.transform = `rotate(${newAngle}deg)`;
+      if (compassContainer) {
+        compassContainer.style.transform = `rotate(${newAngle}deg)`;
+      }
       
       // Store the new angle for next calculation
       previousAngle = newAngle;
     }
   });
 
-  // Request camera direction updates
+  // Request camera direction updates with retry logic
   function requestCameraDirection() {
     const iframe = document.querySelector('#game-screen iframe');
     if (iframe && iframe.contentWindow) {
-      iframe.contentWindow.postMessage('getCameraDirection', '*');
+      try {
+        iframe.contentWindow.postMessage('getCameraDirection', '*');
+      } catch (e) {
+        console.log('Could not request camera direction yet, will retry');
+      }
     }
   }
 
-  // Poll for camera direction every 100ms
-  setInterval(requestCameraDirection, 100);
+  // Wait for iframe to load before starting compass updates
+  const gameIframe = document.querySelector('#game-screen iframe');
+  if (gameIframe) {
+    gameIframe.addEventListener('load', () => {
+      // Start polling for camera direction after iframe loads
+      setInterval(requestCameraDirection, 100);
+    });
+  }
 }
 
 export { initializeCompass };
