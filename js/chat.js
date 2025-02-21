@@ -89,8 +89,17 @@ room.onmessage = (event) => {
   const data = event.data;
   
   if (data.type === 'private-message') {
-    // Handle incoming private message
-    handlePrivateMessage(data);
+    // Store message in history if it's for us
+    if (data.recipient === room.party.client.username) {
+      const msgObj = {
+        direction: 'from',
+        sender: data.username,
+        message: data.message,
+        timestamp: Date.now(),
+      };
+      privateMessageHistory.push(msgObj);
+      renderAllPrivateMessages();
+    }
   } else if (data.type === 'world-change') {
     // Handle world change events
     updateUserWorldDisplay(data.username, data.world);
@@ -178,62 +187,7 @@ function handleChatMessage(message, username, world, timestamp) {
   }
 }
 
-function handlePrivateMessage(data) {
-  // Create message object for history
-  const msgObj = {
-    direction: data.recipient === room.party.client.username ? 'from' : 'to',
-    sender: data.username,
-    recipient: data.recipient,
-    message: data.message,
-    timestamp: Date.now()
-  };
-  
-  // Add to history without clearing existing messages
-  privateMessageHistory.push(msgObj);
-
-  // Create DOM element
-  const msgDiv = document.createElement('div');
-  msgDiv.className = 'chat-message private-message';
-  msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
-
-  // Format message based on direction
-  if (msgObj.direction === 'from') {
-    msgDiv.innerHTML = `From ${msgObj.sender}: ${msgObj.message}`;
-  } else {
-    msgDiv.innerHTML = `To ${msgObj.recipient}: ${msgObj.message}`;
-  }
-
-  // Insert into appropriate container based on split chat setting
-  const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-  const splitContainer = document.getElementById('split-private-chat');
-  const chatContent = document.querySelector('.chat-content');
-
-  if (splitPrivate && splitContainer) {
-    // Add to split chat
-    const clone = msgDiv.cloneNode(true);
-    splitContainer.appendChild(clone);
-    // Keep only last 5 messages in split view
-    while (splitContainer.childElementCount > 5) {
-      splitContainer.removeChild(splitContainer.firstChild);
-    }
-  } else {
-    // Insert into main chat maintaining timestamp order
-    let inserted = false;
-    const messages = chatContent.children;
-    for (let i = 0; i < messages.length; i++) {
-      const existingTimestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
-      if (existingTimestamp <= msgObj.timestamp) {
-        chatContent.insertBefore(msgDiv, messages[i]);
-        inserted = true;
-        break;
-      }
-    }
-    if (!inserted) {
-      chatContent.appendChild(msgDiv);
-    }
-  }
-}
-
+// Update renderChatHistory to use stored world information
 function renderChatHistory() {
   const chatContent = document.querySelector('.chat-content');
   chatContent.innerHTML = ''; // Clear current messages
@@ -383,7 +337,7 @@ function renderAllPrivateMessages() {
     splitContainer.innerHTML = '';
   }
 
-  // Re-insert all private messages based on timestamp order
+  // Sort messages by timestamp descending for proper ordering
   const sortedMessages = [...privateMessageHistory].sort((a, b) => b.timestamp - a.timestamp);
 
   sortedMessages.forEach(msg => {
@@ -409,11 +363,12 @@ function renderAllPrivateMessages() {
         }
       }
     } else {
+      // Insert into main chat maintaining timestamp order
       let inserted = false;
       const messages = chatContent.children;
       for (let i = 0; i < messages.length; i++) {
-        const timestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
-        if (timestamp <= parseFloat(msgDiv.getAttribute('data-timestamp'))) {
+        const existingTimestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
+        if (existingTimestamp <= msg.timestamp) {
           chatContent.insertBefore(msgDiv, messages[i]);
           inserted = true;
           break;
@@ -424,6 +379,24 @@ function renderAllPrivateMessages() {
       }
     }
   });
+}
+
+// Save outgoing private messages
+function handlePrivateMessage(data) {
+  // Create private message object
+  const msgObj = {
+    direction: data.recipient === room.party.client.username ? 'from' : 'to',
+    sender: data.username,
+    recipient: data.recipient, 
+    message: data.message,
+    timestamp: Date.now(),
+  };
+
+  // Add to history
+  privateMessageHistory.push(msgObj);
+
+  // Rerender all private messages
+  renderAllPrivateMessages();
 }
 
 messageInput.addEventListener('keypress', async (e) => {
@@ -438,17 +411,14 @@ messageInput.addEventListener('keypress', async (e) => {
         recipient: recipient
       });
       
-      // Add to private message history
+      // Save outgoing message
       const msgObj = {
         direction: 'to',
-        sender: room.party.client.username,
         recipient: recipient,
         message: message,
         timestamp: Date.now()
       };
       privateMessageHistory.push(msgObj);
-      
-      // Render all private messages to maintain history
       renderAllPrivateMessages();
       
       messageOverlay.classList.remove('shown');
@@ -459,20 +429,7 @@ messageInput.addEventListener('keypress', async (e) => {
       messageDiv.className = 'chat-message system';
       messageDiv.setAttribute('data-timestamp', Date.now());
       messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
-      
-      let inserted = false;
-      const messages = chatContent.children;
-      for (let i = 0; i < messages.length; i++) {
-        const timestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
-        if (timestamp <= parseFloat(messageDiv.getAttribute('data-timestamp'))) {
-          chatContent.insertBefore(messageDiv, messages[i]);
-          inserted = true;
-          break;
-        }
-      }
-      if (!inserted) {
-        chatContent.appendChild(messageDiv);
-      }
+      insertIntoChatContent(messageDiv);
       
       messageOverlay.classList.remove('shown');
       messageInput.value = '';
