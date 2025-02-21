@@ -17,7 +17,7 @@ const globalChatHistory = [
 const publicChatHistory = [
   {
     message: "Welcome to Webscape!",
-    username: "", // Empty username for system messages in public chat
+    username: "", // Empty username for system messages in public chat 
     world: "System",
     timestamp: Date.now() - 1000
   }
@@ -100,7 +100,28 @@ room.onmessage = (event) => {
     // Update the user's world when they change worlds
     updateUserWorldDisplay(event.data.username, event.data.world);
   } else if (event.data.type === 'private-message') {
-    handlePrivateMessage(event.data);
+    if (event.data.recipient === room.party.client.username) {
+      // This is a received message
+      const msgObj = {
+        direction: 'from',
+        sender: event.data.username,
+        message: event.data.message,
+        timestamp: Date.now()
+      };
+      privateMessageHistory.push(msgObj);
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-message private-message';
+      msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
+      msgDiv.innerHTML = `From ${event.data.username}: ${event.data.message}`;
+
+      const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+      if (splitPrivate) {
+        insertIntoSplitChat(msgDiv);
+      } else {
+        insertIntoChatContent(msgDiv);
+      }
+    }
   }
   // Call original handler for other message types
   if (originalOnMessage) {
@@ -206,42 +227,6 @@ function renderChatHistory() {
     
     chatContent.appendChild(messageDiv);
   });
-  renderAllPrivateMessages();
-}
-
-function handlePrivateMessage(data) {
-  const timestamp = Date.now();
-  const msgObj = {
-    message: data.message,
-    sender: data.username || room.party.client.username,
-    recipient: data.recipient,
-    timestamp: timestamp
-  };
-  
-  // Add to private message history
-  privateMessageHistory.push(msgObj);
-
-  // Create message element
-  const msgDiv = document.createElement('div');
-  msgDiv.className = 'chat-message private-message';
-  msgDiv.setAttribute('data-timestamp', timestamp);
-
-  // Format based on if we sent or received the message
-  if (data.recipient === room.party.client.username) {
-    msgDiv.innerHTML = `From ${data.username}: ${data.message}`;
-  } else {
-    msgDiv.innerHTML = `To ${data.recipient}: ${data.message}`;
-  }
-
-  // Insert into appropriate container based on split chat setting
-  const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-  const splitContainer = document.getElementById('split-private-chat');
-
-  if (splitPrivate && splitContainer) {
-    insertIntoSplitChat(msgDiv.cloneNode(true));
-  } else {
-    insertIntoChatContent(msgDiv);
-  }
 }
 
 // Create message overlay using the same markup as the Add Friend overlay
@@ -319,22 +304,23 @@ function renderAllPrivateMessages() {
   // Remove any existing private messages from main chat
   const existingPrivate = chatContent.querySelectorAll('.chat-message.private-message');
   existingPrivate.forEach(elem => elem.remove());
+
+  // Clear split container if it exists
   const splitContainer = document.getElementById('split-private-chat');
   if (splitContainer) {
     splitContainer.innerHTML = '';
   }
+
   // Re-insert all private messages from history in the order they were received
   privateMessageHistory.forEach(msg => {
     const msgDiv = document.createElement('div');
     msgDiv.className = 'chat-message private-message';
     msgDiv.setAttribute('data-timestamp', msg.timestamp);
 
-    // Use sender/recipient info to format message properly
-    if (msg.sender === room.party.client.username) {
-      // Outgoing message
+    // Handle both sent and received messages
+    if (msg.direction === 'to') {
       msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
-    } else {
-      // Incoming message
+    } else if (msg.direction === 'from') {
       msgDiv.innerHTML = `From ${msg.sender}: ${msg.message}`;
     }
 
@@ -345,12 +331,18 @@ function renderAllPrivateMessages() {
     }
   });
 }
-
 window.renderPrivateMessages = renderAllPrivateMessages;
 
 // Function to clear public chat
 export function clearPublicChat() {
-  publicChatHistory.length = 0; // Clear public chat history
+  // Keep only the Welcome message
+  const welcomeMessage = publicChatHistory.find(msg => 
+    msg.message === "Welcome to Webscape!" && msg.world === "System"
+  );
+  publicChatHistory.length = 0; // Clear the array
+  if (welcomeMessage) {
+    publicChatHistory.push(welcomeMessage); // Add back the welcome message
+  }
   if (chatMode === 'public') {
     renderChatHistory(); // Only re-render if in public mode
   }
@@ -535,21 +527,20 @@ messageInput.addEventListener('keypress', async (e) => {
         recipient: recipient
       });
       
-      // Store outgoing message in history
+      // Save outgoing private message to history
       const msgObj = {
-        message: message,
-        sender: room.party.client.username,
+        direction: 'to',
         recipient: recipient,
+        message: message,
         timestamp: Date.now()
       };
       privateMessageHistory.push(msgObj);
-
-      // Create and display message
+      
       const msgDiv = document.createElement('div');
       msgDiv.className = 'chat-message private-message';
       msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
       msgDiv.innerHTML = `To ${recipient}: ${message}`;
-
+      
       const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
       if (splitPrivate) {
         insertIntoSplitChat(msgDiv);
