@@ -166,8 +166,19 @@ window.renderPrivateMessages = renderAllPrivateMessages;
 let chatMode = 'public'; // Can be 'public' or 'global'
 
 // Track chat history separately for global and public
-const globalChatHistory = [];
-const publicChatHistory = [];
+const globalChatHistory = [{
+  message: "Welcome to Webscape!",
+  username: "System",
+  timestamp: 0,
+  isSystem: true
+}];
+
+const publicChatHistory = [{
+  message: "Welcome to Webscape!",
+  username: "System",
+  timestamp: 0,
+  isSystem: true
+}];
 
 // Export the switchChatMode function so it can be used in other files
 export function switchChatMode(mode) {
@@ -191,37 +202,46 @@ function renderChatHistory() {
   const history = chatMode === 'global' ? globalChatHistory : publicChatHistory;
   history.sort((a, b) => a.timestamp - b.timestamp).forEach(msg => {
     const messageDiv = document.createElement('div');
-    messageDiv.className = 'chat-message user';
-    messageDiv.setAttribute('data-timestamp', msg.timestamp);
     
-    if (chatMode === 'global') {
-      // Include world indicator for global chat
-      messageDiv.innerHTML = `
-        <span class="username">${msg.username}</span>
-        <span class="separator">: </span>
-        ${msg.message}
-        <span class="world-indicator">${msg.world}</span>
-      `;
+    if (msg.isSystem) {
+      // Handle system messages (like welcome message)
+      messageDiv.className = 'chat-message system';
+      messageDiv.style.color = '#000';
+      messageDiv.textContent = msg.message;
     } else {
-      messageDiv.innerHTML = `
-        <span class="username">${msg.username}</span>
-        <span class="separator">: </span>
-        ${msg.message}
-      `;
-    }
+      // Handle regular user messages
+      messageDiv.className = 'chat-message user';
+      
+      if (chatMode === 'global') {
+        // Include world indicator for global chat
+        messageDiv.innerHTML = `
+          <span class="username">${msg.username}</span>
+          <span class="separator">: </span>
+          ${msg.message}
+          <span class="world-indicator">${msg.world}</span>
+        `;
+      } else {
+        messageDiv.innerHTML = `
+          <span class="username">${msg.username}</span>
+          <span class="separator">: </span>
+          ${msg.message}
+        `;
+      }
 
-    // Add username interaction handlers
-    const usernameSpan = messageDiv.querySelector('.username');
-    if (usernameSpan && msg.username !== room.party.client.username) {
-      usernameSpan.addEventListener('click', (e) => showChatContextMenu(e, msg.username));
-      usernameSpan.addEventListener('mouseover', (e) => showUsernameHoverTooltip(e, msg.username));
-      usernameSpan.addEventListener('mouseout', hideUsernameHoverTooltip);
-      usernameSpan.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        showChatContextMenu(e, msg.username);
-      });
+      // Add username interaction handlers
+      const usernameSpan = messageDiv.querySelector('.username');
+      if (usernameSpan && msg.username !== room.party.client.username) {
+        usernameSpan.addEventListener('click', (e) => showChatContextMenu(e, msg.username));
+        usernameSpan.addEventListener('mouseover', (e) => showUsernameHoverTooltip(e, msg.username));
+        usernameSpan.addEventListener('mouseout', hideUsernameHoverTooltip);
+        usernameSpan.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          showChatContextMenu(e, msg.username);
+        });
+      }
     }
     
+    messageDiv.setAttribute('data-timestamp', msg.timestamp);
     chatContent.appendChild(messageDiv);
   });
 }
@@ -297,9 +317,10 @@ room.onmessage = (event) => {
 
 // Function to clear chat for world switch
 function clearPublicChat() {
-  publicChatHistory.length = 0; // Clear public chat history
+  // Filter out non-system messages from public chat history
+  publicChatHistory.length = 1; // Keep only the first message (welcome message)
   if (chatMode === 'public') {
-    renderChatHistory(); // Only re-render if in public mode
+    renderChatHistory();
   }
 }
 
