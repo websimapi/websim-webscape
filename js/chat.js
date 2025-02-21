@@ -8,7 +8,7 @@ let chatMode = 'public'; // Can be 'public' or 'global'
 const globalChatHistory = [
   {
     message: "Welcome to Webscape!",
-    username: "System",
+    username: "Welcome to Webscape!",
     world: "System",
     timestamp: Date.now() - 1000
   }
@@ -17,7 +17,7 @@ const globalChatHistory = [
 const publicChatHistory = [
   {
     message: "Welcome to Webscape!",
-    username: "System", 
+    username: "", // Empty username for system messages in public chat
     world: "System",
     timestamp: Date.now() - 1000
   }
@@ -155,32 +155,46 @@ function renderChatHistory() {
     // Get the user's current world (may be different from when message was sent)
     const currentUserWorld = userWorlds.get(msg.username) || msg.world;
     
-    if (chatMode === 'global') {
-      // Place world indicator before username for global chat
-      messageDiv.innerHTML = `
-        <span class="world-indicator">${currentUserWorld}</span>
-        <span class="username">${msg.username}</span>
-        <span class="separator">: </span>
-        ${msg.message}
-      `;
+    // Special handling for system messages
+    if (msg.world === 'System') {
+      messageDiv.className = 'chat-message system';
+      if (chatMode === 'global') {
+        messageDiv.innerHTML = `
+          <span class="world-indicator">System</span>
+          <span class="message">${msg.username}</span>
+        `;
+      } else {
+        // In public chat, just show the message directly
+        messageDiv.innerHTML = msg.message;
+      }
     } else {
-      messageDiv.innerHTML = `
-        <span class="username">${msg.username}</span>
-        <span class="separator">: </span>
-        ${msg.message}
-      `;
-    }
+      if (chatMode === 'global') {
+        // Place world indicator before username for global chat
+        messageDiv.innerHTML = `
+          <span class="world-indicator">${currentUserWorld}</span>
+          <span class="username">${msg.username}</span>
+          <span class="separator">: </span>
+          ${msg.message}
+        `;
+      } else {
+        messageDiv.innerHTML = `
+          <span class="username">${msg.username}</span>
+          <span class="separator">: </span>
+          ${msg.message}
+        `;
+      }
 
-    // Add username interaction handlers
-    const usernameSpan = messageDiv.querySelector('.username');
-    if (usernameSpan && msg.username !== room.party.client.username) {
-      usernameSpan.addEventListener('click', (e) => showChatContextMenu(e, msg.username));
-      usernameSpan.addEventListener('mouseover', (e) => showUsernameHoverTooltip(e, msg.username));
-      usernameSpan.addEventListener('mouseout', hideUsernameHoverTooltip);
-      usernameSpan.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        showChatContextMenu(e, msg.username);
-      });
+      // Add username interaction handlers
+      const usernameSpan = messageDiv.querySelector('.username');
+      if (usernameSpan && msg.username !== room.party.client.username) {
+        usernameSpan.addEventListener('click', (e) => showChatContextMenu(e, msg.username));
+        usernameSpan.addEventListener('mouseover', (e) => showUsernameHoverTooltip(e, msg.username));
+        usernameSpan.addEventListener('mouseout', hideUsernameHoverTooltip);
+        usernameSpan.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          showChatContextMenu(e, msg.username);
+        });
+      }
     }
     
     chatContent.appendChild(messageDiv);
