@@ -178,7 +178,7 @@ function handleChatMessage(message, username, world, timestamp) {
   }
 }
 
-// Update the handlePrivateMessage function for better message handling
+// Update handlePrivateMessage function for more reliable message handling
 function handlePrivateMessage(data) {
   // Create message object with consistent structure
   const msgObj = {
@@ -211,7 +211,7 @@ function renderAllPrivateMessages() {
     splitContainer.innerHTML = '';
   }
 
-  // Re-insert all private messages based on timestamp order
+  // Sort messages by timestamp (newest first for display)
   const sortedMessages = [...privateMessageHistory].sort((a, b) => b.timestamp - a.timestamp);
 
   sortedMessages.forEach(msg => {
@@ -236,79 +236,32 @@ function renderAllPrivateMessages() {
         }
       }
     } else {
-      insertIntoChatContent(msgDiv);
+      // When not in split mode, insert into main chat maintaining timestamp order
+      let inserted = false;
+      const messages = chatContent.children;
+      for (let i = 0; i < messages.length; i++) {
+        const existingTimestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
+        if (existingTimestamp <= msg.timestamp) {
+          chatContent.insertBefore(msgDiv, messages[i]);
+          inserted = true;
+          break;
+        }
+      }
+      if (!inserted) {
+        chatContent.appendChild(msgDiv);
+      }
     }
   });
-}
-
-// Create message overlay using the same markup as the Add Friend overlay
-const messageOverlay = document.createElement('div');
-messageOverlay.id = 'message-overlay';
-messageOverlay.className = 'add-friend-overlay';
-messageOverlay.innerHTML = `
-  <div class="add-friend-container">
-    <div class="add-friend-text">Enter message to send to <span class="message-username"></span></div>
-    <input type="text" class="add-friend-input" maxlength="80">
-  </div>
-`;
-document.querySelector('#chat-window').appendChild(messageOverlay);
-
-const messageInput = messageOverlay.querySelector('.add-friend-input');
-const messageUsernameSpan = messageOverlay.querySelector('.message-username');
-
-function showMessageOverlay(username) {
-  messageUsernameSpan.textContent = username;
-  messageOverlay.classList.add('shown');
-  messageInput.value = '';
-  messageInput.focus();
-}
-
-// Export the showMessageOverlay globally so it can be used elsewhere
-window.showMessageOverlay = showMessageOverlay;
-
-function setupOverlay(overlay, input) {
-  const chatWindow = document.getElementById('chat-window');
-  chatWindow.addEventListener('click', (e) => {
-    if (!overlay.contains(e.target) && !input.contains(e.target)) {
-      overlay.classList.remove('shown');
-    }
-  });
-}
-
-setupOverlay(messageOverlay, messageInput);
-
-/* --- Helper functions for sorted message insertion --- */
-function insertIntoChatContent(msgDiv) {
-  const chatContent = document.querySelector('.chat-content');
-  const newTimestamp = parseFloat(msgDiv.getAttribute('data-timestamp'));
-  let inserted = false;
-  // The chat container uses flex-direction: column-reverse so the DOM order should be descending (newest first)
-  for (let i = 0; i < chatContent.children.length; i++) {
-    const child = chatContent.children[i];
-    const childTimestamp = parseFloat(child.getAttribute('data-timestamp') || "0");
-    if (childTimestamp <= newTimestamp) {
-      chatContent.insertBefore(msgDiv, child);
-      inserted = true;
-      break;
-    }
-  }
-  if (!inserted) {
-    chatContent.appendChild(msgDiv);
-  }
-}
-
-function insertIntoSplitChat(msgDiv) {
-  const splitContainer = document.getElementById('split-private-chat');
-  if (splitContainer) {
-    splitContainer.appendChild(msgDiv);
-    // Limit history to last 5 messages
-    while (splitContainer.childElementCount > 5) {
-      splitContainer.removeChild(splitContainer.firstElementChild);
-    }
-  }
 }
 
 // Update messageInput handler to store messages consistently 
+const messageInput = document.createElement('input');
+const messageOverlay = document.createElement('div');
+const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+const chatContent = document.querySelector('.chat-content');
+const splitContainer = document.getElementById('split-private-chat');
+const messageUsernameSpan = document.createElement('span');
+
 messageInput.addEventListener('keypress', async (e) => {
   if (e.key === 'Enter' && messageInput.value.trim()) {
     const message = messageInput.value.trim();
@@ -595,6 +548,73 @@ function showUsernameHoverTooltip(e, username) {
 
 function hideUsernameHoverTooltip() {
   chatUsernameTooltip.style.display = 'none';
+}
+
+// Create message overlay using the same markup as the Add Friend overlay
+const messageOverlay = document.createElement('div');
+messageOverlay.id = 'message-overlay';
+messageOverlay.className = 'add-friend-overlay';
+messageOverlay.innerHTML = `
+  <div class="add-friend-container">
+    <div class="add-friend-text">Enter message to send to <span class="message-username"></span></div>
+    <input type="text" class="add-friend-input" maxlength="80">
+  </div>
+`;
+document.querySelector('#chat-window').appendChild(messageOverlay);
+
+const messageInput = messageOverlay.querySelector('.add-friend-input');
+const messageUsernameSpan = messageOverlay.querySelector('.message-username');
+
+function showMessageOverlay(username) {
+  messageUsernameSpan.textContent = username;
+  messageOverlay.classList.add('shown');
+  messageInput.value = '';
+  messageInput.focus();
+}
+
+// Export the showMessageOverlay globally so it can be used elsewhere
+window.showMessageOverlay = showMessageOverlay;
+
+function setupOverlay(overlay, input) {
+  const chatWindow = document.getElementById('chat-window');
+  chatWindow.addEventListener('click', (e) => {
+    if (!overlay.contains(e.target) && !input.contains(e.target)) {
+      overlay.classList.remove('shown');
+    }
+  });
+}
+
+setupOverlay(messageOverlay, messageInput);
+
+/* --- Helper functions for sorted message insertion --- */
+function insertIntoChatContent(msgDiv) {
+  const chatContent = document.querySelector('.chat-content');
+  const newTimestamp = parseFloat(msgDiv.getAttribute('data-timestamp'));
+  let inserted = false;
+  // The chat container uses flex-direction: column-reverse so the DOM order should be descending (newest first)
+  for (let i = 0; i < chatContent.children.length; i++) {
+    const child = chatContent.children[i];
+    const childTimestamp = parseFloat(child.getAttribute('data-timestamp') || "0");
+    if (childTimestamp <= newTimestamp) {
+      chatContent.insertBefore(msgDiv, child);
+      inserted = true;
+      break;
+    }
+  }
+  if (!inserted) {
+    chatContent.appendChild(msgDiv);
+  }
+}
+
+function insertIntoSplitChat(msgDiv) {
+  const splitContainer = document.getElementById('split-private-chat');
+  if (splitContainer) {
+    splitContainer.appendChild(msgDiv);
+    // Limit history to last 5 messages
+    while (splitContainer.childElementCount > 5) {
+      splitContainer.removeChild(splitContainer.firstElementChild);
+    }
+  }
 }
 
 setInterval(updateOnlineStatus, 3000);
