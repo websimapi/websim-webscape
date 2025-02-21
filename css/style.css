@@ -32,17 +32,6 @@ body {
   overflow: hidden;
 }
 
-/* Ensure iframe takes up full space but stays behind UI elements */
-#game-screen iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-  z-index: 1;
-}
-
 /* Right side panel */
 #right-panel {
   width: 204px;
@@ -121,7 +110,7 @@ body {
 #logout-popup {
   position: relative;
   width: 100%;
-  height: 187px;
+  height: 172px;
   background: #382418;
   display: flex;
   justify-content: center;
@@ -183,7 +172,7 @@ body {
 .list-container {
   background: #474745;
   border: 2px solid #5a473a;
-  height: 177px;
+  height: 172px;
   overflow-y: auto;
 }
 
@@ -205,13 +194,11 @@ body {
 
 .world-status {
   color: lime;
-}
-
-.world-status:not(.offline) {
+  flex-shrink: 0;
 }
 
 .world-status.offline {
-  color: #ff0000 !important;
+  color: red;
 }
 
 .list-buttons {
@@ -239,14 +226,9 @@ body {
   background: linear-gradient(to bottom, #8b0000, #680000);
 }
 
-/* Update icon selected state */
-.icon.selected {
-  background: #800040 !important;
-}
-
 /* Add selected state for friends/ignore buttons */
 .bottom-icon.selected {
-  background: #800040;
+  background: red;
 }
 
 /* Add Friend and Del Friend Input UI */
@@ -321,22 +303,6 @@ body {
 
 #add-ignore-overlay.shown,
 #del-ignore-overlay.shown {
-  display: block;
-}
-
-/* Added message overlay styles to mimic Add Friend overlay */
-#message-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: calc(100% - 25px);
-  background: #d2b48c;
-  display: none;
-  z-index: 1000;
-}
-
-#message-overlay.shown {
   display: block;
 }
 
@@ -455,21 +421,7 @@ body {
   flex: 1;
 }
 
-.game-options-two-column .game-options-column:first-child .game-options-buttons button.selected {
-  background: #800000;
-}
-
-/* Maroon background for selected Music Volume buttons */
-#music-volume-section .game-options-buttons button.selected {
-  background: #800000;
-}
-
-/* Maroon background for selected Split Private Chat buttons */
-#split-private-chat-section .game-options-buttons button.selected {
-  background: #800000;
-}
-
-/* Update Quest Journal styles */
+/* Add Quest Journal styles */
 #quest-journal {
   position: relative;
   width: calc(100% - 8px);
@@ -477,7 +429,7 @@ body {
   padding: 4px;
   display: none;
   margin-top: 4px;
-  height: calc(100% - 276px);
+  height: calc(100% - 246px);
 }
 
 #quest-journal.shown {
@@ -488,18 +440,15 @@ body {
   background: #474745;
   border: 2px solid #5a473a;
   padding: 6px;
-  height: calc(100% - 11px);
+  height: 100%;
   overflow-y: auto;
 }
 
 .quest-journal-title {
-  text-align: center;
+  text-align: left;
   color: #ffff00;
   font-size: 12px;
-  padding: 0;
-  margin: 0;
-  margin-top: -4px;
-  margin-bottom: 0;
+  margin-bottom: 4px;
 }
 
 .quest-category {
@@ -518,149 +467,4 @@ body {
 
 .quest-entry:hover {
   text-decoration: underline;
-}
-
-/* Updated Split Private Chat Container */
-#split-private-chat {
-  position: absolute;
-  bottom: 5px;
-  left: 5px;
-  max-width: 40%;
-  height: 60px;
-  overflow-y: auto;
-  background: transparent;
-  padding: 2px 8px;
-  border: none;
-  border-radius: 0;
-  font-size: 10px;
-  color: cyan;
-  display: flex !important;
-  flex-direction: column;
-  justify-content: flex-end;
-  z-index: 2;
-}
-
-/* Custom scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #382418;
-  border: 1px solid #000;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #5a473a;
-  border: 1px solid #000;
-  border-radius: 2px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #6a574a;
-}
-
-::-webkit-scrollbar-corner {
-  background: #382418;
-}
-
-/* Firefox scrollbar styling */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #5a473a #382418;
-}
-
-/* Ensure all scrollable containers show scrollbars */
-.list-container,
-.quest-journal-content,
-.chat-content,
-.skills-content {
-  scrollbar-width: thin;
-  scrollbar-color: #5a473a #382418;
-}
-
-/* World Selector Menu */
-#worlds-menu {
-  position: relative;
-  width: calc(100% - 8px);
-  background: #382418;
-  padding: 4px;
-  display: none;
-  margin-top: 4px;
-  height: calc(100% - 276px);
-}
-
-#worlds-menu.shown {
-  display: block;
-}
-
-.worlds-content {
-  background: #474745;
-  border: 2px solid #5a473a;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.worlds-header {
-  padding: 8px;
-  border-bottom: 2px solid #5a473a;
-}
-
-.worlds-header .title {
-  color: #00ffff;
-  font-size: 12px;
-  margin: 0;
-  padding: 0;
-}
-
-.worlds-header .subtitle {
-  color: #fff;
-  font-size: 11px;
-  margin: 4px 0 0 0;
-  padding: 0;
-}
-
-.worlds-list {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.world-entry {
-  padding: 8px;
-  cursor: pointer;
-  border-bottom: 1px solid #5a473a;
-  transition: background-color 0.2s;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.world-entry:hover {
-  background: #5a473a;
-}
-
-.world-entry.selected {
-  background: #800040;
-}
-
-.world-name {
-  color: #00ff00;
-  font-size: 12px;
-}
-
-.world-info {
-  display: flex;
-  align-items: center;
-  font-size: 10px;
-}
-
-.world-population {
-  color: #ffff00;
-}
-
-.world-location {
-  color: #fff;
-  text-align: right;
 }

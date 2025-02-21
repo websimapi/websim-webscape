@@ -30,10 +30,6 @@ function initializeQuestJournal() {
   ];
 
   const journalContent = questJournal.querySelector('.quest-journal-content');
-  
-  // First clear any existing content
-  journalContent.innerHTML = '';
-  
   questList.forEach(section => {
     const categoryHeader = document.createElement('div');
     categoryHeader.className = 'quest-category';
