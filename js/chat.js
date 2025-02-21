@@ -11,14 +11,11 @@ const publicChatHistory = [];
 // Track private message history
 const privateMessageHistory = [];
 
+// Track online users and their worlds
+const userWorlds = new Map(); // Maps usernames to their current world
+
 // Track online users
 let onlineUsers = new Set();
-
-// Track user worlds
-const userWorlds = new Map(); // Map of username -> current world
-
-// Get the username element
-const usernameElement = document.getElementById('current-username');
 
 // Function to get the current world
 function getCurrentWorld() {
@@ -26,6 +23,31 @@ function getCurrentWorld() {
   const worldsMatch = currentUrl.match(/world-(\d+)/);
   return worldsMatch ? `World-${worldsMatch[1]}` : 'World-1';
 }
+
+// Update all displayed global chat messages for a user when they change worlds
+function updateUserWorldDisplay(username, newWorld) {
+  // Update the stored world for this user
+  userWorlds.set(username, newWorld);
+
+  // Only update display if we're in global chat mode
+  if (chatMode === 'global') {
+    const chatContent = document.querySelector('.chat-content');
+    const userMessages = chatContent.querySelectorAll('.chat-message.user');
+    
+    userMessages.forEach(messageDiv => {
+      const messageUsername = messageDiv.querySelector('.username').textContent;
+      if (messageUsername === username) {
+        const worldIndicator = messageDiv.querySelector('.world-indicator');
+        if (worldIndicator) {
+          worldIndicator.textContent = newWorld;
+        }
+      }
+    });
+  }
+}
+
+// Get the username element
+const usernameElement = document.getElementById('current-username');
 
 // Update username and online users when connection is established
 room.party.subscribe((peers) => {
@@ -46,61 +68,34 @@ room.party.subscribe((peers) => {
   updateOnlineStatus();
 });
 
-// Function to update online status in friends list
-function updateOnlineStatus() {
-  const friendEntries = document.querySelectorAll('.friends-list .list-entry');
-  const currentWorld = getCurrentWorld();
-
-  friendEntries.forEach(entry => {
-    const username = entry.querySelector('.player-name').textContent;
-    const statusElement = entry.querySelector('.world-status');
+// Update room.onmessage handler to handle world changes
+const originalOnMessage = room.onmessage;
+room.onmessage = (event) => {
+  if (event.data.type === 'chat' && event.data.clientId !== room.party.client.id) {
+    // Store the sender's world when receiving a message
+    userWorlds.set(event.data.username, event.data.world);
     
-    if (onlineUsers.has(username)) {
-      // Only update world name if it's not already set or if status was previously offline
-      if (!statusElement.textContent || statusElement.textContent === 'Offline') {
-        statusElement.textContent = 'World-1'; // Default world
-      }
-      statusElement.classList.remove('offline');
-      
-      // Update color based on world comparison
-      if (statusElement.textContent === currentWorld) {
-        statusElement.style.color = '#00ff00'; // Green for same world
-      } else {
-        statusElement.style.color = '#ffff00'; // Yellow for different world
-      }
-    } else {
-      statusElement.textContent = 'Offline';
-      statusElement.classList.add('offline');
-      statusElement.style.color = '#ff0000'; // Red for offline
-    }
-  });
-}
+    handleChatMessage(
+      event.data.message,
+      event.data.username,
+      event.data.world,
+      Date.now()
+    );
+  } else if (event.data.type === 'world-change') {
+    // Update the user's world when they change worlds
+    updateUserWorldDisplay(event.data.username, event.data.world);
+  }
+  // Call original handler for other message types
+  if (originalOnMessage) {
+    originalOnMessage(event);
+  }
+};
 
-// Function to update world indicator for a user's messages
-function updateUserWorldIndicator(username, newWorld) {
-  // Update stored world
-  userWorlds.set(username, newWorld);
-  
-  // Update all message indicators for this user in chat content
-  const chatContent = document.querySelector('.chat-content');
-  const userMessages = chatContent.querySelectorAll('.chat-message.user');
-  
-  userMessages.forEach(messageDiv => {
-    const messageUsername = messageDiv.querySelector('.username')?.textContent;
-    if (messageUsername === username) {
-      const worldIndicator = messageDiv.querySelector('.world-indicator');
-      if (worldIndicator) {
-        worldIndicator.textContent = newWorld;
-      }
-    }
-  });
-}
-
-// Modify message handling for both global and public chat
+// Modify handleChatMessage to store world info with messages
 function handleChatMessage(message, username, world, timestamp) {
-  // Update user's world tracking
+  // Store or update the user's world
   userWorlds.set(username, world);
-  
+
   const msgObj = {
     message,
     username,
@@ -108,12 +103,15 @@ function handleChatMessage(message, username, world, timestamp) {
     timestamp
   };
 
+  // Store in appropriate history
   if (chatMode === 'global') {
     globalChatHistory.push(msgObj);
+    // Limit history size
     if (globalChatHistory.length > 100) {
       globalChatHistory.shift();
     }
   } else {
+    // Only add to public history if it's from current world
     if (world === getCurrentWorld()) {
       publicChatHistory.push(msgObj);
       if (publicChatHistory.length > 100) {
@@ -125,27 +123,13 @@ function handleChatMessage(message, username, world, timestamp) {
   renderChatHistory();
 }
 
-// Update room.onmessage handler to handle world changes
-room.onmessage = (event) => {
-  if (event.data.type === 'chat' && event.data.clientId !== room.party.client.id) {
-    handleChatMessage(
-      event.data.message,
-      event.data.username,
-      event.data.world,
-      Date.now()
-    );
-  } else if (event.data.type === 'world-change') {
-    // Update stored world and message indicators when a user changes worlds
-    updateUserWorldIndicator(event.data.username, event.data.world);
-  }
-};
-
-// Function to render current chat history based on mode
+// Update renderChatHistory to use stored world information
 function renderChatHistory() {
   const chatContent = document.querySelector('.chat-content');
   chatContent.innerHTML = ''; // Clear current messages
   
   const history = chatMode === 'global' ? globalChatHistory : publicChatHistory;
+  // Sort messages in ascending order by timestamp (oldest first)
   const sortedHistory = [...history].sort((a, b) => b.timestamp - a.timestamp);
 
   sortedHistory.forEach(msg => {
@@ -153,12 +137,13 @@ function renderChatHistory() {
     messageDiv.className = 'chat-message user';
     messageDiv.setAttribute('data-timestamp', msg.timestamp);
     
-    // Get user's current world (may be different from when message was sent)
-    const currentWorld = userWorlds.get(msg.username) || msg.world;
+    // Get the user's current world (may be different from when message was sent)
+    const currentUserWorld = userWorlds.get(msg.username) || msg.world;
     
     if (chatMode === 'global') {
+      // Place world indicator before username for global chat
       messageDiv.innerHTML = `
-        <span class="world-indicator">${currentWorld}</span>
+        <span class="world-indicator">${currentUserWorld}</span>
         <span class="username">${msg.username}</span>
         <span class="separator">: </span>
         ${msg.message}
@@ -305,6 +290,36 @@ export function switchChatMode(mode) {
     }
   });
   renderChatHistory();
+}
+
+// Function to update online status in friends list
+function updateOnlineStatus() {
+  const friendEntries = document.querySelectorAll('.friends-list .list-entry');
+  const currentWorld = getCurrentWorld();
+
+  friendEntries.forEach(entry => {
+    const username = entry.querySelector('.player-name').textContent;
+    const statusElement = entry.querySelector('.world-status');
+    
+    if (onlineUsers.has(username)) {
+      // Only update world name if it's not already set or if status was previously offline
+      if (!statusElement.textContent || statusElement.textContent === 'Offline') {
+        statusElement.textContent = userWorlds.get(username) || 'World-1'; // Default world
+      }
+      statusElement.classList.remove('offline');
+      
+      // Update color based on world comparison
+      if (statusElement.textContent === currentWorld) {
+        statusElement.style.color = '#00ff00'; // Green for same world
+      } else {
+        statusElement.style.color = '#ffff00'; // Yellow for different world
+      }
+    } else {
+      statusElement.textContent = 'Offline';
+      statusElement.classList.add('offline');
+      statusElement.style.color = '#ff0000'; // Red for offline
+    }
+  });
 }
 
 // Update chat input handler
