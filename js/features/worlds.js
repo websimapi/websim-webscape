@@ -9,8 +9,8 @@ const worlds = [
   },
   {
     id: 2, 
-    name: "World-2",
-    url: "https://world-2--api.on.websim.ai/?pin_sidebar=false",
+    name: "World-3",
+    url: "https://world-3--api.on.websim.ai/?pin_sidebar=false",
     location: "Test world two"
   }
 ];
