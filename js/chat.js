@@ -4,6 +4,21 @@ const room = new WebsimSocket();
 // Add chat mode tracking 
 let chatMode = 'public'; // Can be 'public' or 'global'
 
+// Track audio state
+let currentAudio = null;
+let currentTrack = 'No track';
+let autoPlayMode = false;
+let currentTrackIndex = 0;
+let hasUserInteracted = false;
+let fadeOutListener = null;
+let autoPlayTimeout = null;
+let musicPlayToken = 0; // Incremented every time a new track is requested
+let targetVolume = 1; // Default target volume (100%)
+let trackData = null; // Will store the loaded track metadata
+
+// Improved private message history tracking with timestamps and unique IDs
+const privateMessageHistory = new Map(); // Use Map to prevent duplicates
+
 // Track chat history separately for global and public
 const globalChatHistory = [
   {
@@ -22,9 +37,6 @@ const publicChatHistory = [
     timestamp: Date.now() - 1000
   }
 ];
-
-// Track private message history with better structure
-const privateMessageHistory = [];
 
 // Track online users and their worlds
 const userWorlds = new Map(); // Maps usernames to their current world
@@ -108,54 +120,52 @@ room.onmessage = (event) => {
   }
 };
 
-// Update handlePrivateMessage to better handle message direction and prevent duplicates
+// Update handlePrivateMessage to store all private messages with unique IDs
 function handlePrivateMessage(data) {
+  // Create unique ID for the message based on content and timestamp
+  const timestamp = Date.now();
+  const msgId = `${data.username}-${data.recipient}-${timestamp}`;
+  
+  // Create private message object
   const msgObj = {
     direction: data.recipient === room.party.client.username ? 'from' : 'to',
     sender: data.username,
     recipient: data.recipient,
     message: data.message,
-    timestamp: Date.now()
+    timestamp: timestamp,
+    id: msgId
   };
 
-  // Check for duplicates using all relevant fields
-  const isDuplicate = privateMessageHistory.some(msg => 
-    msg.sender === msgObj.sender && 
-    msg.recipient === msgObj.recipient &&
-    msg.message === msgObj.message &&
-    msg.direction === msgObj.direction &&
-    // Allow messages within 1 second to be considered duplicates
-    Math.abs(msg.timestamp - msgObj.timestamp) < 1000
-  );
+  // Add to history Map using ID as key to prevent duplicates
+  privateMessageHistory.set(msgId, msgObj);
 
-  if (!isDuplicate) {
-    privateMessageHistory.push(msgObj);
-  }
-
+  // Rerender all private messages
   renderAllPrivateMessages();
 }
 
-// Update renderAllPrivateMessages for more reliable rendering
+// Re-render all private messages based on current split-chat mode
 function renderAllPrivateMessages() {
   const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
   const chatContent = document.querySelector('.chat-content');
   const splitContainer = document.getElementById('split-private-chat');
 
   // Remove existing private messages from both containers
-  const existingPrivateMain = chatContent.querySelectorAll('.private-message');
+  const existingPrivateMain = chatContent.querySelectorAll('.chat-message.private-message');
   existingPrivateMain.forEach(elem => elem.remove());
   
   if (splitContainer) {
     splitContainer.innerHTML = '';
   }
 
-  // Sort messages by timestamp ascending (oldest first)
-  const sortedMessages = [...privateMessageHistory].sort((a, b) => a.timestamp - b.timestamp);
+  // Convert Map values to array and sort by timestamp descending (newest first)
+  const sortedMessages = Array.from(privateMessageHistory.values())
+    .sort((a, b) => b.timestamp - a.timestamp);
 
   sortedMessages.forEach(msg => {
     const msgDiv = document.createElement('div');
     msgDiv.className = 'chat-message private-message';
     msgDiv.setAttribute('data-timestamp', msg.timestamp);
+    msgDiv.setAttribute('data-message-id', msg.id);
 
     // Format message based on direction
     if (msg.direction === 'from') {
@@ -164,15 +174,15 @@ function renderAllPrivateMessages() {
       msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
     }
 
-    // Handle split chat rendering
-    if (splitPrivate && splitContainer) {
+    if (splitPrivate) {
       // Add to split chat if enabled
-      const clone = msgDiv.cloneNode(true);
-      splitContainer.appendChild(clone);
-      
-      // Keep only last 5 messages in split view
-      while (splitContainer.childElementCount > 5) {
-        splitContainer.removeChild(splitContainer.firstChild);
+      if (splitContainer) {
+        const clone = msgDiv.cloneNode(true);
+        splitContainer.appendChild(clone);
+        // Keep only last 5 messages in split view
+        while (splitContainer.childElementCount > 5) {
+          splitContainer.removeChild(splitContainer.firstChild);
+        }
       }
     } else {
       // Insert into main chat maintaining timestamp order
@@ -180,7 +190,7 @@ function renderAllPrivateMessages() {
       const messages = chatContent.children;
       for (let i = 0; i < messages.length; i++) {
         const existingTimestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
-        if (existingTimestamp >= msg.timestamp) {
+        if (existingTimestamp <= msg.timestamp) {
           chatContent.insertBefore(msgDiv, messages[i]);
           inserted = true;
           break;
@@ -432,66 +442,7 @@ messageInput.addEventListener('keypress', async (e) => {
   }
 });
 
-// Function to clear public chat
-export function clearPublicChat() {
-  // Keep only the Welcome message
-  const welcomeMessage = publicChatHistory.find(msg => 
-    msg.message === "Welcome to Webscape!" && msg.world === "System"
-  );
-  publicChatHistory.length = 0; // Clear the array
-  if (welcomeMessage) {
-    publicChatHistory.push(welcomeMessage); // Add back the welcome message
-  }
-  if (chatMode === 'public') {
-    renderChatHistory(); // Only re-render if in public mode
-  }
-}
-
-// Function to switch chat modes (public/global)
-export function switchChatMode(mode) {
-  chatMode = mode;
-  const tabs = document.querySelectorAll('.chat-tab');
-  tabs.forEach(tab => {
-    tab.classList.remove('selected');
-    if ((mode === 'public' && tab.textContent === 'Public chat') ||
-        (mode === 'global' && tab.textContent === 'Global chat')) {
-      tab.classList.add('selected');
-    }
-  });
-  renderChatHistory();
-}
-
-// Function to update online status in friends list
-function updateOnlineStatus() {
-  const friendEntries = document.querySelectorAll('.friends-list .list-entry');
-  const currentWorld = getCurrentWorld();
-
-  friendEntries.forEach(entry => {
-    const username = entry.querySelector('.player-name').textContent;
-    const statusElement = entry.querySelector('.world-status');
-    
-    if (onlineUsers.has(username)) {
-      // Only update world name if it's not already set or if status was previously offline
-      if (!statusElement.textContent || statusElement.textContent === 'Offline') {
-        statusElement.textContent = userWorlds.get(username) || 'World-1'; // Default world
-      }
-      statusElement.classList.remove('offline');
-      
-      // Update color based on world comparison
-      if (statusElement.textContent === currentWorld) {
-        statusElement.style.color = '#00ff00'; // Green for same world
-      } else {
-        statusElement.style.color = '#ffff00'; // Yellow for different world
-      }
-    } else {
-      statusElement.textContent = 'Offline';
-      statusElement.classList.add('offline');
-      statusElement.style.color = '#ff0000'; // Red for offline
-    }
-  });
-}
-
-// Update chat input handler
+// Update chat input handler to store outgoing messages
 const chatInput = document.querySelector('.chat-input');
 chatInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter' && chatInput.value.trim()) {
@@ -612,6 +563,65 @@ function showUsernameHoverTooltip(e, username) {
 
 function hideUsernameHoverTooltip() {
   chatUsernameTooltip.style.display = 'none';
+}
+
+// Function to clear public chat
+export function clearPublicChat() {
+  // Keep only the Welcome message
+  const welcomeMessage = publicChatHistory.find(msg => 
+    msg.message === "Welcome to Webscape!" && msg.world === "System"
+  );
+  publicChatHistory.length = 0; // Clear the array
+  if (welcomeMessage) {
+    publicChatHistory.push(welcomeMessage); // Add back the welcome message
+  }
+  if (chatMode === 'public') {
+    renderChatHistory(); // Only re-render if in public mode
+  }
+}
+
+// Function to switch chat modes (public/global)
+export function switchChatMode(mode) {
+  chatMode = mode;
+  const tabs = document.querySelectorAll('.chat-tab');
+  tabs.forEach(tab => {
+    tab.classList.remove('selected');
+    if ((mode === 'public' && tab.textContent === 'Public chat') ||
+        (mode === 'global' && tab.textContent === 'Global chat')) {
+      tab.classList.add('selected');
+    }
+  });
+  renderChatHistory();
+}
+
+// Function to update online status in friends list
+function updateOnlineStatus() {
+  const friendEntries = document.querySelectorAll('.friends-list .list-entry');
+  const currentWorld = getCurrentWorld();
+
+  friendEntries.forEach(entry => {
+    const username = entry.querySelector('.player-name').textContent;
+    const statusElement = entry.querySelector('.world-status');
+    
+    if (onlineUsers.has(username)) {
+      // Only update world name if it's not already set or if status was previously offline
+      if (!statusElement.textContent || statusElement.textContent === 'Offline') {
+        statusElement.textContent = userWorlds.get(username) || 'World-1'; // Default world
+      }
+      statusElement.classList.remove('offline');
+      
+      // Update color based on world comparison
+      if (statusElement.textContent === currentWorld) {
+        statusElement.style.color = '#00ff00'; // Green for same world
+      } else {
+        statusElement.style.color = '#ffff00'; // Yellow for different world
+      }
+    } else {
+      statusElement.textContent = 'Offline';
+      statusElement.classList.add('offline');
+      statusElement.style.color = '#ff0000'; // Red for offline
+    }
+  });
 }
 
 setInterval(updateOnlineStatus, 3000);
