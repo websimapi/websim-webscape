@@ -586,41 +586,79 @@ body {
   padding: 4px;
   display: none;
   margin-top: 4px;
-  max-height: 200px;
-  overflow-y: auto;
+  height: calc(100% - 276px);
 }
 
 #worlds-menu.shown {
   display: block;
 }
 
-#worlds-menu .worlds-content .worlds-header .title {
-  font-size: 14px;
-  color: #00ffff;
-  margin: 0;
-  padding: 0 0 4px 0;
+.worlds-content {
+  background: #474745;
+  border: 2px solid #5a473a;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-#worlds-menu .worlds-list .world-entry {
+.worlds-header {
+  padding: 8px;
+  border-bottom: 2px solid #5a473a;
+}
+
+.worlds-header .title {
+  color: #00ffff;
+  font-size: 12px;
+  margin: 0;
+  padding: 0;
+}
+
+.worlds-header .subtitle {
+  color: #fff;
+  font-size: 11px;
+  margin: 4px 0 0 0;
+  padding: 0;
+}
+
+.worlds-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.world-entry {
+  padding: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #5a473a;
+  transition: background-color 0.2s;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px;
-  border-bottom: 1px solid #5a473a;
-  cursor: pointer;
 }
 
-#worlds-menu .worlds-list .world-entry:last-child {
-  border-bottom: none;
+.world-entry:hover {
+  background: #5a473a;
 }
 
-#worlds-menu .worlds-list .world-name {
-  font-size: 12px;
+.world-entry.selected {
+  background: #800040;
+}
+
+.world-name {
   color: #00ff00;
+  font-size: 12px;
 }
 
-#worlds-menu .worlds-list .world-location {
-  font-size: 11px;
+.world-info {
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+}
+
+.world-population {
+  color: #ffff00;
+}
+
+.world-location {
   color: #fff;
   text-align: right;
 }
