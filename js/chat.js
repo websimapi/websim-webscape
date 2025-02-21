@@ -23,7 +23,7 @@ const publicChatHistory = [
   }
 ];
 
-// Track private message history with better structure
+// Improved private message history tracking
 const privateMessageHistory = [];
 
 // Track online users and their worlds
@@ -83,22 +83,14 @@ room.party.subscribe((peers) => {
   updateOnlineStatus();
 });
 
-// Update room.onmessage handler to handle world changes
-const originalOnMessage = room.onmessage;
+// Update room.onmessage handler
 room.onmessage = (event) => {
   const data = event.data;
   
   if (data.type === 'private-message') {
-    // Store message in history if it's for us
-    if (data.recipient === room.party.client.username) {
-      const msgObj = {
-        direction: 'from',
-        sender: data.username,
-        message: data.message,
-        timestamp: Date.now(),
-      };
-      privateMessageHistory.push(msgObj);
-      renderAllPrivateMessages();
+    // Store messages in history
+    if (data.recipient === room.party.client.username || data.username === room.party.client.username) {
+      handlePrivateMessage(data);
     }
   } else if (data.type === 'world-change') {
     // Handle world change events
@@ -114,11 +106,83 @@ room.onmessage = (event) => {
       Date.now()
     );
   }
-  // Call original handler for other message types
-  if (originalOnMessage) {
-    originalOnMessage(event);
-  }
 };
+
+// Update handlePrivateMessage to store all private messages
+function handlePrivateMessage(data) {
+  // Create private message object
+  const msgObj = {
+    direction: data.recipient === room.party.client.username ? 'from' : 'to',
+    sender: data.username,
+    recipient: data.recipient, 
+    message: data.message,
+    timestamp: Date.now(),
+  };
+
+  // Add to history
+  privateMessageHistory.push(msgObj);
+
+  // Rerender all private messages
+  renderAllPrivateMessages();
+}
+
+// Re-render all private messages based on current split-chat mode
+function renderAllPrivateMessages() {
+  const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+  const chatContent = document.querySelector('.chat-content');
+  const splitContainer = document.getElementById('split-private-chat');
+
+  // Remove existing private messages from both containers
+  const existingPrivateMain = chatContent.querySelectorAll('.chat-message.private-message');
+  existingPrivateMain.forEach(elem => elem.remove());
+  
+  if (splitContainer) {
+    splitContainer.innerHTML = '';
+  }
+
+  // Sort messages by timestamp descending (newest first)
+  const sortedMessages = [...privateMessageHistory].sort((a, b) => b.timestamp - a.timestamp);
+
+  sortedMessages.forEach(msg => {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'chat-message private-message';
+    msgDiv.setAttribute('data-timestamp', msg.timestamp);
+
+    // Format message based on direction
+    if (msg.direction === 'from') {
+      msgDiv.innerHTML = `From ${msg.sender}: ${msg.message}`;
+    } else {
+      msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
+    }
+
+    if (splitPrivate) {
+      // Add to split chat if enabled
+      if (splitContainer) {
+        const clone = msgDiv.cloneNode(true);
+        splitContainer.appendChild(clone);
+        // Keep only last 5 messages in split view
+        while (splitContainer.childElementCount > 5) {
+          splitContainer.removeChild(splitContainer.firstChild);
+        }
+      }
+    } else {
+      // Insert into main chat maintaining timestamp order
+      let inserted = false;
+      const messages = chatContent.children;
+      for (let i = 0; i < messages.length; i++) {
+        const existingTimestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
+        if (existingTimestamp <= msg.timestamp) {
+          chatContent.insertBefore(msgDiv, messages[i]);
+          inserted = true;
+          break;
+        }
+      }
+      if (!inserted) {
+        chatContent.appendChild(msgDiv);
+      }
+    }
+  });
+}
 
 // Modify handleChatMessage to store world info with messages
 function handleChatMessage(message, username, world, timestamp) {
@@ -322,83 +386,7 @@ function insertIntoSplitChat(msgDiv) {
   }
 }
 
-// Re-render all private messages based on current split-chat mode.
-// When split chat is off, private messages are merged into main chat; when on, they go into the split chat container.
-function renderAllPrivateMessages() {
-  const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-  const chatContent = document.querySelector('.chat-content');
-  const splitContainer = document.getElementById('split-private-chat');
-
-  // Remove existing private messages
-  const existingPrivate = chatContent.querySelectorAll('.chat-message.private-message');
-  existingPrivate.forEach(elem => elem.remove());
-  
-  if (splitContainer) {
-    splitContainer.innerHTML = '';
-  }
-
-  // Sort messages by timestamp descending for proper ordering
-  const sortedMessages = [...privateMessageHistory].sort((a, b) => b.timestamp - a.timestamp);
-
-  sortedMessages.forEach(msg => {
-    const msgDiv = document.createElement('div');
-    msgDiv.className = 'chat-message private-message';
-    msgDiv.setAttribute('data-timestamp', msg.timestamp);
-
-    // Format message based on direction
-    if (msg.direction === 'from') {
-      msgDiv.innerHTML = `From ${msg.sender}: ${msg.message}`;
-    } else {
-      msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
-    }
-
-    // Handle split chat mode
-    if (splitPrivate) {
-      if (splitContainer) {
-        const clone = msgDiv.cloneNode(true);
-        splitContainer.appendChild(clone);
-        // Keep only last 5 messages in split view
-        while (splitContainer.childElementCount > 5) {
-          splitContainer.removeChild(splitContainer.firstChild);
-        }
-      }
-    } else {
-      // Insert into main chat maintaining timestamp order
-      let inserted = false;
-      const messages = chatContent.children;
-      for (let i = 0; i < messages.length; i++) {
-        const existingTimestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
-        if (existingTimestamp <= msg.timestamp) {
-          chatContent.insertBefore(msgDiv, messages[i]);
-          inserted = true;
-          break;
-        }
-      }
-      if (!inserted) {
-        chatContent.appendChild(msgDiv);
-      }
-    }
-  });
-}
-
-// Save outgoing private messages
-function handlePrivateMessage(data) {
-  // Create private message object
-  const msgObj = {
-    direction: data.recipient === room.party.client.username ? 'from' : 'to',
-    sender: data.username,
-    recipient: data.recipient, 
-    message: data.message,
-    timestamp: Date.now(),
-  };
-
-  // Add to history
-  privateMessageHistory.push(msgObj);
-
-  // Rerender all private messages
-  renderAllPrivateMessages();
-}
-
+// Update message input event listener
 messageInput.addEventListener('keypress', async (e) => {
   if (e.key === 'Enter' && messageInput.value.trim()) {
     const message = messageInput.value.trim();
@@ -412,14 +400,12 @@ messageInput.addEventListener('keypress', async (e) => {
       });
       
       // Save outgoing message
-      const msgObj = {
-        direction: 'to',
+      handlePrivateMessage({
+        type: 'private-message',
+        username: room.party.client.username,
         recipient: recipient,
-        message: message,
-        timestamp: Date.now()
-      };
-      privateMessageHistory.push(msgObj);
-      renderAllPrivateMessages();
+        message: message
+      });
       
       messageOverlay.classList.remove('shown');
       messageInput.value = '';
