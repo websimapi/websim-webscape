@@ -11,7 +11,7 @@ const worlds = [
     id: 2, 
     name: "World-3",
     url: "https://world-3--api.on.websim.ai/?pin_sidebar=false",
-    location: "Test world two"
+    location: "Test world three"
   }
 ];
 
