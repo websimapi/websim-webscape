@@ -18,6 +18,7 @@ const worlds = [
 ];
 
 function initializeWorlds() {
+  // Use the connected worlds button – now the first bottom-icon will be used.
   const worldsButton = document.querySelector('.bottom-icon:first-child');
   const worldsMenu = document.createElement('div');
   worldsMenu.id = 'worlds-menu';
@@ -42,8 +43,10 @@ function initializeWorlds() {
     </div>
   `;
 
-  // Add worlds menu to the right panel
-  document.getElementById('right-panel').appendChild(worldsMenu);
+  // Insert the worlds menu into the right panel just before the bottom icons
+  const rightPanel = document.getElementById('right-panel');
+  const bottomIcons = document.getElementById('bottom-icons');
+  rightPanel.insertBefore(worldsMenu, bottomIcons);
 
   // Setup menu toggle
   worldsButton.addEventListener('click', () => {
