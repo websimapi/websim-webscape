@@ -23,7 +23,7 @@ const publicChatHistory = [
   }
 ];
 
-// Improved private message history tracking
+// Improved private message history tracking  
 const privateMessageHistory = [];
 
 // Track online users and their worlds
@@ -83,12 +83,12 @@ room.party.subscribe((peers) => {
   updateOnlineStatus();
 });
 
-// Update room.onmessage handler
+// Update onmessage handler
 room.onmessage = (event) => {
   const data = event.data;
   
   if (data.type === 'private-message') {
-    // Store messages in history
+    // Handle private messages 
     if (data.recipient === room.party.client.username || data.username === room.party.client.username) {
       handlePrivateMessage(data);
     }
@@ -108,21 +108,33 @@ room.onmessage = (event) => {
   }
 };
 
-// Update handlePrivateMessage to store all private messages
+// Update handlePrivateMessage to store properly and avoid duplicates
 function handlePrivateMessage(data) {
-  // Create private message object
+  const timestamp = Date.now();
+  
+  // Create message object
   const msgObj = {
     direction: data.recipient === room.party.client.username ? 'from' : 'to',
     sender: data.username,
     recipient: data.recipient, 
     message: data.message,
-    timestamp: Date.now(),
+    timestamp,
   };
 
-  // Add to history
-  privateMessageHistory.push(msgObj);
+  // Add to history without duplicates
+  const duplicate = privateMessageHistory.find(msg => 
+    msg.direction === msgObj.direction &&
+    msg.sender === msgObj.sender &&
+    msg.recipient === msgObj.recipient &&
+    msg.message === msgObj.message &&
+    Math.abs(msg.timestamp - msgObj.timestamp) < 1000 // Within 1 second
+  );
 
-  // Rerender all private messages
+  if (!duplicate) {
+    privateMessageHistory.push(msgObj);
+  }
+
+  // Always render after update
   renderAllPrivateMessages();
 }
 
@@ -155,15 +167,13 @@ function renderAllPrivateMessages() {
       msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
     }
 
-    if (splitPrivate) {
+    if (splitPrivate && splitContainer) {
       // Add to split chat if enabled
-      if (splitContainer) {
-        const clone = msgDiv.cloneNode(true);
-        splitContainer.appendChild(clone);
-        // Keep only last 5 messages in split view
-        while (splitContainer.childElementCount > 5) {
-          splitContainer.removeChild(splitContainer.firstChild);
-        }
+      const clone = msgDiv.cloneNode(true);
+      splitContainer.appendChild(clone);
+      // Keep only last 5 messages in split view
+      while (splitContainer.childElementCount > 5) {
+        splitContainer.removeChild(splitContainer.firstChild);
       }
     } else {
       // Insert into main chat maintaining timestamp order
