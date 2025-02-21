@@ -126,6 +126,9 @@
   display: none;
   padding: 2px;
   max-width: calc(100% - 40px); 
+  user-select: none; 
+  -moz-user-select: none;
+  -webkit-user-select: none;
 }
 
 .context-menu.shown {
@@ -138,6 +141,9 @@
   font-size: 12px;
   cursor: pointer;
   white-space: nowrap;
+  user-select: none; 
+  -moz-user-select: none;
+  -webkit-user-select: none;
 }
 
 .context-menu-option:hover {

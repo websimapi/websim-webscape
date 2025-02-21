@@ -28,29 +28,38 @@ function showContextMenu(e, username, onMessage, onRemove) {
 
   contextMenu.classList.add('shown');
 
-  // For Firefox compatibility, use 'mouseup' instead of 'click'.
-  const isFirefox = typeof InstallTrigger !== 'undefined';
-  const eventType = isFirefox ? 'mouseup' : 'click';
-
   const messageOption = contextMenu.querySelector('.message');
   const removeOption = contextMenu.querySelector('.remove');
   const cancelOption = contextMenu.querySelector('.cancel');
 
+  // Firefox needs mousedown instead of click for proper right-click menu handling
+  const eventType = 'mousedown';
+
   messageOption.addEventListener(eventType, (ev) => {
+    ev.preventDefault();
     ev.stopPropagation();
+    hideContextMenu();
     if (onMessage) onMessage();
-    contextMenu.classList.remove('shown');
   }, { once: true });
 
   removeOption.addEventListener(eventType, (ev) => {
+    ev.preventDefault(); 
     ev.stopPropagation();
+    hideContextMenu();
     if (onRemove) onRemove();
-    contextMenu.classList.remove('shown');
   }, { once: true });
 
   cancelOption.addEventListener(eventType, (ev) => {
+    ev.preventDefault();
     ev.stopPropagation();
-    contextMenu.classList.remove('shown');
+    hideContextMenu();
+  }, { once: true });
+
+  // Close menu when clicking outside
+  document.addEventListener('mousedown', (ev) => {
+    if (!contextMenu.contains(ev.target)) {
+      hideContextMenu();
+    }
   }, { once: true });
 }
 

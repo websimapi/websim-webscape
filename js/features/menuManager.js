@@ -12,8 +12,7 @@ const menuItems = {
   'skills': '#skills-menu',
   'quest': '#quest-journal',
   'music': '#music-menu',
-  'spellbook': '#spellbook',
-  'worlds': '#worlds-menu' // Add worlds menu to the list
+  'spellbook': '#spellbook' // Ensure spellbook is included
 };
 
 function hideAllPanels() {
@@ -40,32 +39,42 @@ function toggleMenu(button, panelSelector) {
   
   // If clicking the same button that's already active
   if (button === activeButton) {
-    // Toggle visibility
-    if (panel.classList.contains('hidden') || !panel.classList.contains('shown')) {
-      hideAllPanels();
-      button.classList.add('selected');
-      panel.classList.remove('hidden');
-      if (panelSelector.startsWith('#') || panelSelector.includes('friends') || 
-          panelSelector.includes('ignore') || panelSelector.includes('worlds')) {
-        panel.classList.add('shown');
-      }
-    } else {
-      hideAllPanels();
-      activeButton = null;
-      activePanel = null;
-      return;
-    }
-  } else {
-    // Hide all other panels first
+    // Keep current selection but ensure only this button remains selected
     hideAllPanels();
-
-    // Show the selected panel and mark button as selected
     button.classList.add('selected');
     panel.classList.remove('hidden');
-    if (panelSelector.startsWith('#') || panelSelector.includes('friends') || 
-        panelSelector.includes('ignore') || panelSelector.includes('worlds')) {
+    if (
+      panelSelector.includes('friends') ||
+      panelSelector.includes('ignore') ||
+      panelSelector.includes('game-options') ||
+      panelSelector.includes('quest') ||
+      panelSelector.includes('skills') ||
+      panelSelector.includes('music') ||
+      panelSelector.includes('spellbook') // Add spellbook to the shown class check
+    ) {
       panel.classList.add('shown');
     }
+    activeButton = button;
+    activePanel = panel;
+    return;
+  }
+
+  // Hide all other panels first
+  hideAllPanels();
+
+  // Show the selected panel and mark button as selected
+  button.classList.add('selected');
+  panel.classList.remove('hidden');
+  if (
+    panelSelector.includes('friends') ||
+    panelSelector.includes('ignore') ||
+    panelSelector.includes('game-options') ||
+    panelSelector.includes('quest') ||
+    panelSelector.includes('skills') ||
+    panelSelector.includes('music') ||
+    panelSelector.includes('spellbook') // Add spellbook to the shown class check
+  ) {
+    panel.classList.add('shown');
   }
 
   activeButton = button;
