@@ -83,7 +83,7 @@ room.party.subscribe((peers) => {
   updateOnlineStatus();
 });
 
-// Update room.onmessage handler to handle world changes
+// Update room.onmessage handler to include private message handling
 const originalOnMessage = room.onmessage;
 room.onmessage = (event) => {
   const data = event.data;
@@ -95,7 +95,7 @@ room.onmessage = (event) => {
         direction: 'from',
         sender: data.username,
         message: data.message,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
       privateMessageHistory.push(msgObj);
       renderAllPrivateMessages();
@@ -104,7 +104,6 @@ room.onmessage = (event) => {
     // Handle world change events
     updateUserWorldDisplay(data.username, data.world);
   } else if (data.type === 'chat' && data.clientId !== room.party.client.id) {
-    // Store the sender's world when receiving a message
     userWorlds.set(data.username, data.world);
     
     handleChatMessage(
@@ -114,15 +113,13 @@ room.onmessage = (event) => {
       Date.now()
     );
   }
-  // Call original handler for other message types
   if (originalOnMessage) {
     originalOnMessage(event);
   }
 };
 
-// Modify handleChatMessage to store world info with messages
+// Modified handleChatMessage to preserve private messages
 function handleChatMessage(message, username, world, timestamp) {
-  // Store or update the user's world
   userWorlds.set(username, world);
 
   const msgObj = {
@@ -132,15 +129,12 @@ function handleChatMessage(message, username, world, timestamp) {
     timestamp
   };
 
-  // Store in appropriate history
   if (chatMode === 'global') {
     globalChatHistory.push(msgObj);
-    // Limit history size
     if (globalChatHistory.length > 100) {
       globalChatHistory.shift();
     }
   } else {
-    // Only add to public history if it's from current world
     if (world === getCurrentWorld()) {
       publicChatHistory.push(msgObj);
       if (publicChatHistory.length > 100) {
@@ -149,42 +143,10 @@ function handleChatMessage(message, username, world, timestamp) {
     }
   }
 
-  // When rendering chat, preserve any private messages that are currently displayed
-  const chatContent = document.querySelector('.chat-content');
-  const existingPrivateMessages = Array.from(chatContent.querySelectorAll('.private-message')).map(msg => {
-    return {
-      html: msg.innerHTML,
-      timestamp: msg.getAttribute('data-timestamp')
-    };
-  });
-
   renderChatHistory();
 
-  // If split chat is off, restore private messages to main chat
-  const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-  if (!splitPrivate) {
-    existingPrivateMessages.forEach(msg => {
-      const privateMsg = document.createElement('div');
-      privateMsg.className = 'chat-message private-message';
-      privateMsg.setAttribute('data-timestamp', msg.timestamp);
-      privateMsg.innerHTML = msg.html;
-      
-      // Insert maintaining timestamp order
-      let inserted = false;
-      const messages = chatContent.children;
-      for (let i = 0; i < messages.length; i++) {
-        const existingTimestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
-        if (existingTimestamp <= parseFloat(msg.timestamp)) {
-          chatContent.insertBefore(privateMsg, messages[i]);
-          inserted = true;
-          break;
-        }
-      }
-      if (!inserted) {
-        chatContent.appendChild(privateMsg);
-      }
-    });
-  }
+  // Re-render all private messages to ensure they stay visible
+  renderAllPrivateMessages();
 }
 
 // Update renderChatHistory to use stored world information
@@ -323,13 +285,12 @@ function insertIntoSplitChat(msgDiv) {
 }
 
 // Re-render all private messages based on current split-chat mode.
-// When split chat is off, private messages are merged into main chat; when on, they go into the split chat container.
 function renderAllPrivateMessages() {
   const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
   const chatContent = document.querySelector('.chat-content');
   const splitContainer = document.getElementById('split-private-chat');
 
-  // Remove existing private messages from both containers
+  // Remove existing private messages
   const existingPrivate = chatContent.querySelectorAll('.chat-message.private-message');
   existingPrivate.forEach(elem => elem.remove());
   
@@ -363,20 +324,7 @@ function renderAllPrivateMessages() {
         }
       }
     } else {
-      // Insert into main chat maintaining timestamp order
-      let inserted = false;
-      const messages = chatContent.children;
-      for (let i = 0; i < messages.length; i++) {
-        const existingTimestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
-        if (existingTimestamp <= msg.timestamp) {
-          chatContent.insertBefore(msgDiv, messages[i]);
-          inserted = true;
-          break;
-        }
-      }
-      if (!inserted) {
-        chatContent.appendChild(msgDiv);
-      }
+      insertIntoChatContent(msgDiv);
     }
   });
 }
@@ -418,38 +366,6 @@ messageInput.addEventListener('keypress', async (e) => {
     }
   }
 });
-
-// Update the WebSocket message handler for private messages
-room.onmessage = (event) => {
-  const data = event.data;
-  
-  if (data.type === 'private-message') {
-    // Handle incoming private message
-    if (data.recipient === room.party.client.username) {
-      const msgObj = {
-        direction: 'from',
-        sender: data.username,
-        message: data.message,
-        timestamp: Date.now()
-      };
-      privateMessageHistory.push(msgObj);
-      renderAllPrivateMessages();
-    }
-  } else if (data.type === 'world-change') {
-    // Handle world change events
-    updateUserWorldDisplay(data.username, data.world);
-  } else if (data.type === 'chat' && data.clientId !== room.party.client.id) {
-    // Store the sender's world when receiving a message
-    userWorlds.set(data.username, data.world);
-    
-    handleChatMessage(
-      data.message,
-      data.username,
-      data.world,
-      Date.now()
-    );
-  }
-};
 
 // Function to clear public chat
 export function clearPublicChat() {
