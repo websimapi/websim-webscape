@@ -1,197 +1,189 @@
 /**
- * Advanced Debugger for WebSim Applications
- * Provides runtime function tracing and logging capabilities
+ * Debug utilities for Webscape features
  */
 
-class WebSimDebugger {
-  constructor() {
-    this.enabled = false;
-    this.trackedModules = new Set();
-    this.functionCalls = new Map();
-    this.startTime = Date.now();
-    this.logStyles = {
-      functionEntry: 'color: #4CAF50; font-weight: bold',
-      functionExit: 'color: #F44336; font-weight: bold',
-      functionError: 'color: #FF0000; background: #FFEBEE',
-      paramValue: 'color: #2196F3',
-      returnValue: 'color: #9C27B0',
-      timing: 'color: #FF9800'
-    };
-  }
+// Store enabled debug features
+const enabledDebugFeatures = new Set();
 
-  /**
-   * Enable or disable the debugger
-   */
-  toggle(enabled = true) {
-    this.enabled = enabled;
-    console.log(`%cDebugger ${enabled ? 'enabled' : 'disabled'}`, 'color: #2196F3; font-weight: bold');
-  }
+// Debug levels
+const DEBUG_LEVELS = {
+  INFO: 'INFO',
+  WARN: 'WARN',
+  ERROR: 'ERROR',
+  TRACE: 'TRACE'
+};
 
-  /**
-   * Track a specific module's functions
-   */
-  trackModule(moduleObject, moduleName) {
-    if (!this.enabled) return;
-    
-    this.trackedModules.add(moduleName);
-    
-    // Get all functions in the module
-    const functions = Object.entries(moduleObject).filter(([_, value]) => 
-      typeof value === 'function'
-    );
+// Color schemes for different debug levels
+const LEVEL_COLORS = {
+  INFO: '#00ff00',
+  WARN: '#ffff00', 
+  ERROR: '#ff0000',
+  TRACE: '#00ffff'
+};
 
-    // Wrap each function with debug logging
-    functions.forEach(([funcName, originalFunc]) => {
-      moduleObject[funcName] = this.wrapFunction(originalFunc, funcName, moduleName);
-    });
-  }
-
-  /**
-   * Wrap a function with debug logging
-   */
-  wrapFunction(originalFunc, funcName, moduleName) {
-    const debuggerInstance = this;
-    
-    return function(...args) {
-      if (!debuggerInstance.enabled) return originalFunc.apply(this, args);
-
-      const callId = Math.random().toString(36).substr(2, 9);
-      const startTime = performance.now();
-
-      // Log function entry
-      console.groupCollapsed(
-        `%c→ ${moduleName}.${funcName}()`,
-        debuggerInstance.logStyles.functionEntry
-      );
-      
-      // Log parameters if they exist
-      if (args.length) {
-        console.log(
-          '%cParameters:',
-          debuggerInstance.logStyles.paramValue,
-          ...args
-        );
-      }
-
-      // Track function call
-      debuggerInstance.functionCalls.set(callId, {
-        name: `${moduleName}.${funcName}`,
-        startTime,
-        args
-      });
-
-      try {
-        // Execute original function
-        const result = originalFunc.apply(this, args);
-
-        // Handle promises
-        if (result instanceof Promise) {
-          return result
-            .then(asyncResult => {
-              debuggerInstance.logFunctionExit(callId, asyncResult);
-              console.groupEnd();
-              return asyncResult;
-            })
-            .catch(error => {
-              debuggerInstance.logError(callId, error);
-              console.groupEnd();
-              throw error;
-            });
-        }
-
-        // Handle synchronous returns
-        debuggerInstance.logFunctionExit(callId, result);
-        console.groupEnd();
-        return result;
-
-      } catch (error) {
-        debuggerInstance.logError(callId, error);
-        console.groupEnd();
-        throw error;
-      }
-    };
-  }
-
-  /**
-   * Log function exit with timing and return value
-   */
-  logFunctionExit(callId, returnValue) {
-    if (!this.enabled) return;
-
-    const call = this.functionCalls.get(callId);
-    if (!call) return;
-
-    const duration = performance.now() - call.startTime;
-    
-    // Log return value if it exists and isn't undefined
-    if (returnValue !== undefined) {
-      console.log(
-        '%cReturn value:',
-        this.logStyles.returnValue,
-        returnValue
-      );
-    }
-
-    // Log execution time
-    console.log(
-      `%cExecution time: ${duration.toFixed(2)}ms`,
-      this.logStyles.timing
-    );
-
-    this.functionCalls.delete(callId);
-  }
-
-  /**
-   * Log function errors
-   */
-  logError(callId, error) {
-    if (!this.enabled) return;
-
-    const call = this.functionCalls.get(callId);
-    if (!call) return;
-
-    console.log(
-      '%cError in function execution:',
-      this.logStyles.functionError,
-      error
-    );
-
-    this.functionCalls.delete(callId);
-  }
-
-  /**
-   * Get performance metrics for tracked functions
-   */
-  getMetrics() {
-    if (!this.enabled) return {};
-
-    const metrics = {};
-    this.functionCalls.forEach((call, id) => {
-      const duration = performance.now() - call.startTime;
-      metrics[call.name] = metrics[call.name] || { calls: 0, totalTime: 0 };
-      metrics[call.name].calls++;
-      metrics[call.name].totalTime += duration;
-    });
-
-    return metrics;
-  }
+/**
+ * Enable debugging for a specific feature
+ * @param {string} featureName - Name of feature to debug
+ */
+function enableDebug(featureName) {
+  enabledDebugFeatures.add(featureName);
+  console.log(`🐛 Debug enabled for: ${featureName}`);
 }
 
-// Create global debugger instance
-window.websimDebugger = new WebSimDebugger();
+/**
+ * Disable debugging for a specific feature
+ * @param {string} featureName - Name of feature to disable debugging for
+ */
+function disableDebug(featureName) {
+  enabledDebugFeatures.delete(featureName);
+  console.log(`Debug disabled for: ${featureName}`);
+}
 
-// Example usage:
-/*
-import { initializeMusicMenu } from './features/musicMenu.js';
-import { initializeInventory } from './features/inventory.js';
+/**
+ * Check if debugging is enabled for a feature
+ * @param {string} featureName - Name of feature to check
+ * @returns {boolean} Whether debugging is enabled
+ */
+function isDebugEnabled(featureName) {
+  return enabledDebugFeatures.has(featureName);
+}
 
-// Enable debugging
-websimDebugger.toggle(true);
+/**
+ * Create a debug logger for a specific feature
+ * @param {string} featureName - Name of the feature
+ * @returns {Object} Logger methods
+ */
+function createDebugger(featureName) {
+  const timestamp = () => new Date().toISOString();
+  
+  const log = (level, message, ...args) => {
+    if (!isDebugEnabled(featureName)) return;
 
-// Track specific modules
-websimDebugger.trackModule({ initializeMusicMenu }, 'MusicMenu');
-websimDebugger.trackModule({ initializeInventory }, 'Inventory');
-*/
+    const style = `color: ${LEVEL_COLORS[level]}; font-weight: bold;`;
+    console.log(
+      `%c[${timestamp()}][${level}][${featureName}] ${message}`, 
+      style,
+      ...args
+    );
+  };
 
-// Export using a different name (wsDebugger) to avoid using the reserved word "debugger"
-export const wsDebugger = window.websimDebugger;
+  return {
+    /**
+     * Log entry to a function
+     * @param {string} functionName - Name of function being entered
+     * @param {Object} args - Arguments passed to function
+     */
+    enter(functionName, args = {}) {
+      log(DEBUG_LEVELS.TRACE, `→ ${functionName}()`, args);
+    },
+
+    /**
+     * Log exit from a function
+     * @param {string} functionName - Name of function being exited
+     * @param {*} result - Return value from function
+     */
+    exit(functionName, result) {
+      log(DEBUG_LEVELS.TRACE, `← ${functionName}()`, result);
+    },
+
+    /**
+     * Log info level message
+     * @param {string} message - Message to log
+     * @param {...*} args - Additional arguments to log
+     */
+    info(message, ...args) {
+      log(DEBUG_LEVELS.INFO, message, ...args);
+    },
+
+    /**
+     * Log warning level message
+     * @param {string} message - Message to log
+     * @param {...*} args - Additional arguments to log
+     */
+    warn(message, ...args) {
+      log(DEBUG_LEVELS.WARN, message, ...args);
+    },
+
+    /**
+     * Log error level message
+     * @param {string} message - Message to log
+     * @param {...*} args - Additional arguments to log 
+     */
+    error(message, ...args) {
+      log(DEBUG_LEVELS.ERROR, message, ...args);
+    },
+
+    /**
+     * Time a function execution
+     * @param {string} label - Label for the timer
+     * @param {Function} fn - Function to time
+     * @returns {*} Result of function execution
+     */
+    time(label, fn) {
+      if (!isDebugEnabled(featureName)) return fn();
+      
+      console.time(`[${featureName}] ${label}`);
+      const result = fn();
+      console.timeEnd(`[${featureName}] ${label}`);
+      return result;
+    },
+
+    /**
+     * Track an event occurrence
+     * @param {string} eventName - Name of event
+     * @param {Object} data - Event data
+     */
+    event(eventName, data = {}) {
+      log(DEBUG_LEVELS.INFO, `Event: ${eventName}`, data);
+    },
+
+    /**
+     * Log state changes
+     * @param {string} key - State key that changed
+     * @param {*} oldValue - Previous value
+     * @param {*} newValue - New value
+     */
+    state(key, oldValue, newValue) {
+      log(DEBUG_LEVELS.INFO, `State change: ${key}`, {
+        from: oldValue,
+        to: newValue
+      });
+    }
+  };
+}
+
+/**
+ * Wrap a function with debug logging
+ * @param {string} featureName - Name of feature
+ * @param {string} functionName - Name of function
+ * @param {Function} fn - Function to wrap
+ * @returns {Function} Wrapped function
+ */
+function debugWrap(featureName, functionName, fn) {
+  return function(...args) {
+    const debug = createDebugger(featureName);
+    
+    if (!isDebugEnabled(featureName)) {
+      return fn.apply(this, args);
+    }
+
+    debug.enter(functionName, args);
+    try {
+      const result = fn.apply(this, args);
+      debug.exit(functionName, result);
+      return result;
+    } catch (error) {
+      debug.error(`Error in ${functionName}:`, error);
+      throw error;
+    }
+  };
+}
+
+export {
+  enableDebug,
+  disableDebug,
+  isDebugEnabled,
+  createDebugger,
+  debugWrap,
+  DEBUG_LEVELS
+};
