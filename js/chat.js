@@ -31,18 +31,8 @@ function updateUserWorldDisplay(username, newWorld) {
 
   // Only update display if we're in global chat mode
   if (chatMode === 'global') {
-    const chatContent = document.querySelector('.chat-content');
-    const userMessages = chatContent.querySelectorAll('.chat-message.user');
-    
-    userMessages.forEach(messageDiv => {
-      const messageUsername = messageDiv.querySelector('.username').textContent;
-      if (messageUsername === username) {
-        const worldIndicator = messageDiv.querySelector('.world-indicator');
-        if (worldIndicator) {
-          worldIndicator.textContent = newWorld;
-        }
-      }
-    });
+    // Re-render entire chat history to reflect the updated world
+    renderChatHistory();
   }
 }
 
@@ -84,10 +74,6 @@ room.onmessage = (event) => {
   } else if (event.data.type === 'world-change') {
     // Update the user's world when they change worlds
     updateUserWorldDisplay(event.data.username, event.data.world);
-    // Also store their new world
-    userWorlds.set(event.data.username, event.data.world);
-    // Re-render chat history to update world indicators
-    renderChatHistory();
   }
   // Call original handler for other message types
   if (originalOnMessage) {
@@ -134,14 +120,15 @@ function renderChatHistory() {
   
   const history = chatMode === 'global' ? globalChatHistory : publicChatHistory;
   // Sort messages in ascending order by timestamp (oldest first)
-  const sortedHistory = [...history].sort((a, b) => b.timestamp - a.timestamp);
+  const sortedHistory = [...history].sort((a, b) => a.timestamp - b.timestamp);
 
   sortedHistory.forEach(msg => {
     const messageDiv = document.createElement('div');
     messageDiv.className = 'chat-message user';
     messageDiv.setAttribute('data-timestamp', msg.timestamp);
+    messageDiv.setAttribute('data-username', msg.username);
     
-    // Get the user's current world from the userWorlds map (may be different from when message was sent)
+    // Get the user's current world (may be different from when message was sent)
     const currentUserWorld = userWorlds.get(msg.username) || msg.world;
     
     if (chatMode === 'global') {
