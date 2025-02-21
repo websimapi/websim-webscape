@@ -4,9 +4,8 @@ const room = new WebsimSocket();
 // Global array to store private message history
 const privateMessageHistory = [];
 
-// Track online users and their worlds
+// Track online users
 let onlineUsers = new Set();
-let userWorlds = new Map();
 
 // Track current world
 function getCurrentWorld() {
@@ -27,21 +26,12 @@ room.party.subscribe((peers) => {
   
   // Update online users
   onlineUsers.clear();
-  userWorlds.clear();
   for (const clientId in peers) {
     onlineUsers.add(peers[clientId].username);
-    // Don't set world here - wait for world-change messages
   }
   
   // Update online status in friends list
   updateOnlineStatus();
-
-  // Send current world to all peers
-  room.send({
-    type: 'world-change',
-    world: getCurrentWorld(),
-    username: currentUser.username
-  });
 });
 
 // Function to update online status in friends list
@@ -54,21 +44,17 @@ function updateOnlineStatus() {
     const statusElement = entry.querySelector('.world-status');
     
     if (onlineUsers.has(username)) {
-      const userWorld = userWorlds.get(username);
-      if (userWorld) {
-        statusElement.textContent = userWorld;
-        statusElement.classList.remove('offline');
-        
-        // Update color based on world comparison
-        if (userWorld === currentWorld) {
-          statusElement.style.color = '#00ff00'; // Green for same world
-        } else {
-          statusElement.style.color = '#ffff00'; // Yellow for different world
-        }
+      // Only update world name if it's not already set or if status was previously offline
+      if (!statusElement.textContent || statusElement.textContent === 'Offline') {
+        statusElement.textContent = 'World-1'; // Default world
+      }
+      statusElement.classList.remove('offline');
+      
+      // Update color based on world comparison
+      if (statusElement.textContent === currentWorld) {
+        statusElement.style.color = '#00ff00'; // Green for same world
       } else {
-        statusElement.textContent = 'Online';
-        statusElement.classList.remove('offline');
-        statusElement.style.color = '#ffff00'; // Yellow until we get their world info
+        statusElement.style.color = '#ffff00'; // Yellow for different world
       }
     } else {
       statusElement.textContent = 'Offline';
@@ -352,13 +338,8 @@ room.onmessage = (event) => {
   const chatContent = document.querySelector('.chat-content');
   switch (event.data.type) {
     case 'world-change': {
-      // Update stored world for user
-      userWorlds.set(event.data.username, event.data.world);
-      
       // Update friend list entries for the user who changed worlds
       const friendEntries = document.querySelectorAll('.friends-list .list-entry');
-      const currentWorld = getCurrentWorld();
-      
       friendEntries.forEach(entry => {
         const username = entry.querySelector('.player-name').textContent;
         const statusElement = entry.querySelector('.world-status');
@@ -366,13 +347,6 @@ room.onmessage = (event) => {
           if (onlineUsers.has(username)) {
             statusElement.textContent = event.data.world;
             statusElement.classList.remove('offline');
-            
-            // Update color based on world comparison
-            if (event.data.world === currentWorld) {
-              statusElement.style.color = '#00ff00'; // Green for same world
-            } else {
-              statusElement.style.color = '#ffff00'; // Yellow for different world
-            }
           }
         }
       });
