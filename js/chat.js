@@ -162,74 +162,146 @@ function renderAllPrivateMessages() {
 }
 window.renderPrivateMessages = renderAllPrivateMessages;
 
-/* --- Chat input for Public messages --- */
+// Add chat mode tracking
+let chatMode = 'public'; // Can be 'public' or 'global'
+
+// Track chat history separately for global and public
+const globalChatHistory = [];
+const publicChatHistory = [];
+
+// Function to switch chat modes
+function switchChatMode(mode) {
+  chatMode = mode;
+  const tabs = document.querySelectorAll('.chat-tab');
+  tabs.forEach(tab => {
+    tab.classList.remove('selected');
+    if ((mode === 'public' && tab.textContent === 'Public chat') ||
+        (mode === 'global' && tab.textContent === 'Global chat')) {
+      tab.classList.add('selected');
+    }
+  });
+  renderChatHistory();
+}
+
+// Function to render current chat history based on mode
+function renderChatHistory() {
+  const chatContent = document.querySelector('.chat-content');
+  chatContent.innerHTML = ''; // Clear current messages
+  
+  const history = chatMode === 'global' ? globalChatHistory : publicChatHistory;
+  history.sort((a, b) => a.timestamp - b.timestamp).forEach(msg => {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message user';
+    messageDiv.setAttribute('data-timestamp', msg.timestamp);
+    
+    if (chatMode === 'global') {
+      // Include world indicator for global chat
+      messageDiv.innerHTML = `
+        <span class="username">${msg.username}</span>
+        <span class="separator">: </span>
+        ${msg.message}
+        <span class="world-indicator">${msg.world}</span>
+      `;
+    } else {
+      messageDiv.innerHTML = `
+        <span class="username">${msg.username}</span>
+        <span class="separator">: </span>
+        ${msg.message}
+      `;
+    }
+
+    // Add username interaction handlers
+    const usernameSpan = messageDiv.querySelector('.username');
+    if (usernameSpan && msg.username !== room.party.client.username) {
+      usernameSpan.addEventListener('click', (e) => showChatContextMenu(e, msg.username));
+      usernameSpan.addEventListener('mouseover', (e) => showUsernameHoverTooltip(e, msg.username));
+      usernameSpan.addEventListener('mouseout', hideUsernameHoverTooltip);
+      usernameSpan.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        showChatContextMenu(e, msg.username);
+      });
+    }
+    
+    chatContent.appendChild(messageDiv);
+  });
+}
+
+// Modify message handling for both global and public chat
+function handleChatMessage(message, username, world, timestamp) {
+  const msgObj = {
+    message,
+    username,
+    world,
+    timestamp
+  };
+
+  // Store in appropriate history
+  if (chatMode === 'global') {
+    globalChatHistory.push(msgObj);
+    // Limit history size
+    if (globalChatHistory.length > 100) {
+      globalChatHistory.shift();
+    }
+  } else {
+    // Only add to public history if it's from current world
+    if (world === getCurrentWorld()) {
+      publicChatHistory.push(msgObj);
+      if (publicChatHistory.length > 100) {
+        publicChatHistory.shift();
+      }
+    }
+  }
+
+  renderChatHistory();
+}
+
+// Update chat input handler
 const chatInput = document.querySelector('.chat-input');
 chatInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter' && chatInput.value.trim()) {
     const message = chatInput.value.trim();
     const currentWorld = getCurrentWorld();
+    const timestamp = Date.now();
     
     // Send message with current world info
     room.send({
       type: 'chat',
       message: message,
-      world: currentWorld
+      world: currentWorld,
+      chatMode: chatMode
     });
     
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'chat-message user';
-    const timestamp = Date.now();
-    messageDiv.setAttribute('data-timestamp', timestamp);
-    messageDiv.innerHTML = `<span class="username">${room.party.client.username}</span><span class="separator">: </span>${message}`;
-    insertIntoChatContent(messageDiv);
+    // Handle message locally
+    handleChatMessage(message, room.party.client.username, currentWorld, timestamp);
+    
     chatInput.value = '';
   }
 });
 
-/* --- Chat input for Private messages via overlay --- */
-messageInput.addEventListener('keypress', async (e) => {
-  if (e.key === 'Enter' && messageInput.value.trim()) {
-    const message = messageInput.value.trim();
-    const recipient = messageUsernameSpan.textContent;
-    
-    if (onlineUsers.has(recipient)) {
-      room.send({
-        type: 'private-message',
-        message: message,
-        recipient: recipient
-      });
-      
-      // Save outgoing private message to history and insert into chat/split container
-      const msgObj = {
-        direction: 'to',
-        recipient: recipient,
-        message: message,
-        timestamp: Date.now()
-      };
-      privateMessageHistory.push(msgObj);
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'chat-message private-message';
-      msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
-      msgDiv.innerHTML = `To ${recipient}: ${message}`;
-      const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-      if (splitPrivate) {
-        insertIntoSplitChat(msgDiv);
-      } else {
-        insertIntoChatContent(msgDiv);
-      }
-    } else {
-      const chatContent = document.querySelector('.chat-content');
-      const messageDiv = document.createElement('div');
-      messageDiv.className = 'chat-message system';
-      const timestamp = Date.now(); // Fix: set timestamp for proper insertion order
-      messageDiv.setAttribute('data-timestamp', timestamp);
-      messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
-      insertIntoChatContent(messageDiv);
-    }
-    
-    messageOverlay.classList.remove('shown');
+// Update room.onmessage handler
+const originalOnMessage = room.onmessage;
+room.onmessage = (event) => {
+  if (event.data.type === 'chat' && event.data.clientId !== room.party.client.id) {
+    handleChatMessage(
+      event.data.message,
+      event.data.username,
+      event.data.world,
+      Date.now()
+    );
   }
-});
+  // Call original handler for other message types
+  if (originalOnMessage) {
+    originalOnMessage(event);
+  }
+};
+
+// Function to clear chat for world switch
+function clearPublicChat() {
+  publicChatHistory.length = 0; // Clear public chat history
+  if (chatMode === 'public') {
+    renderChatHistory(); // Only re-render if in public mode
+  }
+}
 
 // Create a reusable chat context menu element.
 const chatContextMenu = document.createElement('div');
@@ -331,85 +403,48 @@ function hideUsernameHoverTooltip() {
   chatUsernameTooltip.style.display = 'none';
 }
 
-const chatUsernameElements = document.querySelectorAll('.chat-message .username');
-// (Event listeners for username hover and context menu in public messages are added when messages are created)
-
-room.onmessage = (event) => {
-  const chatContent = document.querySelector('.chat-content');
-  switch (event.data.type) {
-    case 'world-change': {
-      // Update friend list entries for the user who changed worlds
-      const friendEntries = document.querySelectorAll('.friends-list .list-entry');
-      friendEntries.forEach(entry => {
-        const username = entry.querySelector('.player-name').textContent;
-        const statusElement = entry.querySelector('.world-status');
-        if (username === event.data.username) {
-          if (onlineUsers.has(username)) {
-            statusElement.textContent = event.data.world;
-            statusElement.classList.remove('offline');
-          }
-        }
+messageInput.addEventListener('keypress', async (e) => {
+  if (e.key === 'Enter' && messageInput.value.trim()) {
+    const message = messageInput.value.trim();
+    const recipient = messageUsernameSpan.textContent;
+    
+    if (onlineUsers.has(recipient)) {
+      room.send({
+        type: 'private-message',
+        message: message,
+        recipient: recipient
       });
-      break;
-    }
-    case 'chat': {
-      // For public chat messages from others
-      if (event.data.clientId !== room.party.client.id) {
-        // Only display message if it's from the same world
-        if (event.data.world === getCurrentWorld()) {
-          const username = event.data.username;
-          const messageDiv = document.createElement('div');
-          messageDiv.className = 'chat-message user';
-          const timestamp = Date.now();
-          messageDiv.setAttribute('data-timestamp', timestamp);
-          messageDiv.innerHTML = `<span class="username">${username}</span><span class="separator">: </span>${event.data.message}`;
-          
-          // Add event listeners for username interactions
-          const usernameSpan = messageDiv.querySelector('.username');
-          usernameSpan.addEventListener('click', (e) => {
-            showChatContextMenu(e, username);
-          });
-          usernameSpan.addEventListener('mouseover', (e) => {
-            showUsernameHoverTooltip(e, username);
-          });
-          usernameSpan.addEventListener('mouseout', (e) => {
-            hideUsernameHoverTooltip();
-          });
-          usernameSpan.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            showChatContextMenu(e, username);
-          });
-          insertIntoChatContent(messageDiv);
-        }
+      
+      // Save outgoing private message to history and insert into chat/split container
+      const msgObj = {
+        direction: 'to',
+        recipient: recipient,
+        message: message,
+        timestamp: Date.now()
+      };
+      privateMessageHistory.push(msgObj);
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-message private-message';
+      msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
+      msgDiv.innerHTML = `To ${recipient}: ${message}`;
+      const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+      if (splitPrivate) {
+        insertIntoSplitChat(msgDiv);
+      } else {
+        insertIntoChatContent(msgDiv);
       }
-      break;
+    } else {
+      const chatContent = document.querySelector('.chat-content');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'chat-message system';
+      const timestamp = Date.now(); // Fix: set timestamp for proper insertion order
+      messageDiv.setAttribute('data-timestamp', timestamp);
+      messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
+      insertIntoChatContent(messageDiv);
     }
-    case 'private-message': {
-      // For incoming private messages - these work across worlds
-      if (event.data.recipient === room.party.client.username) {
-        const msgObj = {
-          direction: 'from',
-          sender: event.data.username,
-          message: event.data.message,
-          timestamp: Date.now()
-        };
-        privateMessageHistory.push(msgObj);
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'chat-message private-message';
-        msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
-        msgDiv.innerHTML = `From ${msgObj.sender}: ${msgObj.message}`;
-        const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-        if (splitPrivate) {
-          insertIntoSplitChat(msgDiv);
-        } else {
-          insertIntoChatContent(msgDiv);
-        }
-      }
-      break;
-    }
-    default:
-      console.log("Received event:", event.data);
+    
+    messageOverlay.classList.remove('shown');
   }
-};
+});
 
 setInterval(updateOnlineStatus, 3000);

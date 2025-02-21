@@ -82,6 +82,10 @@
   background: linear-gradient(to bottom, #5a473a, #483428);
 }
 
+.chat-tab.selected {
+  background: linear-gradient(to bottom, #800040, #600030);
+}
+
 /* Message styling */
 .chat-message {
   margin-top: 0px;
@@ -147,6 +151,13 @@
 /* World status styling */
 .world-status:not(.offline) {
   color: #00ff00;
+}
+
+/* World indicator for global chat */
+.world-indicator {
+  color: #00ff00;
+  font-size: 11px;
+  margin-left: 4px;
 }
 
 /* Updated Split Private Chat Container */

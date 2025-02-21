@@ -75,7 +75,8 @@
             />
           </div>
           <div class="chat-tabs">
-            <div class="chat-tab">Public chat</div>
+            <div class="chat-tab selected">Public chat</div>
+            <div class="chat-tab">Global chat</div>
             <div class="chat-tab">Private chat</div>
             <div class="chat-tab">Trade/duel</div>
             <div class="chat-tab">Report abuse</div>
@@ -521,6 +522,18 @@ Out</div>
           if (window.mouseMode === "Two") {
             e.preventDefault();
           }
+        });
+
+        // Setup chat tab handlers
+        const chatTabs = document.querySelectorAll('.chat-tab');
+        chatTabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            const mode = tab.textContent.toLowerCase().includes('public') ? 'public' : 
+                        tab.textContent.toLowerCase().includes('global') ? 'global' : null;
+            if (mode) {
+              switchChatMode(mode);
+            }
+          });
         });
       });
     </script>
