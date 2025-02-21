@@ -338,7 +338,7 @@ function renderAllPrivateMessages() {
   }
 
   // Re-insert all private messages based on timestamp order
-  const sortedMessages = [...privateMessageHistory].sort((a, b) => b.timestamp - a.timestamp);
+  const sortedMessages = [...privateMessageHistory].sort((a, b) => a.timestamp - b.timestamp);
 
   sortedMessages.forEach(msg => {
     const msgDiv = document.createElement('div');
@@ -356,14 +356,10 @@ function renderAllPrivateMessages() {
     if (splitPrivate) {
       if (splitContainer) {
         const clone = msgDiv.cloneNode(true);
-        splitContainer.appendChild(clone);
-        // Keep only last 5 messages in split view
-        while (splitContainer.childElementCount > 5) {
-          splitContainer.removeChild(splitContainer.firstChild);
-        }
+        insertIntoSplitChat(clone);
       }
     } else {
-      insertIntoChatContent(msgDiv);
+      insertIntoChatContent(msgDiv.cloneNode(true));
     }
   });
 }
