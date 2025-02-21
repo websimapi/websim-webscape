@@ -14,24 +14,26 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
-  <!-- Load all scripts with defer to ensure they load after the document -->
-  <script src="js/ui/tooltips.js" defer></script>
-  <script src="js/ui/overlays.js" defer></script>
-  <script src="js/ui/contextMenu.js" defer></script>
-  <script src="js/features/menuManager.js" defer></script>
-  <script src="js/features/compass.js" defer></script>
-  <script src="js/features/worlds.js" defer></script>
-  <script src="js/features/inventory.js" defer></script>
-  <script src="js/features/friends.js" defer></script>
-  <script src="js/features/ignore.js" defer></script>
-  <script src="js/features/gameOptions.js" defer></script>
-  <script src="js/features/questJournal.js" defer></script>
-  <script src="js/features/skillsMenu.js" defer></script>
-  <script src="js/features/spellbook.js" defer></script>
-  <script src="js/features/musicMenu.js" defer></script>
-  <script src="js/features/logout.js" defer></script>
-  <script src="js/chat.js" defer></script>
-  <script src="js/menu.js" defer></script>
+  <!-- Add type="module" to scripts that use ES modules -->
+  <script type="module" src="js/ui/tooltips.js"></script>
+  <script type="module" src="js/ui/overlays.js"></script>
+  <script type="module" src="js/ui/contextMenu.js"></script>
+  <script type="module" src="js/features/menuManager.js"></script>
+  <script type="module" src="js/features/compass.js"></script>
+  <script type="module" src="js/features/worlds.js"></script>
+  <script type="module" src="js/features/inventory.js"></script>
+  <script type="module" src="js/features/friends.js"></script>
+  <script type="module" src="js/features/ignore.js"></script>
+  <script type="module" src="js/features/gameOptions.js"></script>
+  <script type="module" src="js/features/questJournal.js"></script>
+  <script type="module" src="js/features/skillsMenu.js"></script>
+  <script type="module" src="js/features/spellbook.js"></script>
+  <script type="module" src="js/features/musicMenu.js"></script>
+  <script type="module" src="js/features/logout.js"></script>
+  <script type="module" src="js/chat.js"></script>
+  
+  <!-- Main script should be loaded last -->
+  <script type="module" src="js/menu.js"></script>
 </head>
 <body>
   <div id="client-wrapper">
