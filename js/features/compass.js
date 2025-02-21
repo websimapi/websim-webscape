@@ -8,7 +8,6 @@ function initializeCompass() {
   };
   
   let previousAngle = 0;
-  let animationFrameId = null;
 
   // Calculate shortest rotation path
   function getShortestRotation(current, target) {
@@ -26,30 +25,16 @@ function initializeCompass() {
     return diff;
   }
 
-  // Throttle compass updates using requestAnimationFrame
-  let lastMessageTime = 0;
-  const THROTTLE_MS = 50; // Limit updates to 20fps
-
   window.addEventListener('message', (event) => {
     if (event.data.type === 'cameraDirection') {
-      const now = performance.now();
-      if (now - lastMessageTime < THROTTLE_MS) {
-        return;
-      }
-      lastMessageTime = now;
-
       const targetAngle = -Math.round(event.data.direction);
       const rotationDiff = getShortestRotation(previousAngle, targetAngle);
       const newAngle = previousAngle + rotationDiff;
       
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
+      // Only rotate the compass container, letters will stay fixed
+      compassContainer.style.transform = `rotate(${newAngle}deg)`;
       
-      animationFrameId = requestAnimationFrame(() => {
-        compassContainer.style.transform = `rotate(${newAngle}deg)`;
-        previousAngle = newAngle;
-      });
+      previousAngle = newAngle;
     }
   });
 
@@ -60,15 +45,7 @@ function initializeCompass() {
     }
   }
 
-  let updateInterval = setInterval(requestCameraDirection, 100);
-
-  // Cleanup when page unloads
-  window.addEventListener('unload', () => {
-    clearInterval(updateInterval);
-    if (animationFrameId) {
-      cancelAnimationFrame(animationFrameId);
-    }
-  });
+  setInterval(requestCameraDirection, 100);
 }
 
 export { initializeCompass };

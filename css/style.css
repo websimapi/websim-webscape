@@ -5,10 +5,6 @@ body {
   background: #000;
   font-family: 'RuneScape UF', 'RuneScape', sans-serif;
   color: #fff;
-  /* Enable hardware acceleration */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
 }
 
 /* Layout container for the client UI */
@@ -73,10 +69,6 @@ body {
   font-size: 14.4px;
   font-weight: bold;
   text-shadow: 1px 1px 1px #000;
-  /* Change box-shadow to border for better performance */
-  border: 1px solid #000;
-  /* Use transform instead of positioning where possible */
-  transform: translate(0, 0);
 }
 
 /* Ensure buttons in minimap-icons maintain equal spacing */
@@ -193,11 +185,6 @@ body {
   border: 2px solid #5a473a;
   height: 177px;
   overflow-y: auto;
-  /* Enable smooth scrolling but prevent janky scrolling */
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  /* Create compositor layer */
-  will-change: transform;
 }
 
 .list-entry {
@@ -501,11 +488,6 @@ body {
   padding: 6px;
   height: calc(100% - 11px);
   overflow-y: auto;
-  /* Enable smooth scrolling but prevent janky scrolling */
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  /* Create compositor layer */
-  will-change: transform;
 }
 
 .quest-journal-title {
@@ -594,11 +576,6 @@ body {
 .skills-content {
   scrollbar-width: thin;
   scrollbar-color: #5a473a #382418;
-  /* Reduce repaints */
-  /* Enable compositor layer */
-  will-change: transform;
-  /* Avoid layout thrashing */
-  contain: layout;
 }
 
 /* World Selector Menu */
@@ -646,11 +623,6 @@ body {
 .worlds-list {
   flex: 1;
   overflow-y: auto;
-  /* Enable smooth scrolling but prevent janky scrolling */
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  /* Create compositor layer */
-  will-change: transform;
 }
 
 .world-entry {
