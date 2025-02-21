@@ -12,8 +12,7 @@ const menuItems = {
   'skills': '#skills-menu',
   'quest': '#quest-journal',
   'music': '#music-menu',
-  'spellbook': '#spellbook',
-  'worlds': '#worlds-menu'
+  'spellbook': '#spellbook' // Ensure spellbook is included
 };
 
 function hideAllPanels() {
@@ -51,7 +50,7 @@ function toggleMenu(button, panelSelector) {
       panelSelector.includes('quest') ||
       panelSelector.includes('skills') ||
       panelSelector.includes('music') ||
-      panelSelector.includes('spellbook')
+      panelSelector.includes('spellbook') // Add spellbook to the shown class check
     ) {
       panel.classList.add('shown');
     }
@@ -73,7 +72,7 @@ function toggleMenu(button, panelSelector) {
     panelSelector.includes('quest') ||
     panelSelector.includes('skills') ||
     panelSelector.includes('music') ||
-    panelSelector.includes('spellbook')
+    panelSelector.includes('spellbook') // Add spellbook to the shown class check
   ) {
     panel.classList.add('shown');
   }

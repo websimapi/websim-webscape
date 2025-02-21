@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="css/skills.css" />
     <link rel="stylesheet" href="css/music.css" />
     <link rel="stylesheet" href="css/spellbook.css" />
-    <link rel="stylesheet" href="css/worlds.css" />
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -209,11 +208,6 @@
         </div>
 
         <!-- Game Options Menu -->
-        <div id="worlds-menu" class="hidden">
-          <div class="worlds-content">
-            <!-- Content will be populated dynamically -->
-          </div>
-        </div>
         <div id="game-options" class="hidden">
           <div class="game-options-content">
             <div class="game-options-title">Game Options</div>
@@ -495,6 +489,15 @@ Out</div>
               <line x1="16" y1="8" x2="12" y2="16" stroke="#00ff00" stroke-width="1"/>
             </svg>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="world-selector" class="hidden">
+      <div class="world-selector-content">
+        <div class="world-header">Select World</div>
+        <div class="world-list">
+          <!-- World entries will be populated dynamically -->
         </div>
       </div>
     </div>
