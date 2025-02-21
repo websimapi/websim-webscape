@@ -18,7 +18,7 @@ const worlds = [
 ];
 
 function initializeWorlds() {
-  const worldsButton = document.querySelector('.bottom-icon:first-child');
+  const worldsButton = document.querySelector('.bottom-icon.worlds-button');
   const worldsMenu = document.createElement('div');
   worldsMenu.id = 'worlds-menu';
   worldsMenu.className = 'hidden';
@@ -42,15 +42,12 @@ function initializeWorlds() {
     </div>
   `;
 
-  // Add worlds menu to the right panel
-  document.getElementById('right-panel').appendChild(worldsMenu);
+  document.getElementById('worlds-menu-container').appendChild(worldsMenu);
 
-  // Setup menu toggle
   worldsButton.addEventListener('click', () => {
     toggleMenu(worldsButton, '#worlds-menu');
   });
 
-  // Handle world switching
   const worldsList = worldsMenu.querySelector('.worlds-list');
   worldsList.addEventListener('click', (e) => {
     const worldEntry = e.target.closest('.world-entry');
@@ -60,20 +57,17 @@ function initializeWorlds() {
       if (gameFrame && url !== gameFrame.src) {
         gameFrame.src = url;
         
-        // Update selection visuals
         document.querySelectorAll('.world-entry').forEach(entry => {
           entry.classList.remove('selected');
         });
         worldEntry.classList.add('selected');
 
-        // Hide menu after selection
         worldsMenu.classList.add('hidden');
         worldsButton.classList.remove('selected');
       }
     }
   });
 
-  // Highlight current world
   const currentUrl = document.querySelector('#game-screen iframe').src;
   const currentWorld = worldsMenu.querySelector(`[data-url="${currentUrl}"]`);
   if (currentWorld) {
