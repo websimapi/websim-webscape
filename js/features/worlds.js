@@ -96,7 +96,7 @@ function initializeWorlds() {
           username: room.party.client.username
         });
         
-        // Update friend list world colors
+        // Update friend list world colors immediately
         updateFriendWorldColors();
         
         // Update selection visuals
@@ -121,32 +121,86 @@ function initializeWorlds() {
 
   // Send initial world info when connecting
   room.party.subscribe(() => {
+    // Store initial world for current user
+    const initialWorld = getCurrentWorld();
+    const userWorlds = new Map();
+    userWorlds.set(room.party.client.username, initialWorld);
+    
     room.send({
       type: 'world-change',
-      world: getCurrentWorld(),
+      world: initialWorld,
       username: room.party.client.username
     });
   });
 
-  // Update friend list colors when receiving world change events
+  // Update friend list colors and handle private messages when receiving world change events
   room.onmessage = (event) => {
-    if (event.data.type === 'world-change') {
+    const data = event.data;
+    
+    if (data.type === 'world-change') {
       // First update the world name in friends list for the user who changed worlds
       const friendEntries = document.querySelectorAll('.friends-list .list-entry');
       friendEntries.forEach(entry => {
         const username = entry.querySelector('.player-name').textContent;
         const statusElement = entry.querySelector('.world-status');
-        if (username === event.data.username) {
+        if (username === data.username) {
           if (statusElement && !statusElement.classList.contains('offline')) {
-            statusElement.textContent = event.data.world;
+            statusElement.textContent = data.world;
           }
         }
       });
       
       // Then update all friend list colors based on new world information
       updateFriendWorldColors();
+      
+    } else if (data.type === 'private-message') {
+      // Handle private messages separately to avoid interference with world changes
+      handlePrivateMessage(data);
     }
   };
+}
+
+// Add handlePrivateMessage function to process private messages
+function handlePrivateMessage(data) {
+  // Create private message element
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'chat-message private-message';
+  msgDiv.setAttribute('data-timestamp', Date.now());
+
+  // Format message based on whether it's incoming or outgoing
+  if (data.recipient === room.party.client.username) {
+    msgDiv.innerHTML = `From ${data.username}: ${data.message}`;
+  } else {
+    msgDiv.innerHTML = `To ${data.recipient}: ${data.message}`;
+  }
+
+  // Insert into appropriate container based on split chat setting
+  const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+  const splitContainer = document.getElementById('split-private-chat');
+  const chatContent = document.querySelector('.chat-content');
+
+  if (splitPrivate && splitContainer) {
+    splitContainer.appendChild(msgDiv.cloneNode(true));
+    // Keep only last 5 messages in split view
+    while (splitContainer.childElementCount > 5) {
+      splitContainer.removeChild(splitContainer.firstElementChild);
+    }
+  } else {
+    // Insert into main chat maintaining timestamp order
+    let inserted = false;
+    const messages = chatContent.children;
+    for (let i = 0; i < messages.length; i++) {
+      const timestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
+      if (timestamp <= parseFloat(msgDiv.getAttribute('data-timestamp'))) {
+        chatContent.insertBefore(msgDiv, messages[i]);
+        inserted = true;
+        break;
+      }
+    }
+    if (!inserted) {
+      chatContent.appendChild(msgDiv);
+    }
+  }
 }
 
 export { initializeWorlds, getCurrentWorld };
