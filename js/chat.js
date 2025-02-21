@@ -108,45 +108,49 @@ room.onmessage = (event) => {
   }
 };
 
-// Update handlePrivateMessage to better handle all cases
+// Update handlePrivateMessage to better handle message direction and prevent duplicates
 function handlePrivateMessage(data) {
   const msgObj = {
-    direction: data.recipient === room.party.client.username ? 'from' : 'to', 
+    direction: data.recipient === room.party.client.username ? 'from' : 'to',
     sender: data.username,
     recipient: data.recipient,
     message: data.message,
     timestamp: Date.now()
   };
 
-  // Add to history if not already present (prevent duplicates)
-  if (!privateMessageHistory.find(msg => 
+  // Check for duplicates using all relevant fields
+  const isDuplicate = privateMessageHistory.some(msg => 
     msg.sender === msgObj.sender && 
     msg.recipient === msgObj.recipient &&
     msg.message === msgObj.message &&
-    msg.timestamp === msgObj.timestamp
-  )) {
+    msg.direction === msgObj.direction &&
+    // Allow messages within 1 second to be considered duplicates
+    Math.abs(msg.timestamp - msgObj.timestamp) < 1000
+  );
+
+  if (!isDuplicate) {
     privateMessageHistory.push(msgObj);
   }
 
   renderAllPrivateMessages();
 }
 
-// Update renderAllPrivateMessages to handle both directions properly
+// Update renderAllPrivateMessages for more reliable rendering
 function renderAllPrivateMessages() {
   const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
   const chatContent = document.querySelector('.chat-content');
   const splitContainer = document.getElementById('split-private-chat');
 
   // Remove existing private messages from both containers
-  const existingPrivateMain = chatContent.querySelectorAll('.chat-message.private-message');
+  const existingPrivateMain = chatContent.querySelectorAll('.private-message');
   existingPrivateMain.forEach(elem => elem.remove());
   
   if (splitContainer) {
     splitContainer.innerHTML = '';
   }
 
-  // Sort messages by timestamp descending (newest first)
-  const sortedMessages = [...privateMessageHistory].sort((a, b) => b.timestamp - a.timestamp);
+  // Sort messages by timestamp ascending (oldest first)
+  const sortedMessages = [...privateMessageHistory].sort((a, b) => a.timestamp - b.timestamp);
 
   sortedMessages.forEach(msg => {
     const msgDiv = document.createElement('div');
@@ -160,15 +164,15 @@ function renderAllPrivateMessages() {
       msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
     }
 
-    if (splitPrivate) {
+    // Handle split chat rendering
+    if (splitPrivate && splitContainer) {
       // Add to split chat if enabled
-      if (splitContainer) {
-        const clone = msgDiv.cloneNode(true);
-        splitContainer.appendChild(clone);
-        // Keep only last 5 messages in split view
-        while (splitContainer.childElementCount > 5) {
-          splitContainer.removeChild(splitContainer.firstChild);
-        }
+      const clone = msgDiv.cloneNode(true);
+      splitContainer.appendChild(clone);
+      
+      // Keep only last 5 messages in split view
+      while (splitContainer.childElementCount > 5) {
+        splitContainer.removeChild(splitContainer.firstChild);
       }
     } else {
       // Insert into main chat maintaining timestamp order
@@ -176,7 +180,7 @@ function renderAllPrivateMessages() {
       const messages = chatContent.children;
       for (let i = 0; i < messages.length; i++) {
         const existingTimestamp = parseFloat(messages[i].getAttribute('data-timestamp') || '0');
-        if (existingTimestamp <= msg.timestamp) {
+        if (existingTimestamp >= msg.timestamp) {
           chatContent.insertBefore(msgDiv, messages[i]);
           inserted = true;
           break;
