@@ -1,4 +1,6 @@
 // Dynamically generate inventory slots to ensure a consistent total of 28 slots
+import { toggleMenu } from './menuManager.js';
+
 document.addEventListener('DOMContentLoaded', () => {
   const inventoryContainer = document.getElementById('inventory');
   if (inventoryContainer) {

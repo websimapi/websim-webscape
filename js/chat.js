@@ -369,3 +369,6 @@ room.onmessage = (event) => {
 };
 
 setInterval(updateOnlineStatus, 3000);
+
+// Add type="module" to use imports
+import { showContextMenu, hideContextMenu } from './ui/contextMenu.js';
