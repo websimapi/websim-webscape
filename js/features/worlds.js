@@ -89,12 +89,24 @@ function initializeWorlds() {
         
         gameFrame.src = url;
         
-        // Broadcast world change to other users to update chat and friends list
+        // Broadcast world change to other users
         room.send({
           type: 'world-change',
           world: worldName,
           username: room.party.client.username
         });
+
+        // Update our own messages in global chat history
+        globalChatHistory.forEach(msg => {
+          if (msg.username === room.party.client.username) {
+            msg.world = worldName;
+          }
+        });
+
+        // If in global chat mode, re-render to show updated world indicators
+        if (chatMode === 'global') {
+          renderChatHistory();
+        }
         
         // Update friend list world colors
         updateFriendWorldColors();

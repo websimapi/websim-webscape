@@ -46,6 +46,41 @@ function updateUserWorldDisplay(username, newWorld) {
   }
 }
 
+// Update room.onmessage handler to handle world changes
+const originalOnMessage = room.onmessage;
+room.onmessage = (event) => {
+  if (event.data.type === 'chat' && event.data.clientId !== room.party.client.id) {
+    // Store the sender's world when receiving a message
+    userWorlds.set(event.data.username, event.data.world);
+    
+    handleChatMessage(
+      event.data.message,
+      event.data.username,
+      event.data.world,
+      Date.now()
+    );
+  } else if (event.data.type === 'world-change') {
+    // Update the user's world when they change worlds
+    userWorlds.set(event.data.username, event.data.world);
+
+    // Update stored history with new world
+    globalChatHistory.forEach(msg => {
+      if (msg.username === event.data.username) {
+        msg.world = event.data.world;
+      }
+    });
+
+    // Update display if in global chat mode
+    if (chatMode === 'global') {
+      renderChatHistory();
+    }
+  }
+  // Call original handler for other message types
+  if (originalOnMessage) {
+    originalOnMessage(event);
+  }
+};
+
 // Get the username element
 const usernameElement = document.getElementById('current-username');
 
@@ -67,32 +102,6 @@ room.party.subscribe((peers) => {
   // Update online status in friends list
   updateOnlineStatus();
 });
-
-// Update room.onmessage handler to handle world changes
-const originalOnMessage = room.onmessage;
-room.onmessage = (event) => {
-  if (event.data.type === 'chat' && event.data.clientId !== room.party.client.id) {
-    // Store the sender's world when receiving a message
-    userWorlds.set(event.data.username, event.data.world);
-    
-    handleChatMessage(
-      event.data.message,
-      event.data.username,
-      event.data.world,
-      Date.now()
-    );
-  } else if (event.data.type === 'world-change') {
-    // Update the user's world in our tracking
-    updateUserWorldDisplay(event.data.username, event.data.world);
-    
-    // Force re-render of chat to update world indicators for this user's messages
-    renderChatHistory();
-  }
-  // Call original handler for other message types
-  if (originalOnMessage) {
-    originalOnMessage(event);
-  }
-};
 
 // Modify handleChatMessage to store world info with messages
 function handleChatMessage(message, username, world, timestamp) {
@@ -126,7 +135,7 @@ function handleChatMessage(message, username, world, timestamp) {
   renderChatHistory();
 }
 
-// Update message rendering to always use the latest known world for a user
+// Update renderChatHistory to use stored world information
 function renderChatHistory() {
   const chatContent = document.querySelector('.chat-content');
   chatContent.innerHTML = ''; // Clear current messages
@@ -292,6 +301,15 @@ export function switchChatMode(mode) {
       tab.classList.add('selected');
     }
   });
+
+  // Re-render chat with latest world information
+  if (mode === 'global') {
+    // Update all stored worlds in globalChatHistory
+    globalChatHistory.forEach(msg => {
+      msg.world = userWorlds.get(msg.username) || msg.world;
+    });
+  }
+  
   renderChatHistory();
 }
 
