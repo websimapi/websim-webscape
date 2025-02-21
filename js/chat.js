@@ -197,7 +197,10 @@ function renderChatHistory() {
   chatContent.innerHTML = ''; // Clear current messages
   
   const history = chatMode === 'global' ? globalChatHistory : publicChatHistory;
-  history.sort((a, b) => a.timestamp - b.timestamp).forEach(msg => {
+  // Sort messages in ascending order by timestamp (oldest first)
+  const sortedHistory = [...history].sort((a, b) => b.timestamp - a.timestamp);
+
+  sortedHistory.forEach(msg => {
     const messageDiv = document.createElement('div');
     messageDiv.className = 'chat-message user';
     messageDiv.setAttribute('data-timestamp', msg.timestamp);
