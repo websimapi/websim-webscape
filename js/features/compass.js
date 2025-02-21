@@ -23,12 +23,7 @@ function initializeCompass() {
   
   // Listen for camera direction updates from the iframe
   window.addEventListener('message', (event) => {
-    // Check if origin is from an allowed world
-    if (!event.origin.includes('world-') || !event.origin.endsWith('.on.websim.ai')) {
-      return;
-    }
-
-    if (event.data.type === 'cameraDirection') {
+    if (event.data && event.data.type === 'cameraDirection') {
       // Get the new target angle (negative because we want to rotate opposite to camera)
       const targetAngle = -Math.round(event.data.direction);
       
@@ -48,9 +43,14 @@ function initializeCompass() {
   function requestCameraDirection() {
     const iframe = document.querySelector('#game-screen iframe');
     if (iframe && iframe.contentWindow) {
-      // Get the iframe's current origin
-      const iframeOrigin = new URL(iframe.src).origin;
-      iframe.contentWindow.postMessage('getCameraDirection', iframeOrigin);
+      try {
+        // Parse the iframe's src URL to acquire its origin for a valid target
+        const iframeUrl = new URL(iframe.src);
+        iframe.contentWindow.postMessage('getCameraDirection', iframeUrl.origin);
+      } catch(e) {
+        // Fallback to permissive messaging if parsing fails
+        iframe.contentWindow.postMessage('getCameraDirection', '*');
+      }
     }
   }
 
