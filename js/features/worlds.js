@@ -1,4 +1,5 @@
 import { toggleMenu } from './menuManager.js';
+import { DebugLogger, DOMDebug } from '../debug.js';
 
 const worlds = [
   {
@@ -16,10 +17,23 @@ const worlds = [
 ];
 
 function initializeWorlds() {
-  const worldsButton = document.querySelector('.bottom-icon:first-child');
+  DebugLogger.info('INIT', 'Starting worlds menu initialization');
+
+  // Check for worlds button
+  const worldsButton = DOMDebug.checkElement('.bottom-icon:first-child', 'Worlds Button');
+  if (!worldsButton) {
+    DebugLogger.error('INIT', 'Could not find worlds button');
+    return;
+  }
+
+  // Create worlds menu
   const worldsMenu = document.createElement('div');
   worldsMenu.id = 'worlds-menu';
   worldsMenu.className = 'hidden';
+  
+  // Log worlds data being used
+  DebugLogger.debug('INIT', 'Creating worlds menu with data:', { worlds });
+
   worldsMenu.innerHTML = `
     <div class="worlds-content">
       <div class="worlds-header">
@@ -39,44 +53,82 @@ function initializeWorlds() {
     </div>
   `;
 
-  // Add worlds menu to the right panel after minimap section
-  const minimapSection = document.getElementById('minimap-section');
-  minimapSection.insertAdjacentElement('afterend', worldsMenu);
+  // Check for minimap section
+  const minimapSection = DOMDebug.checkElement('#minimap-section', 'Minimap Section');
+  if (!minimapSection) {
+    DebugLogger.error('INIT', 'Could not find minimap section');
+    return;
+  }
 
-  // Setup menu toggle
+  // Add worlds menu after minimap
+  minimapSection.insertAdjacentElement('afterend', worldsMenu);
+  DebugLogger.debug('DOM', 'Worlds menu added to DOM');
+
+  // Setup menu toggle with debug logging
   worldsButton.addEventListener('click', () => {
+    DebugLogger.debug('EVENTS', 'Worlds button clicked');
     toggleMenu(worldsButton, '#worlds-menu');
+    
+    // Check menu state after toggle
+    DOMDebug.checkMenuState('#worlds-menu', 'After Toggle');
   });
 
-  // Handle world switching
+  // Add event logging to world switching
   const worldsList = worldsMenu.querySelector('.worlds-list');
   worldsList.addEventListener('click', (e) => {
     const worldEntry = e.target.closest('.world-entry');
     if (worldEntry) {
       const url = worldEntry.dataset.url;
-      const gameFrame = document.querySelector('#game-screen iframe');
-      if (gameFrame && url !== gameFrame.src) {
-        gameFrame.src = url;
-        
-        // Update selection visuals
-        document.querySelectorAll('.world-entry').forEach(entry => {
-          entry.classList.remove('selected');
-        });
-        worldEntry.classList.add('selected');
+      DebugLogger.info('EVENTS', 'World switch attempted', { 
+        targetUrl: url,
+        targetWorld: worlds.find(w => w.url === url)?.name
+      });
 
-        // Hide menu after selection
-        worldsMenu.classList.add('hidden');
-        worldsButton.classList.remove('selected');
+      const gameFrame = document.querySelector('#game-screen iframe');
+      if (gameFrame) {
+        if (url !== gameFrame.src) {
+          DebugLogger.debug('EVENTS', 'Switching world frame source', {
+            from: gameFrame.src,
+            to: url
+          });
+          
+          gameFrame.src = url;
+          
+          // Update selection visuals
+          document.querySelectorAll('.world-entry').forEach(entry => {
+            entry.classList.remove('selected');
+          });
+          worldEntry.classList.add('selected');
+
+          // Hide menu after selection
+          worldsMenu.classList.add('hidden');
+          worldsButton.classList.remove('selected');
+          
+          DebugLogger.info('EVENTS', 'World switch completed');
+        } else {
+          DebugLogger.debug('EVENTS', 'World switch cancelled - already on selected world');
+        }
+      } else {
+        DebugLogger.error('EVENTS', 'Game frame not found for world switch');
       }
     }
   });
 
-  // Highlight current world
-  const currentUrl = document.querySelector('#game-screen iframe').src;
-  const currentWorld = worldsMenu.querySelector(`[data-url="${currentUrl}"]`);
-  if (currentWorld) {
-    currentWorld.classList.add('selected');
+  // Highlight current world on initialization
+  const currentUrl = document.querySelector('#game-screen iframe')?.src;
+  if (currentUrl) {
+    const currentWorld = worldsMenu.querySelector(`[data-url="${currentUrl}"]`);
+    if (currentWorld) {
+      currentWorld.classList.add('selected');
+      DebugLogger.debug('INIT', 'Current world highlighted', { currentUrl });
+    } else {
+      DebugLogger.warn('INIT', 'Could not find matching world entry for current URL', { currentUrl });
+    }
+  } else {
+    DebugLogger.warn('INIT', 'Could not determine current world URL');
   }
+
+  DebugLogger.info('INIT', 'Worlds menu initialization completed');
 }
 
 export { initializeWorlds };
