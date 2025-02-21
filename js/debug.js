@@ -1,10 +1,3 @@
-/**
- * Debug utilities for Webscape features
- */
-
-// Store enabled debug features
-const enabledDebugFeatures = new Set();
-
 // Debug levels
 const DEBUG_LEVELS = {
   INFO: 'INFO',
@@ -12,6 +5,9 @@ const DEBUG_LEVELS = {
   ERROR: 'ERROR',
   TRACE: 'TRACE'
 };
+
+// Store enabled debug features
+const enabledDebugFeatures = new Set();
 
 // Color schemes for different debug levels
 const LEVEL_COLORS = {
@@ -25,7 +21,7 @@ const LEVEL_COLORS = {
  * Enable debugging for a specific feature
  * @param {string} featureName - Name of feature to debug
  */
-function enableDebug(featureName) {
+export function enableDebug(featureName) {
   enabledDebugFeatures.add(featureName);
   console.log(`🐛 Debug enabled for: ${featureName}`);
 }
@@ -34,7 +30,7 @@ function enableDebug(featureName) {
  * Disable debugging for a specific feature
  * @param {string} featureName - Name of feature to disable debugging for
  */
-function disableDebug(featureName) {
+export function disableDebug(featureName) {
   enabledDebugFeatures.delete(featureName);
   console.log(`Debug disabled for: ${featureName}`);
 }
@@ -53,7 +49,7 @@ function isDebugEnabled(featureName) {
  * @param {string} featureName - Name of the feature
  * @returns {Object} Logger methods
  */
-function createDebugger(featureName) {
+export function createDebugger(featureName) {
   const timestamp = () => new Date().toISOString();
   
   const log = (level, message, ...args) => {
@@ -68,57 +64,26 @@ function createDebugger(featureName) {
   };
 
   return {
-    /**
-     * Log entry to a function
-     * @param {string} functionName - Name of function being entered
-     * @param {Object} args - Arguments passed to function
-     */
     enter(functionName, args = {}) {
       log(DEBUG_LEVELS.TRACE, `→ ${functionName}()`, args);
     },
 
-    /**
-     * Log exit from a function
-     * @param {string} functionName - Name of function being exited
-     * @param {*} result - Return value from function
-     */
     exit(functionName, result) {
       log(DEBUG_LEVELS.TRACE, `← ${functionName}()`, result);
     },
 
-    /**
-     * Log info level message
-     * @param {string} message - Message to log
-     * @param {...*} args - Additional arguments to log
-     */
     info(message, ...args) {
       log(DEBUG_LEVELS.INFO, message, ...args);
     },
 
-    /**
-     * Log warning level message
-     * @param {string} message - Message to log
-     * @param {...*} args - Additional arguments to log
-     */
     warn(message, ...args) {
       log(DEBUG_LEVELS.WARN, message, ...args);
     },
 
-    /**
-     * Log error level message
-     * @param {string} message - Message to log
-     * @param {...*} args - Additional arguments to log 
-     */
     error(message, ...args) {
       log(DEBUG_LEVELS.ERROR, message, ...args);
     },
 
-    /**
-     * Time a function execution
-     * @param {string} label - Label for the timer
-     * @param {Function} fn - Function to time
-     * @returns {*} Result of function execution
-     */
     time(label, fn) {
       if (!isDebugEnabled(featureName)) return fn();
       
@@ -128,21 +93,10 @@ function createDebugger(featureName) {
       return result;
     },
 
-    /**
-     * Track an event occurrence
-     * @param {string} eventName - Name of event
-     * @param {Object} data - Event data
-     */
     event(eventName, data = {}) {
       log(DEBUG_LEVELS.INFO, `Event: ${eventName}`, data);
     },
 
-    /**
-     * Log state changes
-     * @param {string} key - State key that changed
-     * @param {*} oldValue - Previous value
-     * @param {*} newValue - New value
-     */
     state(key, oldValue, newValue) {
       log(DEBUG_LEVELS.INFO, `State change: ${key}`, {
         from: oldValue,
@@ -159,7 +113,7 @@ function createDebugger(featureName) {
  * @param {Function} fn - Function to wrap
  * @returns {Function} Wrapped function
  */
-function debugWrap(featureName, functionName, fn) {
+export function debugWrap(featureName, functionName, fn) {
   return function(...args) {
     const debug = createDebugger(featureName);
     
@@ -179,11 +133,4 @@ function debugWrap(featureName, functionName, fn) {
   };
 }
 
-export {
-  enableDebug,
-  disableDebug,
-  isDebugEnabled,
-  createDebugger,
-  debugWrap,
-  DEBUG_LEVELS
-};
+export { DEBUG_LEVELS };
