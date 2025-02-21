@@ -381,29 +381,6 @@ body {
   color: #fff;
 }
 
-/* Firefox-specific fixes */
-@-moz-document url-prefix() {
-  .context-menu {
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  }
-  
-  .list-container {
-    scrollbar-width: thin;
-    scrollbar-color: #5a473a #382418;
-  }
-  
-  .bottom-icon {
-    display: -moz-box;
-    -moz-box-pack: center;
-    -moz-box-align: center;
-  }
-  
-  /* Fix for Firefox flex rendering */
-  .chat-input-area {
-    min-height: 24px;
-  }
-}
-
 /* Game Options Menu */
 #game-options {
   position: relative;
@@ -629,11 +606,10 @@ body {
   border-bottom: 2px solid #5a473a;
 }
 
-.worlds-header .title {
-  color: #00ffff;
-  font-size: 12px;
+.worlds-header h3.title {
   margin: 0;
-  padding: 0;
+  font-size: 14px;
+  color: cyan;
 }
 
 .worlds-header .subtitle {
@@ -669,4 +645,28 @@ body {
 .world-name {
   color: #00ff00;
   font-size: 12px;
+}
+
+.world-info {
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+}
+
+.world-population {
+  color: #ffff00;
+}
+
+.world-location {
+  color: #fff;
+  text-align: right;
+  font-size: 12px;
+}
+
+/* Fix for Firefox:
+   Ensure that any SVG inside an interactive icon (the .icon and .bottom-icon elements)
+   does not capture pointer events – so clicks always register on the parent element. */
+.icon svg,
+.bottom-icon svg {
+  pointer-events: none;
 }

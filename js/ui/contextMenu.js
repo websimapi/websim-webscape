@@ -14,63 +14,48 @@ function showContextMenu(e, username, onMessage, onRemove) {
   }
 
   e.preventDefault();
-  e.stopPropagation(); // Prevent event bubbling
 
-  // Position context menu - handle both mouse and touch events
-  const x = e.pageX || e.clientX;
-  const y = e.pageY || e.clientY;
+  // Position and show context menu based on event coordinates.
+  contextMenu.style.left = `${e.pageX}px`;
+  contextMenu.style.top = `${e.pageY}px`;
 
-  // Set menu options HTML
+  // Set menu options HTML.
   contextMenu.innerHTML = `
     <div class="context-menu-option message">Message ${username}</div>
     <div class="context-menu-option remove">Remove ${username}</div>
     <div class="context-menu-option cancel">Cancel</div>
   `;
 
-  // Position menu and show it
-  contextMenu.style.left = `${x}px`;
-  contextMenu.style.top = `${y}px`;
   contextMenu.classList.add('shown');
 
-  // Handle option clicks with delegation
-  function handleOptionClick(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    const option = event.target.closest('.context-menu-option');
-    if (!option) return;
+  // For Firefox compatibility, use 'mouseup' instead of 'click'.
+  const isFirefox = typeof InstallTrigger !== 'undefined';
+  const eventType = isFirefox ? 'mouseup' : 'click';
 
-    if (option.classList.contains('message') && onMessage) {
-      onMessage();
-    } else if (option.classList.contains('remove') && onRemove) {
-      onRemove();
-    }
-    
-    hideContextMenu();
-    contextMenu.removeEventListener('click', handleOptionClick);
-  }
+  const messageOption = contextMenu.querySelector('.message');
+  const removeOption = contextMenu.querySelector('.remove');
+  const cancelOption = contextMenu.querySelector('.cancel');
 
-  contextMenu.addEventListener('click', handleOptionClick);
+  messageOption.addEventListener(eventType, (ev) => {
+    ev.stopPropagation();
+    if (onMessage) onMessage();
+    contextMenu.classList.remove('shown');
+  }, { once: true });
 
-  // Auto-hide menu on scroll or click outside
-  function hideOnOutsideClick(e) {
-    if (!contextMenu.contains(e.target)) {
-      hideContextMenu();
-      document.removeEventListener('click', hideOnOutsideClick);
-    }
-  }
+  removeOption.addEventListener(eventType, (ev) => {
+    ev.stopPropagation();
+    if (onRemove) onRemove();
+    contextMenu.classList.remove('shown');
+  }, { once: true });
 
-  setTimeout(() => {
-    document.addEventListener('click', hideOnOutsideClick);
-  }, 0);
-
-  document.addEventListener('scroll', hideContextMenu, { once: true });
+  cancelOption.addEventListener(eventType, (ev) => {
+    ev.stopPropagation();
+    contextMenu.classList.remove('shown');
+  }, { once: true });
 }
 
 function hideContextMenu() {
   contextMenu.classList.remove('shown');
-  contextMenu.style.left = '';
-  contextMenu.style.top = '';
 }
 
 export { showContextMenu, hideContextMenu };
