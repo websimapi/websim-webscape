@@ -20,7 +20,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: transform 0.1s ease-out;
+  transform: translateZ(0);
+  will-change: transform;
+  transition: transform 0.1s linear;
   transform-origin: center center;
   transform-style: preserve-3d;
   overflow: visible;
@@ -65,6 +67,21 @@
   left: 2px;
   top: 50%;
   transform: translateY(-50%);
+}
+
+/* Fix Firefox-specific compass issues */
+@-moz-document url-prefix() {
+  #compass-container {
+    /* Force hardware acceleration in Firefox */
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+  }
+  
+  #compass-n, #compass-s, #compass-e, #compass-w {
+    /* Ensure letters stay fixed */
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+  }
 }
 
 /* Minimap styling */

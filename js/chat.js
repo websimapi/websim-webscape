@@ -4,11 +4,69 @@ const room = new WebsimSocket();
 // Global array to store private message history
 const privateMessageHistory = [];
 
-// Track online users
-let onlineUsers = new Set();
+// Use Map instead of Set for better performance with large sets
+const onlineUsers = new Map();
 
-// Get the username element
+// Cache DOM queries
+const messageOverlay = document.getElementById('message-overlay');
+const messageInput = messageOverlay.querySelector('.add-friend-input');
+const messageUsernameSpan = messageOverlay.querySelector('.message-username');
+const chatContent = document.querySelector('.chat-content');
+const splitContainer = document.getElementById('split-private-chat');
 const usernameElement = document.getElementById('current-username');
+
+// Debounce function for performance-critical operations
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Throttle function for frequent events
+function throttle(func, limit) {
+  let inThrottle;
+  return function(...args) {
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  }
+}
+
+// Debounced version of updateOnlineStatus
+const debouncedUpdateOnlineStatus = debounce(() => {
+  const friendEntries = document.querySelectorAll('.friends-list .list-entry');
+  const fragment = document.createDocumentFragment();
+  
+  friendEntries.forEach(entry => {
+    const username = entry.querySelector('.player-name').textContent;
+    const statusElement = entry.querySelector('.world-status');
+    if (onlineUsers.has(username)) {
+      const world = onlineUsers.get(username);
+      if (!statusElement.textContent || statusElement.textContent === 'Offline') {
+        statusElement.textContent = world || 'World-1';
+      }
+      statusElement.classList.remove('offline');
+    } else {
+      statusElement.textContent = 'Offline';
+      statusElement.classList.add('offline');
+    }
+  });
+}, 100);
+
+// Throttled message insertion
+const throttledInsertMessage = throttle((msgDiv) => {
+  if (!chatContent.contains(msgDiv)) {
+    insertIntoChatContent(msgDiv);
+  }
+}, 50);
 
 // Update username and online users when connection is established
 room.party.subscribe((peers) => {
@@ -20,34 +78,14 @@ room.party.subscribe((peers) => {
   // Update online users
   onlineUsers.clear();
   for (const clientId in peers) {
-    onlineUsers.add(peers[clientId].username);
+    onlineUsers.set(peers[clientId].username, peers[clientId].world);
   }
   
   // Update online status in friends list
-  updateOnlineStatus();
+  debouncedUpdateOnlineStatus();
 });
 
-// Function to update online status in friends list
-function updateOnlineStatus() {
-  const friendEntries = document.querySelectorAll('.friends-list .list-entry');
-  friendEntries.forEach(entry => {
-    const username = entry.querySelector('.player-name').textContent;
-    const statusElement = entry.querySelector('.world-status');
-    if (onlineUsers.has(username)) {
-      // Keep the world name if it exists, otherwise use default
-      if (!statusElement.textContent || statusElement.textContent === 'Offline') {
-        statusElement.textContent = 'World-1'; // Default world
-      }
-      statusElement.classList.remove('offline');
-    } else {
-      statusElement.textContent = 'Offline';
-      statusElement.classList.add('offline');
-    }
-  });
-}
-
 // Create message overlay using the same markup as the Add Friend overlay
-const messageOverlay = document.createElement('div');
 messageOverlay.id = 'message-overlay';
 messageOverlay.className = 'add-friend-overlay';
 messageOverlay.innerHTML = `
@@ -57,9 +95,6 @@ messageOverlay.innerHTML = `
   </div>
 `;
 document.querySelector('#chat-window').appendChild(messageOverlay);
-
-const messageInput = messageOverlay.querySelector('.add-friend-input');
-const messageUsernameSpan = messageOverlay.querySelector('.message-username');
 
 function showMessageOverlay(username) {
   messageUsernameSpan.textContent = username;
@@ -84,7 +119,6 @@ setupOverlay(messageOverlay, messageInput);
 
 /* --- Helper functions for sorted message insertion --- */
 function insertIntoChatContent(msgDiv) {
-  const chatContent = document.querySelector('.chat-content');
   const newTimestamp = parseFloat(msgDiv.getAttribute('data-timestamp'));
   let inserted = false;
   // The chat container uses flex-direction: column-reverse so the DOM order should be descending (newest first)
@@ -103,13 +137,10 @@ function insertIntoChatContent(msgDiv) {
 }
 
 function insertIntoSplitChat(msgDiv) {
-  const splitContainer = document.getElementById('split-private-chat');
-  if (splitContainer) {
-    splitContainer.appendChild(msgDiv);
-    // Limit history to last 5 messages
-    while (splitContainer.childElementCount > 5) {
-      splitContainer.removeChild(splitContainer.firstElementChild);
-    }
+  splitContainer.appendChild(msgDiv);
+  // Limit history to last 5 messages
+  while (splitContainer.childElementCount > 5) {
+    splitContainer.removeChild(splitContainer.firstElementChild);
   }
 }
 
@@ -117,14 +148,9 @@ function insertIntoSplitChat(msgDiv) {
 // When split chat is off, private messages are merged into main chat; when on, they go into the split chat container.
 function renderAllPrivateMessages() {
   const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-  const chatContent = document.querySelector('.chat-content');
+  chatContent.innerHTML = '';
   // Remove any existing private messages from main chat
-  const existingPrivate = chatContent.querySelectorAll('.chat-message.private-message');
-  existingPrivate.forEach(elem => elem.remove());
-  const splitContainer = document.getElementById('split-private-chat');
-  if (splitContainer) {
-    splitContainer.innerHTML = '';
-  }
+  splitContainer.innerHTML = '';
   // Re-insert all private messages from history in the order they were received
   privateMessageHistory.forEach(msg => {
     const msgDiv = document.createElement('div');
@@ -158,55 +184,47 @@ chatInput.addEventListener('keypress', (e) => {
     const timestamp = Date.now();
     messageDiv.setAttribute('data-timestamp', timestamp);
     messageDiv.innerHTML = `<span class="username">${room.party.client.username}</span><span class="separator">: </span>${message}`;
-    insertIntoChatContent(messageDiv);
+    throttledInsertMessage(messageDiv);
     chatInput.value = '';
   }
 });
 
 /* --- Chat input for Private messages via overlay --- */
-messageInput.addEventListener('keypress', async (e) => {
+function sendPrivateMessage(message, recipient) {
+  room.send({
+    type: 'private-message',
+    message: message,
+    recipient: recipient
+  });
+  
+  // Save outgoing private message to history and insert into chat/split container
+  const msgObj = {
+    direction: 'to',
+    recipient: recipient,
+    message: message,
+    timestamp: Date.now()
+  };
+  privateMessageHistory.push(msgObj);
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'chat-message private-message';
+  msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
+  msgDiv.innerHTML = `To ${recipient}: ${message}`;
+  const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
+  if (splitPrivate) {
+    insertIntoSplitChat(msgDiv);
+  } else {
+    insertIntoChatContent(msgDiv);
+  }
+}
+
+messageInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter' && messageInput.value.trim()) {
     const message = messageInput.value.trim();
-    const recipient = messageUsernameSpan.textContent;
-    
-    if (onlineUsers.has(recipient)) {
-      room.send({
-        type: 'private-message',
-        message: message,
-        recipient: recipient
-      });
-      
-      // Save outgoing private message to history and insert into chat/split container
-      const msgObj = {
-        direction: 'to',
-        recipient: recipient,
-        message: message,
-        timestamp: Date.now()
-      };
-      privateMessageHistory.push(msgObj);
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'chat-message private-message';
-      msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
-      msgDiv.innerHTML = `To ${recipient}: ${message}`;
-      const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
-      if (splitPrivate) {
-        insertIntoSplitChat(msgDiv);
-      } else {
-        insertIntoChatContent(msgDiv);
-      }
-    } else {
-      const chatContent = document.querySelector('.chat-content');
-      const messageDiv = document.createElement('div');
-      messageDiv.className = 'chat-message system';
-      const timestamp = Date.now(); // Fix: set timestamp for proper insertion order
-      messageDiv.setAttribute('data-timestamp', timestamp);
-      messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
-      insertIntoChatContent(messageDiv);
-    }
-    
+    e.preventDefault(); // Prevent default to improve performance
+    sendPrivateMessage(message, messageUsernameSpan.textContent);
     messageOverlay.classList.remove('shown');
   }
-});
+}, { passive: true });
 
 // Create a reusable chat context menu element.
 const chatContextMenu = document.createElement('div');
@@ -312,7 +330,6 @@ const chatUsernameElements = document.querySelectorAll('.chat-message .username'
 // (Event listeners for username hover and context menu in public messages are added when messages are created)
 
 room.onmessage = (event) => {
-  const chatContent = document.querySelector('.chat-content');
   switch (event.data.type) {
     case 'world-change': {
       // Update friend list entries for the user who changed worlds
@@ -354,7 +371,7 @@ room.onmessage = (event) => {
           e.preventDefault();
           showChatContextMenu(e, username);
         });
-        insertIntoChatContent(messageDiv);
+        throttledInsertMessage(messageDiv);
       }
       break;
     }
@@ -386,4 +403,15 @@ room.onmessage = (event) => {
   }
 };
 
-setInterval(updateOnlineStatus, 3000);
+// Use requestAnimationFrame for visual updates
+function updateUI() {
+  requestAnimationFrame(() => {
+    debouncedUpdateOnlineStatus();
+  });
+}
+
+// Optimize event handlers
+document.addEventListener('scroll', hideAllContextMenus, { passive: true });
+
+// Reduce interval frequency
+setInterval(updateUI, 3000);
