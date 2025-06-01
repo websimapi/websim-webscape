@@ -132,6 +132,21 @@ document.querySelector('#chat-window').appendChild(messageOverlay);
 const messageInput = messageOverlay.querySelector('.add-friend-input');
 const messageUsernameSpan = messageOverlay.querySelector('.message-username');
 
+// Function to handle Escape key for messageOverlay
+function handleMessageOverlayEscape(event) {
+  if (event.key === 'Escape' && messageOverlay.classList.contains('shown')) {
+    hideMessageOverlay();
+  }
+}
+
+// Function to hide the overlay and clean up listeners
+function hideMessageOverlay() {
+  if (messageOverlay.classList.contains('shown')) {
+    messageOverlay.classList.remove('shown');
+    document.removeEventListener('keydown', handleMessageOverlayEscape);
+  }
+}
+
 function showMessageOverlay(username) {
   // Don't allow messaging ignored users
   if (isUserIgnored(username)) {
@@ -142,21 +157,39 @@ function showMessageOverlay(username) {
   messageOverlay.classList.add('shown');
   messageInput.value = '';
   messageInput.focus();
+  
+  // Add Escape key listener when overlay is shown
+  document.addEventListener('keydown', handleMessageOverlayEscape);
 }
 
 // Export the showMessageOverlay globally so it can be used elsewhere
 window.showMessageOverlay = showMessageOverlay;
 
-function setupOverlay(overlay, input) {
+// Renamed setupOverlay to setupChatOverlayBehavior for clarity.
+// This function sets up behaviors for the chat's messageOverlay.
+function setupChatOverlayBehavior(overlay, input) {
   const chatWindow = document.getElementById('chat-window');
+
+  // Listener for clicks on chatWindow parts *not* covered by messageOverlay (e.g., chat tabs)
   chatWindow.addEventListener('click', (e) => {
-    if (!overlay.contains(e.target) && !input.contains(e.target)) {
-      overlay.classList.remove('shown');
+    if (overlay.classList.contains('shown')) {
+      // If the click is on chatWindow but not within the overlay element itself
+      if (!overlay.contains(e.target)) {
+        hideMessageOverlay(); // Use the centralized hide function
+      }
+    }
+  });
+
+  // Listener for clicks directly on the overlay's background
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay && overlay.classList.contains('shown')) {
+      hideMessageOverlay(); // Use the centralized hide function
     }
   });
 }
 
-setupOverlay(messageOverlay, messageInput);
+// Initialize the behavior for messageOverlay
+setupChatOverlayBehavior(messageOverlay, messageInput);
 
 /* --- Helper functions for sorted message insertion --- */
 function insertIntoChatContent(msgDiv) {
@@ -302,7 +335,7 @@ messageInput.addEventListener('keypress', async (e) => {
       insertIntoChatContent(messageDiv);
     }
     
-    messageOverlay.classList.remove('shown');
+    hideMessageOverlay(); // Use centralized hide function
   }
 });
 
@@ -310,8 +343,6 @@ messageInput.addEventListener('keypress', async (e) => {
 const chatContextMenu = document.createElement('div');
 chatContextMenu.className = 'context-menu';
 document.body.appendChild(chatContextMenu);
-
-/* ...existing code... */
 
 function showChatContextMenu(e, username) {
   if (username === room.party.client.username) return;
