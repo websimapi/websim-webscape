@@ -82,10 +82,6 @@
   background: linear-gradient(to bottom, #5a473a, #483428);
 }
 
-.chat-tab.selected {
-  background: linear-gradient(to bottom, #800040, #600030);
-}
-
 /* Message styling */
 .chat-message {
   margin-top: 0px;
@@ -151,22 +147,6 @@
 /* World status styling */
 .world-status:not(.offline) {
   color: #00ff00;
-}
-
-/* World indicator for global chat */
-.world-indicator {
-  color: #00ff00;
-  font-size: 11px;
-  margin-right: 4px;
-  display: inline-block;
-}
-
-.chat-message .world-indicator:first-child:contains("System") {
-  color: #800000;
-}
-
-.chat-message[data-system="true"] .world-indicator {
-  color: #800000;
 }
 
 /* Updated Split Private Chat Container */
