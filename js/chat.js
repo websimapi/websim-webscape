@@ -7,6 +7,26 @@ const privateMessageHistory = [];
 // Track online users
 let onlineUsers = new Set();
 
+// Get ignored users list
+function getIgnoredUsers() {
+  const stored = localStorage.getItem('ignoreList');
+  if (stored) {
+    try {
+      const ignoreList = JSON.parse(stored);
+      return new Set(ignoreList.map(item => item.name));
+    } catch (err) {
+      return new Set();
+    }
+  }
+  return new Set();
+}
+
+// Check if a user is ignored
+function isUserIgnored(username) {
+  const ignoredUsers = getIgnoredUsers();
+  return ignoredUsers.has(username);
+}
+
 // Track current world
 function getCurrentWorld() {
   const currentUrl = document.querySelector('#game-screen iframe').src;
@@ -24,10 +44,13 @@ room.party.subscribe((peers) => {
     usernameElement.textContent = currentUser.username;
   }
   
-  // Update online users
+  // Update online users (excluding ignored users)
   onlineUsers.clear();
   for (const clientId in peers) {
-    onlineUsers.add(peers[clientId].username);
+    const username = peers[clientId].username;
+    if (!isUserIgnored(username)) {
+      onlineUsers.add(username);
+    }
   }
   
   // Update online status in friends list
@@ -80,6 +103,11 @@ const messageInput = messageOverlay.querySelector('.add-friend-input');
 const messageUsernameSpan = messageOverlay.querySelector('.message-username');
 
 function showMessageOverlay(username) {
+  // Don't allow messaging ignored users
+  if (isUserIgnored(username)) {
+    return;
+  }
+  
   messageUsernameSpan.textContent = username;
   messageOverlay.classList.add('shown');
   messageInput.value = '';
@@ -338,23 +366,25 @@ room.onmessage = (event) => {
   const chatContent = document.querySelector('.chat-content');
   switch (event.data.type) {
     case 'world-change': {
-      // Update friend list entries for the user who changed worlds
-      const friendEntries = document.querySelectorAll('.friends-list .list-entry');
-      friendEntries.forEach(entry => {
-        const username = entry.querySelector('.player-name').textContent;
-        const statusElement = entry.querySelector('.world-status');
-        if (username === event.data.username) {
-          if (onlineUsers.has(username)) {
-            statusElement.textContent = event.data.world;
-            statusElement.classList.remove('offline');
+      // Update friend list entries for the user who changed worlds (only if not ignored)
+      if (!isUserIgnored(event.data.username)) {
+        const friendEntries = document.querySelectorAll('.friends-list .list-entry');
+        friendEntries.forEach(entry => {
+          const username = entry.querySelector('.player-name').textContent;
+          const statusElement = entry.querySelector('.world-status');
+          if (username === event.data.username) {
+            if (onlineUsers.has(username)) {
+              statusElement.textContent = event.data.world;
+              statusElement.classList.remove('offline');
+            }
           }
-        }
-      });
+        });
+      }
       break;
     }
     case 'chat': {
-      // For public chat messages from others
-      if (event.data.clientId !== room.party.client.id) {
+      // For public chat messages from others (ignore blocked users)
+      if (event.data.clientId !== room.party.client.id && !isUserIgnored(event.data.username)) {
         // Only display message if it's from the same world
         if (event.data.world === getCurrentWorld()) {
           const username = event.data.username;
@@ -385,8 +415,8 @@ room.onmessage = (event) => {
       break;
     }
     case 'private-message': {
-      // For incoming private messages - these work across worlds
-      if (event.data.recipient === room.party.client.username) {
+      // For incoming private messages - block if sender is ignored
+      if (event.data.recipient === room.party.client.username && !isUserIgnored(event.data.username)) {
         const msgObj = {
           direction: 'from',
           sender: event.data.username,

@@ -86,6 +86,9 @@ function initializeIgnoreList() {
       `;
       ignoreListContainer.appendChild(newIgnore);
       saveIgnoreList();
+      
+      // Trigger a refresh of online users to hide the ignored user
+      window.location.reload();
     } else if (overlay === delIgnoreOverlay) {
       const ignoreEntries = ignoreListContainer.querySelectorAll('.list-entry');
       ignoreEntries.forEach(entry => {
@@ -95,6 +98,9 @@ function initializeIgnoreList() {
         }
       });
       saveIgnoreList();
+      
+      // Trigger a refresh of online users to show the unignored user
+      window.location.reload();
     }
   });
 
@@ -125,6 +131,9 @@ function initializeIgnoreList() {
     if (playerNameElement) {
       playerNameElement.closest('.list-entry').remove();
       saveIgnoreList();
+      
+      // Trigger a refresh of online users to show the unignored user
+      window.location.reload();
     }
   });
 }
