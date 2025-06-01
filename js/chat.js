@@ -165,31 +165,47 @@ function showMessageOverlay(username) {
 // Export the showMessageOverlay globally so it can be used elsewhere
 window.showMessageOverlay = showMessageOverlay;
 
-// Renamed setupOverlay to setupChatOverlayBehavior for clarity.
-// This function sets up behaviors for the chat's messageOverlay.
-function setupChatOverlayBehavior(overlay, input) {
-  const chatWindow = document.getElementById('chat-window');
+// NEW: Global click handler for the message overlay
+// This function handles clicks outside the message overlay to close it.
+function handleDocumentClickForMessageOverlay(event) {
+  // Only act if the message overlay is currently shown
+  if (messageOverlay.classList.contains('shown')) {
+    const dialogContent = messageOverlay.querySelector('.add-friend-container'); // Specific to this overlay's structure
 
-  // Listener for clicks on chatWindow parts *not* covered by messageOverlay (e.g., chat tabs)
-  chatWindow.addEventListener('click', (e) => {
-    if (overlay.classList.contains('shown')) {
-      // If the click is on chatWindow but not within the overlay element itself
-      if (!overlay.contains(e.target)) {
-        hideMessageOverlay(); // Use the centralized hide function
-      }
+    // Check if the click was outside the dialog's content area AND not on the overlay background itself.
+    // Clicks on the overlay background (e.target === messageOverlay) are handled by a separate listener in setupChatOverlayBehavior.
+    if (dialogContent && !dialogContent.contains(event.target) && event.target !== messageOverlay) {
+        
+        // Optional: Prevent closing if the click was on an element that typically opens this overlay.
+        // This is a safeguard. Most triggers (like context menu options) should stop event propagation.
+        const isLikelyTrigger = event.target.closest('.chat-message .username, .list-entry .player-name, .context-menu-option');
+        
+        if (!isLikelyTrigger) {
+            hideMessageOverlay();
+        }
     }
-  });
+  }
+}
+// Add the document click listener when the script loads.
+document.addEventListener('click', handleDocumentClickForMessageOverlay);
 
-  // Listener for clicks directly on the overlay's background
+// REVISED setupChatOverlayBehavior: Removed chatWindow listener and input parameter.
+// The global document click listener (`handleDocumentClickForMessageOverlay`) handles general "click outside".
+function setupChatOverlayBehavior(overlay) { // Removed 'input' parameter
+  // Listener for clicks directly on the overlay's background (the semi-transparent part)
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay && overlay.classList.contains('shown')) {
-      hideMessageOverlay(); // Use the centralized hide function
+      hideMessageOverlay();
     }
   });
+
+  // The chatWindow-specific listener for clicks outside the overlay but inside chatWindow
+  // (e.g., on chat tabs) is now effectively covered by the more general 
+  // `handleDocumentClickForMessageOverlay` listener. No need for it here anymore.
 }
 
 // Initialize the behavior for messageOverlay
-setupChatOverlayBehavior(messageOverlay, messageInput);
+setupChatOverlayBehavior(messageOverlay); // Pass only messageOverlay
 
 /* --- Helper functions for sorted message insertion --- */
 function insertIntoChatContent(msgDiv) {
@@ -564,7 +580,7 @@ room.onmessage = (event) => {
 setInterval(updateOnlineStatus, 3000);
 
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('.context-menu') && !e.target.closest('.player-name')) {
+  if (!e.target.closest('.context-menu') && !e.target.closest('.player-name') && !chatContextMenu.contains(e.target)) { // Added check for chatContextMenu itself
     hideAllContextMenus();
   }
 });
