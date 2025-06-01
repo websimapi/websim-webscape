@@ -78,6 +78,11 @@ function initializeWorlds() {
         
         gameFrame.src = url;
         
+        // Update presence with new world
+        room.updatePresence({
+          world: worldName
+        });
+        
         // Broadcast world change to other users
         room.send({
           type: 'world-change',
@@ -107,6 +112,11 @@ function initializeWorlds() {
 
   // Send initial world info when connecting
   room.party.subscribe(() => {
+    // Update current user's world in presence
+    room.updatePresence({
+      world: getCurrentWorld()
+    });
+    
     room.send({
       type: 'world-change',
       world: getCurrentWorld(),

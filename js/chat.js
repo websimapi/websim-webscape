@@ -4,8 +4,8 @@ const room = new WebsimSocket();
 // Global array to store private message history
 const privateMessageHistory = [];
 
-// Track online users
-let onlineUsers = new Set();
+// Track online users with world information
+let onlineUsers = new Map();
 
 // Get ignored users list
 function getIgnoredUsers() {
@@ -27,6 +27,11 @@ function isUserIgnored(username) {
   return ignoredUsers.has(username);
 }
 
+// Check if a user is online (not ignored)
+function isUserOnline(username) {
+  return onlineUsers.has(username);
+}
+
 // Track current world
 function getCurrentWorld() {
   const currentUrl = document.querySelector('#game-screen iframe').src;
@@ -44,18 +49,45 @@ room.party.subscribe((peers) => {
     usernameElement.textContent = currentUser.username;
   }
   
-  // Update online users (excluding ignored users)
+  // Update online users with world information (excluding ignored users)
   onlineUsers.clear();
   for (const clientId in peers) {
     const username = peers[clientId].username;
+    const worldInfo = peers[clientId].world || 'World-1'; // Default to World-1
     if (!isUserIgnored(username)) {
-      onlineUsers.add(username);
+      onlineUsers.set(username, worldInfo);
     }
   }
   
   // Update online status in friends list
   updateOnlineStatus();
 });
+
+// Function to update ignored users in real-time
+function updateIgnoredUsers() {
+  const ignoredUsers = getIgnoredUsers();
+  
+  // Remove ignored users from onlineUsers
+  for (const [username, world] of onlineUsers.entries()) {
+    if (ignoredUsers.has(username)) {
+      onlineUsers.delete(username);
+    }
+  }
+  
+  // Add previously ignored users back if they're online and no longer ignored
+  for (const clientId in room.party.peers) {
+    const username = room.party.peers[clientId].username;
+    const worldInfo = room.party.peers[clientId].world || 'World-1';
+    if (!ignoredUsers.has(username) && !onlineUsers.has(username)) {
+      onlineUsers.set(username, worldInfo);
+    }
+  }
+  
+  updateOnlineStatus();
+}
+
+// Export function globally
+window.updateIgnoredUsers = updateIgnoredUsers;
 
 // Function to update online status in friends list
 function updateOnlineStatus() {
@@ -67,14 +99,12 @@ function updateOnlineStatus() {
     const statusElement = entry.querySelector('.world-status');
     
     if (onlineUsers.has(username)) {
-      // Only update world name if it's not already set or if status was previously offline
-      if (!statusElement.textContent || statusElement.textContent === 'Offline') {
-        statusElement.textContent = 'World-1'; // Default world
-      }
+      const userWorld = onlineUsers.get(username);
+      statusElement.textContent = userWorld;
       statusElement.classList.remove('offline');
       
       // Update color based on world comparison
-      if (statusElement.textContent === currentWorld) {
+      if (userWorld === currentWorld) {
         statusElement.style.color = '#00ff00'; // Green for same world
       } else {
         statusElement.style.color = '#ffff00'; // Yellow for different world
@@ -220,7 +250,7 @@ messageInput.addEventListener('keypress', async (e) => {
     const message = messageInput.value.trim();
     const recipient = messageUsernameSpan.textContent;
     
-    if (onlineUsers.has(recipient)) {
+    if (isUserOnline(recipient)) {
       room.send({
         type: 'private-message',
         message: message,
@@ -249,7 +279,7 @@ messageInput.addEventListener('keypress', async (e) => {
       const chatContent = document.querySelector('.chat-content');
       const messageDiv = document.createElement('div');
       messageDiv.className = 'chat-message system';
-      const timestamp = Date.now(); // Fix: set timestamp for proper insertion order
+      const timestamp = Date.now();
       messageDiv.setAttribute('data-timestamp', timestamp);
       messageDiv.innerHTML = `Unable to send message - player ${recipient} is offline.`;
       insertIntoChatContent(messageDiv);
@@ -366,19 +396,10 @@ room.onmessage = (event) => {
   const chatContent = document.querySelector('.chat-content');
   switch (event.data.type) {
     case 'world-change': {
-      // Update friend list entries for the user who changed worlds (only if not ignored)
+      // Update user's world information in onlineUsers if not ignored
       if (!isUserIgnored(event.data.username)) {
-        const friendEntries = document.querySelectorAll('.friends-list .list-entry');
-        friendEntries.forEach(entry => {
-          const username = entry.querySelector('.player-name').textContent;
-          const statusElement = entry.querySelector('.world-status');
-          if (username === event.data.username) {
-            if (onlineUsers.has(username)) {
-              statusElement.textContent = event.data.world;
-              statusElement.classList.remove('offline');
-            }
-          }
-        });
+        onlineUsers.set(event.data.username, event.data.world);
+        updateOnlineStatus();
       }
       break;
     }

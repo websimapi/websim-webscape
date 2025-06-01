@@ -87,8 +87,10 @@ function initializeIgnoreList() {
       ignoreListContainer.appendChild(newIgnore);
       saveIgnoreList();
       
-      // Trigger a refresh of online users to hide the ignored user
-      window.location.reload();
+      // Trigger real-time update of ignored user status
+      if (window.updateIgnoredUsers) {
+        window.updateIgnoredUsers();
+      }
     } else if (overlay === delIgnoreOverlay) {
       const ignoreEntries = ignoreListContainer.querySelectorAll('.list-entry');
       ignoreEntries.forEach(entry => {
@@ -99,8 +101,10 @@ function initializeIgnoreList() {
       });
       saveIgnoreList();
       
-      // Trigger a refresh of online users to show the unignored user
-      window.location.reload();
+      // Trigger real-time update of unignored user status
+      if (window.updateIgnoredUsers) {
+        window.updateIgnoredUsers();
+      }
     }
   });
 
@@ -132,8 +136,10 @@ function initializeIgnoreList() {
       playerNameElement.closest('.list-entry').remove();
       saveIgnoreList();
       
-      // Trigger a refresh of online users to show the unignored user
-      window.location.reload();
+      // Trigger real-time update of unignored user status
+      if (window.updateIgnoredUsers) {
+        window.updateIgnoredUsers();
+      }
     }
   });
 }
