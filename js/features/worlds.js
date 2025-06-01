@@ -19,9 +19,13 @@ const worlds = [
 ];
 
 function getCurrentWorld() {
-  const currentUrl = document.querySelector('#game-screen iframe').src;
-  const world = worlds.find(w => w.url === currentUrl);
-  return world ? world.name : 'World-1'; // Default to World-1 if not found
+  const gameFrame = document.querySelector('#game-screen iframe');
+  if (gameFrame && gameFrame.src) {
+    const currentUrl = gameFrame.src;
+    const world = worlds.find(w => w.url === currentUrl);
+    return world ? world.name : 'World-1'; // Default to World-1 if not found
+  }
+  return 'World-1'; // Default if iframe or src is not available
 }
 
 function clearPublicChat() {
@@ -55,16 +59,13 @@ function initializeWorlds() {
     </div>
   `;
 
-  // Add worlds menu to the right panel after minimap section
   const minimapSection = document.getElementById('minimap-section');
   minimapSection.insertAdjacentElement('afterend', worldsMenu);
 
-  // Setup menu toggle
   worldsButton.addEventListener('click', () => {
     toggleMenu(worldsButton, '#worlds-menu');
   });
 
-  // Handle world switching
   const worldsList = worldsMenu.querySelector('.worlds-list');
   worldsList.addEventListener('click', (e) => {
     const worldEntry = e.target.closest('.world-entry');
@@ -73,54 +74,59 @@ function initializeWorlds() {
       const worldName = worldEntry.dataset.world;
       const gameFrame = document.querySelector('#game-screen iframe');
       if (gameFrame && url !== gameFrame.src) {
-        // Clear public chat messages before switching worlds
         clearPublicChat();
-        
         gameFrame.src = url;
         
-        // Update presence with new world
         room.updatePresence({
           world: worldName
         });
         
-        // Broadcast world change to other users
         room.send({
           type: 'world-change',
           world: worldName,
-          username: room.party.client.username
+          // username and clientId are automatically added by websim
         });
         
-        // Update selection visuals
         document.querySelectorAll('.world-entry').forEach(entry => {
           entry.classList.remove('selected');
         });
         worldEntry.classList.add('selected');
 
-        // Hide menu after selection
         worldsMenu.classList.add('hidden');
         worldsButton.classList.remove('selected');
+
+        // Trigger an update of friend list statuses
+        if (window.updateIgnoredUsers) window.updateIgnoredUsers(); // This will also call updateOnlineStatus
       }
     }
   });
 
-  // Highlight current world
-  const currentUrl = document.querySelector('#game-screen iframe').src;
-  const currentWorld = worldsMenu.querySelector(`[data-url="${currentUrl}"]`);
-  if (currentWorld) {
-    currentWorld.classList.add('selected');
+  // Highlight current world on load
+  const gameFrame = document.querySelector('#game-screen iframe');
+  if (gameFrame) {
+      const currentUrl = gameFrame.src;
+      const currentWorldEntry = worldsMenu.querySelector(`.world-entry[data-url="${currentUrl}"]`);
+      if (currentWorldEntry) {
+        currentWorldEntry.classList.add('selected');
+      } else { // If current URL not in list, select first one as default
+          const firstWorldEntry = worldsMenu.querySelector('.world-entry');
+          if (firstWorldEntry) firstWorldEntry.classList.add('selected');
+      }
   }
 
-  // Send initial world info when connecting
-  room.party.subscribe(() => {
-    // Update current user's world in presence
-    room.updatePresence({
-      world: getCurrentWorld()
-    });
-    
+
+  // Send initial world info after room initialization
+  room.initialize().then(() => {
+    const initialWorld = getCurrentWorld();
+    // Ensure presence is updated if it's not already set
+    if (!room.presence[room.clientId]?.world || room.presence[room.clientId].world !== initialWorld) {
+        room.updatePresence({ world: initialWorld });
+    }
+    // Send world change event
+    // username and clientId are automatically added by websim
     room.send({
-      type: 'world-change',
-      world: getCurrentWorld(),
-      username: room.party.client.username
+        type: 'world-change',
+        world: initialWorld,
     });
   });
 }

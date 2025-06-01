@@ -34,33 +34,52 @@ function isUserOnline(username) {
 
 // Track current world
 function getCurrentWorld() {
-  const currentUrl = document.querySelector('#game-screen iframe').src;
-  const worldsMatch = currentUrl.match(/world-(\d+)/);
-  return worldsMatch ? `World-${worldsMatch[1]}` : 'World-1';
+  const gameFrame = document.querySelector('#game-screen iframe');
+  if (gameFrame && gameFrame.src) {
+    const currentUrl = gameFrame.src;
+    const worldsMatch = currentUrl.match(/world-(\d+)/);
+    return worldsMatch ? `World-${worldsMatch[1]}` : 'World-1';
+  }
+  return 'World-1'; // Default if iframe or src is not available
 }
 
 // Get the username element
 const usernameElement = document.getElementById('current-username');
 
 // Update username and online users when connection is established
-room.party.subscribe((peers) => {
-  const currentUser = room.party.client;
-  if (currentUser && currentUser.username) {
-    usernameElement.textContent = currentUser.username;
-  }
-  
-  // Update online users with world information (excluding ignored users)
-  onlineUsers.clear();
-  for (const clientId in peers) {
-    const username = peers[clientId].username;
-    const worldInfo = peers[clientId].world || 'World-1'; // Default to World-1
-    if (!isUserIgnored(username)) {
-      onlineUsers.set(username, worldInfo);
+room.initialize().then(() => {
+  room.subscribePresence((presence) => {
+    const currentUser = room.peers[room.clientId];
+    if (currentUser && currentUser.username) {
+      usernameElement.textContent = currentUser.username;
     }
-  }
-  
-  // Update online status in friends list
-  updateOnlineStatus();
+
+    // Update online users with world information (excluding ignored users)
+    onlineUsers.clear();
+    for (const clientId in room.peers) {
+      const peer = room.peers[clientId];
+      const peerPresence = room.presence[clientId];
+      const username = peer.username;
+      const worldInfo = peerPresence?.world || 'World-1'; // Default to World-1
+      if (!isUserIgnored(username)) {
+        onlineUsers.set(username, worldInfo);
+      }
+    }
+    // Update online status in friends list
+    updateOnlineStatus();
+
+    // Send initial world info
+    if (!room.presence[room.clientId]?.world) {
+        const initialWorld = getCurrentWorld();
+        room.updatePresence({ world: initialWorld });
+        room.send({
+            type: 'world-change',
+            world: initialWorld,
+            username: currentUser.username,
+            clientId: room.clientId,
+        });
+    }
+  });
 });
 
 // Function to update ignored users in real-time
@@ -75,9 +94,10 @@ function updateIgnoredUsers() {
   }
   
   // Add previously ignored users back if they're online and no longer ignored
-  for (const clientId in room.party.peers) {
-    const username = room.party.peers[clientId].username;
-    const worldInfo = room.party.peers[clientId].world || 'World-1';
+  for (const clientId in room.peers) {
+    const username = room.peers[clientId].username;
+    const peerPresence = room.presence[clientId];
+    const worldInfo = peerPresence?.world || 'World-1';
     if (!ignoredUsers.has(username) && !onlineUsers.has(username)) {
       onlineUsers.set(username, worldInfo);
     }
@@ -120,7 +140,7 @@ function updateOnlineStatus() {
 // Create message overlay using the same markup as the Add Friend overlay
 const messageOverlay = document.createElement('div');
 messageOverlay.id = 'message-overlay';
-messageOverlay.className = 'add-friend-overlay';
+messageOverlay.className = 'add-friend-overlay'; // Re-uses styling
 messageOverlay.innerHTML = `
   <div class="add-friend-container">
     <div class="add-friend-text">Enter message to send to <span class="message-username"></span></div>
@@ -165,57 +185,45 @@ function showMessageOverlay(username) {
 // Export the showMessageOverlay globally so it can be used elsewhere
 window.showMessageOverlay = showMessageOverlay;
 
-// NEW: Global click handler for the message overlay
-// This function handles clicks outside the message overlay to close it.
+// Global click handler for the message overlay
 function handleDocumentClickForMessageOverlay(event) {
-  // Only act if the message overlay is currently shown
   if (messageOverlay.classList.contains('shown')) {
-    const dialogContent = messageOverlay.querySelector('.add-friend-container'); // Specific to this overlay's structure
-
-    // Check if the click was outside the dialog's content area AND not on the overlay background itself.
-    // Clicks on the overlay background (e.target === messageOverlay) are handled by a separate listener in setupChatOverlayBehavior.
+    const dialogContent = messageOverlay.querySelector('.add-friend-container');
+    // If click is outside the dialog content and not on the overlay background itself
     if (dialogContent && !dialogContent.contains(event.target) && event.target !== messageOverlay) {
-        
-        // Optional: Prevent closing if the click was on an element that typically opens this overlay.
-        // This is a safeguard. Most triggers (like context menu options) should stop event propagation.
-        const isLikelyTrigger = event.target.closest('.chat-message .username, .list-entry .player-name, .context-menu-option');
-        
-        if (!isLikelyTrigger) {
-            hideMessageOverlay();
-        }
+      // Check if the click was on an element that should NOT close the overlay (e.g., context menu items that might open it)
+      const isContextMenuTrigger = event.target.closest('.context-menu-option');
+      if (!isContextMenuTrigger) {
+          hideMessageOverlay();
+      }
     }
   }
 }
-// Add the document click listener when the script loads.
-document.addEventListener('click', handleDocumentClickForMessageOverlay);
+document.addEventListener('click', handleDocumentClickForMessageOverlay, true); // Use capture to catch clicks early
 
-// REVISED setupChatOverlayBehavior: Removed chatWindow listener and input parameter.
-// The global document click listener (`handleDocumentClickForMessageOverlay`) handles general "click outside".
-function setupChatOverlayBehavior(overlay) { // Removed 'input' parameter
-  // Listener for clicks directly on the overlay's background (the semi-transparent part)
+// Behavior for clicks directly on the overlay background
+function setupChatOverlayBehavior(overlay) {
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay && overlay.classList.contains('shown')) {
       hideMessageOverlay();
     }
   });
-
-  // The chatWindow-specific listener for clicks outside the overlay but inside chatWindow
-  // (e.g., on chat tabs) is now effectively covered by the more general 
-  // `handleDocumentClickForMessageOverlay` listener. No need for it here anymore.
 }
 
 // Initialize the behavior for messageOverlay
-setupChatOverlayBehavior(messageOverlay); // Pass only messageOverlay
+setupChatOverlayBehavior(messageOverlay);
 
-// Add listener to game screen to close message overlay on click
-const gameScreen = document.getElementById('game-screen');
-if (gameScreen) {
-  gameScreen.addEventListener('click', () => {
-    if (messageOverlay.classList.contains('shown')) {
-      hideMessageOverlay();
-    }
-  });
-}
+// Listen for focus changes to close message overlay if iframe gets focus
+window.addEventListener('blur', () => {
+    // A brief timeout allows document.activeElement to update
+    setTimeout(() => {
+        const gameIframe = document.querySelector('#game-screen iframe');
+        if (document.activeElement === gameIframe && messageOverlay.classList.contains('shown')) {
+            hideMessageOverlay();
+        }
+    }, 0);
+}, true); // Use capture to detect blur early
+
 
 /* --- Helper functions for sorted message insertion --- */
 function insertIntoChatContent(msgDiv) {
@@ -249,25 +257,21 @@ function insertIntoSplitChat(msgDiv) {
 }
 
 // Re-render all private messages based on current split-chat mode.
-// When split chat is off, private messages are merged into main chat; when on, they go into the split chat container.
 function renderAllPrivateMessages() {
   const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
   const chatContent = document.querySelector('.chat-content');
-  // Remove any existing private messages from main chat
   const existingPrivate = chatContent.querySelectorAll('.chat-message.private-message');
   existingPrivate.forEach(elem => elem.remove());
   const splitContainer = document.getElementById('split-private-chat');
   if (splitContainer) {
     splitContainer.innerHTML = '';
   }
-  // Re-insert all private messages from history in the order they were received
   privateMessageHistory.forEach(msg => {
     const msgDiv = document.createElement('div');
     msgDiv.className = 'chat-message private-message';
     msgDiv.setAttribute('data-timestamp', msg.timestamp);
     if (msg.direction === 'to') {
       msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
-      // Add click event listener for outgoing messages
       msgDiv.addEventListener('click', (e) => {
         showChatContextMenu(e, msg.recipient);
       });
@@ -277,7 +281,6 @@ function renderAllPrivateMessages() {
       });
     } else {
       msgDiv.innerHTML = `From ${msg.sender}: ${msg.message}`;
-      // Add click event listener for incoming messages
       msgDiv.addEventListener('click', (e) => {
         showChatContextMenu(e, msg.sender);
       });
@@ -303,18 +306,19 @@ chatInput.addEventListener('keypress', (e) => {
     const message = chatInput.value.trim();
     const currentWorld = getCurrentWorld();
     
-    // Send message with current world info
     room.send({
       type: 'chat',
       message: message,
-      world: currentWorld
+      world: currentWorld,
+      // username and clientId are automatically added by websim
     });
     
     const messageDiv = document.createElement('div');
     messageDiv.className = 'chat-message user';
     const timestamp = Date.now();
     messageDiv.setAttribute('data-timestamp', timestamp);
-    messageDiv.innerHTML = `<span class="username">${room.party.client.username}</span><span class="separator">: </span>${message}`;
+    // room.peers[room.clientId].username can be used here
+    messageDiv.innerHTML = `<span class="username">${room.peers[room.clientId]?.username || 'Me'}</span><span class="separator">: </span>${message}`;
     insertIntoChatContent(messageDiv);
     chatInput.value = '';
   }
@@ -330,10 +334,10 @@ messageInput.addEventListener('keypress', async (e) => {
       room.send({
         type: 'private-message',
         message: message,
-        recipient: recipient
+        recipient: recipient,
+        // username and clientId are automatically added by websim
       });
       
-      // Save outgoing private message to history and insert into chat/split container
       const msgObj = {
         direction: 'to',
         recipient: recipient,
@@ -361,24 +365,22 @@ messageInput.addEventListener('keypress', async (e) => {
       insertIntoChatContent(messageDiv);
     }
     
-    hideMessageOverlay(); // Use centralized hide function
+    hideMessageOverlay();
   }
 });
 
-// Create a reusable chat context menu element.
 const chatContextMenu = document.createElement('div');
 chatContextMenu.className = 'context-menu';
 document.body.appendChild(chatContextMenu);
 
 function showChatContextMenu(e, username) {
-  if (username === room.party.client.username) return;
+  if (username === room.peers[room.clientId]?.username) return;
   
   const gameContainer = document.getElementById('client-wrapper');
   const containerBounds = gameContainer.getBoundingClientRect();
   let xPos = e.pageX;
   let yPos = e.pageY;
   
-  // Check if user is on friends list
   const friendEntries = document.querySelectorAll('.friends-list .list-entry');
   const isOnFriendsList = Array.from(friendEntries).some(entry => 
     entry.querySelector('.player-name').textContent === username
@@ -418,16 +420,18 @@ function showChatContextMenu(e, username) {
   const addIgnoreOption = chatContextMenu.querySelector('.add-ignore');
   const cancelOption = chatContextMenu.querySelector('.cancel');
   
+  const eventType = 'click'; // Standard click event
+
   if (messageOption) {
-    messageOption.addEventListener('click', (event) => {
+    messageOption.addEventListener(eventType, (event) => {
       event.stopPropagation();
       showMessageOverlay(username);
       hideAllContextMenus();
-    });
+    }, { once: true });
   }
   
   if (addFriendOption) {
-    addFriendOption.addEventListener('click', (event) => {
+    addFriendOption.addEventListener(eventType, (event) => {
       event.stopPropagation();
       const friendsContainer = document.querySelector('.friends-list .list-container');
       const newFriend = document.createElement('div');
@@ -438,19 +442,18 @@ function showChatContextMenu(e, username) {
       `;
       friendsContainer.appendChild(newFriend);
       
-      // Save to localStorage
       const friendEntries = friendsContainer.querySelectorAll('.list-entry');
       const friendsData = Array.from(friendEntries).map(entry => {
         return { name: entry.querySelector('.player-name').textContent };
       });
       localStorage.setItem('friendsList', JSON.stringify(friendsData));
-      
+      updateOnlineStatus(); // Update status for newly added friend
       hideAllContextMenus();
-    });
+    }, { once: true });
   }
   
   if (removeFriendOption) {
-    removeFriendOption.addEventListener('click', (event) => {
+    removeFriendOption.addEventListener(eventType, (event) => {
       event.stopPropagation();
       const friendEntries = document.querySelectorAll('.friends-list .list-entry');
       friendEntries.forEach(entry => {
@@ -460,63 +463,65 @@ function showChatContextMenu(e, username) {
         }
       });
       
-      // Save to localStorage
       const friendsContainer = document.querySelector('.friends-list .list-container');
       const remainingEntries = friendsContainer.querySelectorAll('.list-entry');
       const friendsData = Array.from(remainingEntries).map(entry => {
         return { name: entry.querySelector('.player-name').textContent };
       });
       localStorage.setItem('friendsList', JSON.stringify(friendsData));
-      
+      updateOnlineStatus(); // Refresh statuses after removal
       hideAllContextMenus();
-    });
+    }, { once: true });
   }
   
   if (addIgnoreOption) {
-    addIgnoreOption.addEventListener('click', (event) => {
+    addIgnoreOption.addEventListener(eventType, (event) => {
       event.stopPropagation();
       const ignoreContainer = document.querySelector('.ignore-list .list-container');
       const newIgnore = document.createElement('div');
       newIgnore.className = 'list-entry';
       newIgnore.innerHTML = `
         <span class="player-name">${username}</span>
-        <span class="world-status offline">Offline</span>
+        <span class="world-status offline">Offline</span> 
       `;
       ignoreContainer.appendChild(newIgnore);
       
-      // Save to localStorage
       const ignoreEntries = ignoreContainer.querySelectorAll('.list-entry');
       const ignoreData = Array.from(ignoreEntries).map(entry => {
         return { name: entry.querySelector('.player-name').textContent };
       });
       localStorage.setItem('ignoreList', JSON.stringify(ignoreData));
       
-      // Update ignored users status
       if (window.updateIgnoredUsers) {
         window.updateIgnoredUsers();
       }
       
       hideAllContextMenus();
-    });
+    }, { once: true });
   }
   
-  cancelOption.addEventListener('click', (event) => {
+  cancelOption.addEventListener(eventType, (event) => {
     event.stopPropagation();
     hideAllContextMenus();
-  });
+  }, { once: true });
 }
 
 function hideAllContextMenus() {
   chatContextMenu.classList.remove('shown');
   chatContextMenu.style.left = '';
   chatContextMenu.style.top = '';
+  
+  // Also hide the friends/ignore list context menu if it exists and is separate
+  const genericContextMenu = document.querySelector('body > .context-menu:not(#\\#)'); // Target the one created by contextMenu.js
+  if (genericContextMenu && genericContextMenu !== chatContextMenu) {
+      genericContextMenu.classList.remove('shown');
+  }
 }
 
 room.onmessage = (event) => {
   const chatContent = document.querySelector('.chat-content');
   switch (event.data.type) {
     case 'world-change': {
-      // Update user's world information in onlineUsers if not ignored
       if (!isUserIgnored(event.data.username)) {
         onlineUsers.set(event.data.username, event.data.world);
         updateOnlineStatus();
@@ -524,9 +529,7 @@ room.onmessage = (event) => {
       break;
     }
     case 'chat': {
-      // For public chat messages from others (ignore blocked users)
-      if (event.data.clientId !== room.party.client.id && !isUserIgnored(event.data.username)) {
-        // Only display message if it's from the same world
+      if (event.data.clientId !== room.clientId && !isUserIgnored(event.data.username)) {
         if (event.data.world === getCurrentWorld()) {
           const username = event.data.username;
           const messageDiv = document.createElement('div');
@@ -535,23 +538,23 @@ room.onmessage = (event) => {
           messageDiv.setAttribute('data-timestamp', timestamp);
           messageDiv.innerHTML = `<span class="username">${username}</span><span class="separator">: </span>${event.data.message}`;
           
-          // Add event listeners for username interactions
           const usernameSpan = messageDiv.querySelector('.username');
-          usernameSpan.addEventListener('click', (e) => {
-            showChatContextMenu(e, username);
-          });
-          usernameSpan.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            showChatContextMenu(e, username);
-          });
+          if (usernameSpan) {
+            usernameSpan.addEventListener('click', (e) => {
+              showChatContextMenu(e, username);
+            });
+            usernameSpan.addEventListener('contextmenu', (e) => {
+              e.preventDefault();
+              showChatContextMenu(e, username);
+            });
+          }
           insertIntoChatContent(messageDiv);
         }
       }
       break;
     }
     case 'private-message': {
-      // For incoming private messages - block if sender is ignored
-      if (event.data.recipient === room.party.client.username && !isUserIgnored(event.data.username)) {
+      if (event.data.recipient === room.peers[room.clientId]?.username && !isUserIgnored(event.data.username)) {
         const msgObj = {
           direction: 'from',
           sender: event.data.username,
@@ -564,7 +567,6 @@ room.onmessage = (event) => {
         msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
         msgDiv.innerHTML = `From ${msgObj.sender}: ${msgObj.message}`;
         
-        // Add click event listener for context menu
         msgDiv.addEventListener('click', (e) => {
           showChatContextMenu(e, msgObj.sender);
         });
@@ -583,14 +585,18 @@ room.onmessage = (event) => {
       break;
     }
     default:
-      console.log("Received event:", event.data);
+      // console.log("Received unhandled event:", event.data);
   }
 };
 
-setInterval(updateOnlineStatus, 3000);
+setInterval(updateOnlineStatus, 5000); // Update status periodically
 
+// Global click listener to hide context menus
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('.context-menu') && !e.target.closest('.player-name') && !chatContextMenu.contains(e.target)) { // Added check for chatContextMenu itself
-    hideAllContextMenus();
-  }
-});
+    // Check if the click is outside any context menu and not on a username that would trigger one
+    if (!e.target.closest('.context-menu') && 
+        !e.target.closest('.player-name') && // For friends/ignore lists
+        !(e.target.classList.contains('username') && e.target.closest('.chat-message'))) { // For chat messages
+      hideAllContextMenus();
+    }
+}, true); // Use capture phase
