@@ -6,15 +6,6 @@ function setupOverlay(overlay, input) {
     }
   });
 
-  // Close overlay when clicking outside the chat window
-  document.addEventListener('click', (e) => {
-    if (overlay.classList.contains('shown') && 
-        !overlay.contains(e.target) && 
-        !e.target.closest('#chat-window')) {
-      overlay.classList.remove('shown');
-    }
-  });
-
   // Handle input submission
   if (input) {
     input.addEventListener('keypress', async (e) => {

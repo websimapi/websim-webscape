@@ -208,8 +208,24 @@ function renderAllPrivateMessages() {
     msgDiv.setAttribute('data-timestamp', msg.timestamp);
     if (msg.direction === 'to') {
       msgDiv.innerHTML = `To ${msg.recipient}: ${msg.message}`;
+      // Add click event listener for outgoing messages
+      msgDiv.addEventListener('click', (e) => {
+        showChatContextMenu(e, msg.recipient);
+      });
+      msgDiv.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        showChatContextMenu(e, msg.recipient);
+      });
     } else {
       msgDiv.innerHTML = `From ${msg.sender}: ${msg.message}`;
+      // Add click event listener for incoming messages
+      msgDiv.addEventListener('click', (e) => {
+        showChatContextMenu(e, msg.sender);
+      });
+      msgDiv.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        showChatContextMenu(e, msg.sender);
+      });
     }
     if (splitPrivate) {
       insertIntoSplitChat(msgDiv);
@@ -218,6 +234,7 @@ function renderAllPrivateMessages() {
     }
   });
 }
+
 window.renderPrivateMessages = renderAllPrivateMessages;
 
 /* --- Chat input for Public messages --- */
@@ -294,11 +311,7 @@ const chatContextMenu = document.createElement('div');
 chatContextMenu.className = 'context-menu';
 document.body.appendChild(chatContextMenu);
 
-// Create a tooltip for hovering over usernames in chat
-const chatUsernameTooltip = document.createElement('div');
-chatUsernameTooltip.className = 'action-tooltip';
-chatUsernameTooltip.style.display = 'none';
-document.body.appendChild(chatUsernameTooltip);
+/* ...existing code... */
 
 function showChatContextMenu(e, username) {
   if (username === room.party.client.username) return;
@@ -308,12 +321,26 @@ function showChatContextMenu(e, username) {
   let xPos = e.pageX;
   let yPos = e.pageY;
   
-  chatContextMenu.innerHTML = `
-    <div class="context-menu-option message">Message ${username}</div>
-    <div class="context-menu-option add-friend">Add Friend ${username}</div>
-    <div class="context-menu-option add-ignore">Add Ignore ${username}</div>
-    <div class="context-menu-option cancel">Cancel</div>
-  `;
+  // Check if user is on friends list
+  const friendEntries = document.querySelectorAll('.friends-list .list-entry');
+  const isOnFriendsList = Array.from(friendEntries).some(entry => 
+    entry.querySelector('.player-name').textContent === username
+  );
+  
+  if (isOnFriendsList) {
+    chatContextMenu.innerHTML = `
+      <div class="context-menu-option message">Message ${username}</div>
+      <div class="context-menu-option remove-friend">Remove Friend ${username}</div>
+      <div class="context-menu-option cancel">Cancel</div>
+    `;
+  } else {
+    chatContextMenu.innerHTML = `
+      <div class="context-menu-option add-friend">Add Friend ${username}</div>
+      <div class="context-menu-option add-ignore">Add Ignore ${username}</div>
+      <div class="context-menu-option cancel">Cancel</div>
+    `;
+  }
+  
   chatContextMenu.classList.add('shown');
   
   const menuBounds = chatContextMenu.getBoundingClientRect();
@@ -330,38 +357,91 @@ function showChatContextMenu(e, username) {
   
   const messageOption = chatContextMenu.querySelector('.message');
   const addFriendOption = chatContextMenu.querySelector('.add-friend');
+  const removeFriendOption = chatContextMenu.querySelector('.remove-friend');
   const addIgnoreOption = chatContextMenu.querySelector('.add-ignore');
   const cancelOption = chatContextMenu.querySelector('.cancel');
   
-  messageOption.addEventListener('click', (event) => {
-    event.stopPropagation();
-    showMessageOverlay(username);
-    hideAllContextMenus();
-  });
+  if (messageOption) {
+    messageOption.addEventListener('click', (event) => {
+      event.stopPropagation();
+      showMessageOverlay(username);
+      hideAllContextMenus();
+    });
+  }
   
-  addFriendOption.addEventListener('click', (event) => {
-    event.stopPropagation();
-    const newFriend = document.createElement('div');
-    newFriend.className = 'list-entry';
-    newFriend.innerHTML = `
-      <span class="player-name">${username}</span>
-      <span class="world-status offline">Offline</span>
-    `;
-    document.querySelector('.friends-list .list-container').appendChild(newFriend);
-    hideAllContextMenus();
-  });
+  if (addFriendOption) {
+    addFriendOption.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const friendsContainer = document.querySelector('.friends-list .list-container');
+      const newFriend = document.createElement('div');
+      newFriend.className = 'list-entry';
+      newFriend.innerHTML = `
+        <span class="player-name">${username}</span>
+        <span class="world-status offline">Offline</span>
+      `;
+      friendsContainer.appendChild(newFriend);
+      
+      // Save to localStorage
+      const friendEntries = friendsContainer.querySelectorAll('.list-entry');
+      const friendsData = Array.from(friendEntries).map(entry => {
+        return { name: entry.querySelector('.player-name').textContent };
+      });
+      localStorage.setItem('friendsList', JSON.stringify(friendsData));
+      
+      hideAllContextMenus();
+    });
+  }
   
-  addIgnoreOption.addEventListener('click', (event) => {
-    event.stopPropagation();
-    const newIgnore = document.createElement('div');
-    newIgnore.className = 'list-entry';
-    newIgnore.innerHTML = `
-      <span class="player-name">${username}</span>
-      <span class="world-status offline">Offline</span>
-    `;
-    document.querySelector('.ignore-list .list-container').appendChild(newIgnore);
-    hideAllContextMenus();
-  });
+  if (removeFriendOption) {
+    removeFriendOption.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const friendEntries = document.querySelectorAll('.friends-list .list-entry');
+      friendEntries.forEach(entry => {
+        const playerName = entry.querySelector('.player-name').textContent;
+        if (playerName === username) {
+          entry.remove();
+        }
+      });
+      
+      // Save to localStorage
+      const friendsContainer = document.querySelector('.friends-list .list-container');
+      const remainingEntries = friendsContainer.querySelectorAll('.list-entry');
+      const friendsData = Array.from(remainingEntries).map(entry => {
+        return { name: entry.querySelector('.player-name').textContent };
+      });
+      localStorage.setItem('friendsList', JSON.stringify(friendsData));
+      
+      hideAllContextMenus();
+    });
+  }
+  
+  if (addIgnoreOption) {
+    addIgnoreOption.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const ignoreContainer = document.querySelector('.ignore-list .list-container');
+      const newIgnore = document.createElement('div');
+      newIgnore.className = 'list-entry';
+      newIgnore.innerHTML = `
+        <span class="player-name">${username}</span>
+        <span class="world-status offline">Offline</span>
+      `;
+      ignoreContainer.appendChild(newIgnore);
+      
+      // Save to localStorage
+      const ignoreEntries = ignoreContainer.querySelectorAll('.list-entry');
+      const ignoreData = Array.from(ignoreEntries).map(entry => {
+        return { name: entry.querySelector('.player-name').textContent };
+      });
+      localStorage.setItem('ignoreList', JSON.stringify(ignoreData));
+      
+      // Update ignored users status
+      if (window.updateIgnoredUsers) {
+        window.updateIgnoredUsers();
+      }
+      
+      hideAllContextMenus();
+    });
+  }
   
   cancelOption.addEventListener('click', (event) => {
     event.stopPropagation();
@@ -374,23 +454,6 @@ function hideAllContextMenus() {
   chatContextMenu.style.left = '';
   chatContextMenu.style.top = '';
 }
-
-function showUsernameHoverTooltip(e, username) {
-  if (username === room.party.client.username) return;
-  chatUsernameTooltip.textContent = `Add Friend / 1 more option`;
-  chatUsernameTooltip.style.display = 'block';
-  const gameScreen = document.getElementById('game-screen');
-  const gameRect = gameScreen.getBoundingClientRect();
-  chatUsernameTooltip.style.top = `${gameRect.top + 5}px`;
-  chatUsernameTooltip.style.left = `${gameRect.left + 5}px`;
-}
-
-function hideUsernameHoverTooltip() {
-  chatUsernameTooltip.style.display = 'none';
-}
-
-const chatUsernameElements = document.querySelectorAll('.chat-message .username');
-// (Event listeners for username hover and context menu in public messages are added when messages are created)
 
 room.onmessage = (event) => {
   const chatContent = document.querySelector('.chat-content');
@@ -420,12 +483,6 @@ room.onmessage = (event) => {
           usernameSpan.addEventListener('click', (e) => {
             showChatContextMenu(e, username);
           });
-          usernameSpan.addEventListener('mouseover', (e) => {
-            showUsernameHoverTooltip(e, username);
-          });
-          usernameSpan.addEventListener('mouseout', (e) => {
-            hideUsernameHoverTooltip();
-          });
           usernameSpan.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             showChatContextMenu(e, username);
@@ -449,6 +506,16 @@ room.onmessage = (event) => {
         msgDiv.className = 'chat-message private-message';
         msgDiv.setAttribute('data-timestamp', msgObj.timestamp);
         msgDiv.innerHTML = `From ${msgObj.sender}: ${msgObj.message}`;
+        
+        // Add click event listener for context menu
+        msgDiv.addEventListener('click', (e) => {
+          showChatContextMenu(e, msgObj.sender);
+        });
+        msgDiv.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          showChatContextMenu(e, msgObj.sender);
+        });
+        
         const splitPrivate = localStorage.getItem('splitPrivateChat') === 'true';
         if (splitPrivate) {
           insertIntoSplitChat(msgDiv);
@@ -464,3 +531,9 @@ room.onmessage = (event) => {
 };
 
 setInterval(updateOnlineStatus, 3000);
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.context-menu') && !e.target.closest('.player-name')) {
+    hideAllContextMenus();
+  }
+});
