@@ -207,6 +207,16 @@ function setupChatOverlayBehavior(overlay) { // Removed 'input' parameter
 // Initialize the behavior for messageOverlay
 setupChatOverlayBehavior(messageOverlay); // Pass only messageOverlay
 
+// Add listener to game screen to close message overlay on click
+const gameScreen = document.getElementById('game-screen');
+if (gameScreen) {
+  gameScreen.addEventListener('click', () => {
+    if (messageOverlay.classList.contains('shown')) {
+      hideMessageOverlay();
+    }
+  });
+}
+
 /* --- Helper functions for sorted message insertion --- */
 function insertIntoChatContent(msgDiv) {
   const chatContent = document.querySelector('.chat-content');
