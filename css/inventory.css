@@ -3,16 +3,20 @@
   flex: 1;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 2px;
-  padding: 4px;
+  grid-template-rows: repeat(7, 1fr);
+  gap: 1px;
+  padding: 6px 10px;
   background: #382418;
-  height: 200px;
   margin-top: 4px;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 0;
 }
 
 .inventory-slot {
-  width: 46px;
-  height: 28px;
+  width: 100%;
+  height: 100%;
   background: #474745;
   border: 1px solid #000;
   border-radius: 2px;

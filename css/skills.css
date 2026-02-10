@@ -1,15 +1,17 @@
 #skills-menu {
   position: relative;
-  width: calc(100% - 8px);
+  width: 100%;
   background: #382418;
   padding: 4px;
   display: none;
   margin-top: 4px;
-  height: calc(100% - 276px);
+  flex: 1;
+  box-sizing: border-box;
 }
 
 #skills-menu.shown {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 .skills-content {
@@ -23,14 +25,14 @@
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
+  gap: 1px;
   padding: 0;
   margin: 0;
 }
 
 .skill-slot {
   width: calc(100% - 3px);
-  height: 24px;
+  height: 22px;
   background: #474745;
   border: 1px solid #000;
   display: flex;
@@ -81,13 +83,14 @@
 .stats-summary {
   background: #000;
   margin-top: 2px;
-  height: 40px;
+  height: 28px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px;
+  gap: 0px;
   font-size: 12px;
   color: #ffff00;
   text-align: center;
+  line-height: 1;
 }
 
 .stats-item {
@@ -113,6 +116,8 @@
   grid-column: 2;
   text-align: left;
   padding-left: 8px;
+  display: flex;
+  align-items: center;
 }
 
 .stats-item.hover-state {

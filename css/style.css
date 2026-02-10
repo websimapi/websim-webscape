@@ -51,6 +51,7 @@ body {
   border: 2px solid #000;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 /* Unified icon styling for both minimap and bottom icons */
@@ -89,15 +90,17 @@ body {
 /* Bottom icons container */
 #bottom-icons {
   height: 36px;
+  width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   padding: 4px;
   background: #382418;
   border-top: 2px solid #000;
   margin-top: auto;
   order: 100;
-  flex-shrink: 0;
+  flex: 0 0 36px;
+  box-sizing: border-box;
 }
 
 /* Adjust spacing between bottom icons */
@@ -123,13 +126,14 @@ body {
 #logout-popup {
   position: relative;
   width: 100%;
-  height: 187px;
   background: #382418;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 8px 0;
+  padding: 4px;
   margin-top: 4px;
+  flex: 1;
+  box-sizing: border-box;
 }
 
 #logout-popup.hidden {
@@ -141,8 +145,13 @@ body {
   border: 2px solid #5a473a;
   padding: 12px;
   text-align: center;
-  width: 85%;
-  max-width: 180px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .popup-content p {
@@ -171,21 +180,25 @@ body {
 /* Friends and Ignore List styling */
 .friends-list, .ignore-list {
   position: relative;
-  width: calc(100% - 8px);
+  width: 100%;
   background: #382418;
   padding: 4px;
   display: none;
   margin-top: 4px;
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
 }
 
 .friends-list.shown, .ignore-list.shown {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 .list-container {
   background: #474745;
   border: 2px solid #5a473a;
-  height: 177px;
+  flex: 1;
   overflow-y: auto;
 }
 
@@ -388,23 +401,29 @@ body {
 /* Game Options Menu */
 #game-options {
   position: relative;
-  width: calc(100% - 8px);
+  width: 100%;
   background: #382418;
   border: none;
   padding: 4px;
   font-family: 'RuneScape UF', 'RuneScape', sans-serif;
   display: none;
   margin-top: 4px;
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
 }
 
 #game-options.shown {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 .game-options-content {
   background: #474745;
   border: 2px solid #5a473a;
   padding: 6px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .game-options-title {
@@ -474,23 +493,26 @@ body {
 /* Update Quest Journal styles */
 #quest-journal {
   position: relative;
-  width: calc(100% - 8px);
+  width: 100%;
   background: #382418;
   padding: 4px;
   display: none;
   margin-top: 4px;
-  height: calc(100% - 276px);
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
 }
 
 #quest-journal.shown {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 .quest-journal-content {
   background: #474745;
   border: 2px solid #5a473a;
   padding: 6px;
-  height: calc(100% - 11px);
+  flex: 1;
   overflow-y: auto;
 }
 
@@ -585,16 +607,18 @@ body {
 /* World Selector Menu */
 #worlds-menu {
   position: relative;
-  width: calc(100% - 8px);
+  width: 100%;
   background: #382418;
   padding: 4px;
   display: none;
   margin-top: 4px;
-  height: calc(100% - 276px);
+  flex: 1;
+  box-sizing: border-box;
 }
 
 #worlds-menu.shown {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 .worlds-content {
