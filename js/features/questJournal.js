@@ -1,6 +1,21 @@
 import { toggleMenu } from './menuManager.js';
 
+function renderQuestJournal() {
+  const panel = document.createElement('div');
+  panel.id = 'quest-journal';
+  panel.className = 'hidden';
+  panel.innerHTML = `
+    <div class="quest-journal-title">Quest Journal</div>
+    <div class="quest-journal-content">
+      <!-- Quest entries will be populated dynamically -->
+    </div>
+  `;
+  document.getElementById('right-panel').appendChild(panel);
+}
+
 function initializeQuestJournal() {
+  renderQuestJournal();
+
   const questButton = document.querySelector('.icon.quest');
   const questJournal = document.getElementById('quest-journal');
 

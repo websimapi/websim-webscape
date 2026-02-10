@@ -1,6 +1,15 @@
 import { toggleMenu } from './menuManager.js';
 
+function renderInventory() {
+  const panel = document.createElement('div');
+  panel.id = 'inventory';
+  panel.className = 'hidden';
+  document.getElementById('right-panel').appendChild(panel);
+}
+
 function initializeInventory() {
+  renderInventory();
+
   const chestIcon = document.querySelector('.icon.chest');
   const inventoryContainer = document.getElementById('inventory');
 

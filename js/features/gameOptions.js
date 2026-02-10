@@ -1,7 +1,80 @@
 import { toggleMenu } from './menuManager.js';
 import { setMusicVolume } from './musicMenu.js';
 
+function renderGameOptions() {
+  const panel = document.createElement('div');
+  panel.id = 'game-options';
+  panel.className = 'hidden';
+  panel.innerHTML = `
+    <div class="game-options-content">
+      <div class="game-options-title">Game Options</div>
+
+      <div class="game-options-section">
+        <div class="game-options-header">Screen Brightness</div>
+        <div class="game-options-buttons">
+          <button type="button">Dark</button>
+          <button type="button">Normal</button>
+          <button type="button">Bright</button>
+          <button type="button">V-Bright</button>
+        </div>
+      </div>
+
+      <div class="game-options-section">
+        <div class="game-options-two-column">
+          <div class="game-options-column">
+            <div class="game-options-header">Mouse Buttons</div>
+            <div class="game-options-buttons">
+              <button type="button">One</button>
+              <button type="button">Two</button>
+            </div>
+          </div>
+          <div class="game-options-column">
+            <div class="game-options-header">Chat Effects</div>
+            <div class="game-options-buttons">
+              <button type="button">On</button>
+              <button type="button">Off</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-options-section" id="split-private-chat-section">
+        <div class="game-options-header">Split Private-chat</div>
+        <div class="game-options-buttons">
+          <button type="button" class="selected">Off</button>
+          <button type="button">On</button>
+        </div>
+      </div>
+
+      <div class="game-options-section" id="music-volume-section">
+        <div class="game-options-header">Music Volume</div>
+        <div class="game-options-buttons">
+          <button type="button">Off</button>
+          <button type="button">1</button>
+          <button type="button">2</button>
+          <button type="button">3</button>
+          <button type="button">4</button>
+        </div>
+      </div>
+
+      <div class="game-options-section">
+        <div class="game-options-header">Effect Volume</div>
+        <div class="game-options-buttons">
+          <button type="button">Off</button>
+          <button type="button">1</button>
+          <button type="button">2</button>
+          <button type="button">3</button>
+          <button type="button">4</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('right-panel').appendChild(panel);
+}
+
 function initializeGameOptions() {
+  renderGameOptions();
+  
   const gameOptionsButton = document.querySelector('.bottom-icon.game-options-button');
   const gameOptionsPanel = document.getElementById('game-options');
 

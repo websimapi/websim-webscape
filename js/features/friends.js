@@ -3,7 +3,48 @@ import { showContextMenu, hideContextMenu } from '../ui/contextMenu.js';
 import { setupOverlay } from '../ui/overlays.js';
 import { toggleMenu } from './menuManager.js';
 
+function renderFriendsList() {
+  // Render Main Panel
+  const panel = document.createElement('div');
+  panel.className = 'friends-list';
+  panel.innerHTML = `
+    <div class="list-container">
+      <!-- Empty container - friends will be added dynamically -->
+    </div>
+    <div class="list-buttons">
+      <button class="list-button">Add Friend</button>
+      <button class="list-button">Del Friend</button>
+    </div>
+  `;
+  document.getElementById('right-panel').appendChild(panel);
+
+  // Render Overlays
+  const chatWindow = document.getElementById('chat-window');
+  
+  const addOverlay = document.createElement('div');
+  addOverlay.id = 'add-friend-overlay';
+  addOverlay.innerHTML = `
+    <div class="add-friend-container">
+      <div class="add-friend-text">Enter name of friend to add to list</div>
+      <input type="text" class="add-friend-input" maxlength="12" />
+    </div>
+  `;
+  chatWindow.appendChild(addOverlay);
+
+  const delOverlay = document.createElement('div');
+  delOverlay.id = 'del-friend-overlay';
+  delOverlay.innerHTML = `
+    <div class="del-friend-container">
+      <div class="del-friend-text">Enter name of friend to delete from list</div>
+      <input type="text" class="del-friend-input" maxlength="12" />
+    </div>
+  `;
+  chatWindow.appendChild(delOverlay);
+}
+
 function initializeFriendsList() {
+  renderFriendsList();
+
   const friendsButton = document.querySelector('.bottom-icon:nth-child(2)');
   const friendsList = document.querySelector('.friends-list');
   const addFriendButton = document.querySelector('.friends-list .list-button:first-child');

@@ -1,6 +1,23 @@
 import { toggleMenu } from './menuManager.js';
 
+function renderSpellbook() {
+  const panel = document.createElement('div');
+  panel.id = 'spellbook';
+  panel.className = 'hidden';
+  panel.innerHTML = `
+    <div class="spellbook-content">
+      <div class="spellbook-grid">
+        <!-- Spell slots will be generated dynamically -->
+      </div>
+      <!-- Description box will be added dynamically -->
+    </div>
+  `;
+  document.getElementById('right-panel').appendChild(panel);
+}
+
 function initializeSpellbook() {
+  renderSpellbook();
+
   const spellbookButton = document.querySelector('.icon:nth-child(7)');
   const spellbook = document.getElementById('spellbook');
 

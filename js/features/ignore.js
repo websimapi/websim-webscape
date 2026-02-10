@@ -2,7 +2,48 @@ import { addTooltip, tooltip } from '../ui/tooltips.js';
 import { setupOverlay } from '../ui/overlays.js';
 import { toggleMenu } from './menuManager.js';
 
+function renderIgnoreList() {
+  // Render Main Panel
+  const panel = document.createElement('div');
+  panel.className = 'ignore-list';
+  panel.innerHTML = `
+    <div class="list-container">
+      <!-- Empty container - ignored users will be added dynamically -->
+    </div>
+    <div class="list-buttons">
+      <button class="list-button">Add Name</button>
+      <button class="list-button">Del Name</button>
+    </div>
+  `;
+  document.getElementById('right-panel').appendChild(panel);
+
+  // Render Overlays
+  const chatWindow = document.getElementById('chat-window');
+  
+  const addOverlay = document.createElement('div');
+  addOverlay.id = 'add-ignore-overlay';
+  addOverlay.innerHTML = `
+    <div class="add-friend-container">
+      <div class="add-friend-text">Enter name to add to ignore list</div>
+      <input type="text" class="add-friend-input" maxlength="12" />
+    </div>
+  `;
+  chatWindow.appendChild(addOverlay);
+
+  const delOverlay = document.createElement('div');
+  delOverlay.id = 'del-ignore-overlay';
+  delOverlay.innerHTML = `
+    <div class="del-friend-container">
+      <div class="del-friend-text">Enter name to delete from ignore list</div>
+      <input type="text" class="del-friend-input" maxlength="12" />
+    </div>
+  `;
+  chatWindow.appendChild(delOverlay);
+}
+
 function initializeIgnoreList() {
+  renderIgnoreList();
+
   const ignoreButton = document.querySelector('.bottom-icon:nth-child(3)');
   const ignoreList = document.querySelector('.ignore-list');
   const addIgnoreButton = document.querySelector('.ignore-list .list-button:first-child');

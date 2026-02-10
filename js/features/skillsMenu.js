@@ -1,7 +1,5 @@
 import { toggleMenu } from './menuManager.js';
-
-// Initialize WebSocket connection
-const room = new WebsimSocket();
+import { room } from '../network.js';
 
 // Initialize skills data with 21 skills in the specified order and add XP info
 const skills = [
@@ -28,7 +26,28 @@ const skills = [
   { name: 'Farming', level: 1, maxLevel: 1, icon: '🌱', xp: 0, nextLevel: 83 }
 ];
 
+function renderSkillsMenu() {
+  const panel = document.createElement('div');
+  panel.id = 'skills-menu';
+  panel.className = 'hidden';
+  panel.innerHTML = `
+    <div class="skills-content">
+      <div class="skills-grid">
+        <!-- Skills will be populated dynamically -->
+      </div>
+      <div class="stats-summary">
+        <div class="stats-item">QP: 0</div>
+        <div class="stats-item">Combat Lvl: 3</div>
+        <div class="stats-item">Total Lvl: 0</div>
+      </div>
+    </div>
+  `;
+  document.getElementById('right-panel').appendChild(panel);
+}
+
 function initializeSkillsMenu() {
+  renderSkillsMenu();
+
   const skillsButton = document.querySelector('.icon.skills');
   const skillsMenu = document.getElementById('skills-menu');
 

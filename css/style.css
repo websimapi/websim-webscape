@@ -96,6 +96,8 @@ body {
   background: #382418;
   border-top: 2px solid #000;
   margin-top: auto;
+  order: 100;
+  flex-shrink: 0;
 }
 
 /* Adjust spacing between bottom icons */

@@ -1,7 +1,5 @@
 import { toggleMenu } from './menuManager.js';
-
-// Initialize WebSocket connection
-const room = new WebsimSocket();
+import { room } from '../network.js';
 
 // Track audio state
 let currentAudio = null;
@@ -263,7 +261,29 @@ async function playTrack(track, trackElement, trackList) {
   }
 }
 
+function renderMusicMenu() {
+  const panel = document.createElement('div');
+  panel.id = 'music-menu';
+  panel.className = 'hidden';
+  panel.innerHTML = `
+    <div class="music-content">
+      <div class="music-header">
+        <h3 class="title">Music Player</h3>
+        <p class="track">Playing: No track</p>
+        <div class="music-buttons">
+          <button class="music-auto">AUTO</button>
+          <button class="music-manual">MAN</button>
+        </div>
+      </div>
+      <p>Click the tune to play.</p>
+    </div>
+  `;
+  document.getElementById('right-panel').appendChild(panel);
+}
+
 function initializeMusicMenu() {
+  renderMusicMenu();
+
   const musicButton = document.querySelector('.bottom-icon.music');
   const musicMenu = document.getElementById('music-menu');
   const musicContent = musicMenu.querySelector('.music-content');
