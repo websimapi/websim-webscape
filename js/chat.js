@@ -35,7 +35,7 @@ function isUserOnline(username) {
 // Track current world
 function getCurrentWorld() {
   const currentUrl = document.querySelector('#game-screen iframe').src;
-  const worldsMatch = currentUrl.match(/world-(\d+)/);
+  const worldsMatch = currentUrl.match(/world-?(\d+)/);
   return worldsMatch ? `World-${worldsMatch[1]}` : 'World-1';
 }
 

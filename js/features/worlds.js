@@ -7,13 +7,13 @@ const worlds = [
   {
     id: 1,
     name: "World-1",
-    url: "https://world-1--api.on.websim.com/?pin_sidebar=false",
+    url: "https://world1.on.websim.com/?pin_sidebar=false",
     location: "Test world one"
   },
   {
     id: 2, 
     name: "World-3",
-    url: "https://world-3--api.on.websim.com/?pin_sidebar=false",
+    url: "https://world3.on.websim.com/?pin_sidebar=false",
     location: "Test world three"
   }
 ];
